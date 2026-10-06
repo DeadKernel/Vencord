@@ -19,7 +19,7 @@ import { channelIcon, guildIcon, Square } from "./avatars";
 import { Column } from "./Column";
 import {
     addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
-navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, presenceWord, PrivateChannelReadStateStore,
+moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, presenceWord, PrivateChannelReadStateStore,
     removeFavorite, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
@@ -340,6 +340,50 @@ function MessagesSection() {
     );
 }
 
+// ── Drag to reorder servers and folders ──
+// A 2px line shows where it lands (above or below the row under the pointer); the dragged row dims.
+
+type DropAt = { id: string; below: boolean; } | null;
+
+function useServerDrag() {
+    const [dragging, setDragging] = useState<string | null>(null);
+    const [drop, setDrop] = useState<DropAt>(null);
+    // refs, not just state: dragover and drop can arrive before React has re-rendered
+    const src = useRef<string | null>(null);
+    const at = useRef<DropAt>(null);
+    const end = () => { src.current = null; at.current = null; setDragging(null); setDrop(null); };
+    const props = (id: string) => ({
+        draggable: true,
+        "data-dk-drag": dragging === id || undefined,
+        "data-dk-drop": drop?.id === id ? (drop.below ? "below" : "above") : undefined,
+        onDragStart: (e: React.DragEvent) => {
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/x-dk-server", id);
+            src.current = id;
+            setDragging(id);
+        },
+        onDragOver: (e: React.DragEvent) => {
+            if (!src.current || src.current === id) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            const below = e.clientY > r.top + r.height / 2;
+            if (at.current?.id !== id || at.current.below !== below) setDrop(at.current = { id, below });
+        },
+        onDragLeave: (e: React.DragEvent) => {
+            if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) setDrop(d => d?.id === id ? null : d);
+        },
+        onDrop: (e: React.DragEvent) => {
+            e.preventDefault();
+            const from = src.current ?? e.dataTransfer.getData("text/x-dk-server");
+            if (from && from !== id) moveServer(from, id, at.current?.id === id ? at.current.below : false);
+            end();
+        },
+        onDragEnd: end
+    });
+    return props;
+}
+
 function ServersSection() {
     const folders = useFolders();
     const { openFolders, collapseMuted } = settings.use(["openFolders", "collapseMuted"]);
@@ -349,21 +393,24 @@ function ServersSection() {
     [folders, collapseMuted], sameList);
     const [showTucked, setShowTucked] = useState(false);
     const tuckedSet = new Set(tucked);
+    const drag = useServerDrag();
 
     return (
         <Section id="servers" label="Servers" aside={<button className="dk-sb-iconlink" onClick={openAddServer} data-dk-nav data-dk-action="add-server" aria-label="Add a server" title="Add a server: create one, or join with an invite"><Icon name="plus" size={16} /></button>}>
             {folders.map(folder => {
                 if (!folder.folderId) {
                     const id = folder.guildIds[0];
-                    return tuckedSet.has(id) && !showTucked ? null : <GuildRow key={id} guildId={id} />;
+                    return tuckedSet.has(id) && !showTucked ? null : <div key={id} className="dk-sb-drag" {...drag(id)}><GuildRow guildId={id} /></div>;
                 }
                 const key = String(folder.folderId);
                 const open = !!openFolders[key];
                 return (
                     <div key={key} className="dk-sb-folder" data-open={open || undefined}>
-                        <FolderRow folder={folder} open={open}
-                            onToggle={() => settings.store.openFolders = { ...settings.store.openFolders, [key]: !open }} />
-                        {open && folder.guildIds.map(id => <GuildRow key={id} guildId={id} />)}
+                        <div className="dk-sb-drag" {...drag(key)}>
+                            <FolderRow folder={folder} open={open}
+                                onToggle={() => settings.store.openFolders = { ...settings.store.openFolders, [key]: !open }} />
+                        </div>
+                        {open && folder.guildIds.map(id => <div key={id} className="dk-sb-drag" {...drag(id)}><GuildRow guildId={id} /></div>)}
                     </div>
                 );
             })}

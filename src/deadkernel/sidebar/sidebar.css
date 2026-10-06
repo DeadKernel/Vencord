@@ -466,8 +466,35 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     color: var(--dk-text-2);
 }
 
-.dk-sb-folder[data-open] > .dk-sb-row:not(:first-child) {
+.dk-sb-folder[data-open] > .dk-sb-drag:not(:first-child) > .dk-sb-row {
     padding-left: 24px !important;
+}
+
+/* drag to reorder: the dragged row dims, a 2px accent line marks where it lands */
+.dk-sb-drag {
+    position: relative;
+}
+
+.dk-sb-drag[data-dk-drag] {
+    opacity: 0.4;
+}
+
+.dk-sb-drag[data-dk-drop]::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: var(--dk-accent);
+    pointer-events: none;
+}
+
+.dk-sb-drag[data-dk-drop="above"]::after {
+    top: -1px;
+}
+
+.dk-sb-drag[data-dk-drop="below"]::after {
+    bottom: -1px;
 }
 
 /* ── Quiet things ── */

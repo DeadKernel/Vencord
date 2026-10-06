@@ -344,6 +344,16 @@ export function openGuild(guildId: string) {
     else NavigationRouter.transitionToGuild(guildId);
 }
 
+const GuildMoveActions = findByPropsLazy("moveById", "createGuildFolderLocal");
+
+/** Drag to reorder servers: Discord's own move (what its rail does on drop), which also saves the
+ * order to his account. `targetId` is a server or folder id; inside an open folder, into it. */
+export function moveServer(sourceId: string, targetId: string, below: boolean) {
+    if (sourceId === targetId) return;
+    track("server_move");
+    GuildMoveActions.moveById(sourceId, targetId, below, false);
+}
+
 const GuildCreateActions = findByPropsLazy("openCreateGuildModal");
 /** Discord's "Add a Server" (create, or join with an invite): the rail's + button, which is gone */
 export function openAddServer() {

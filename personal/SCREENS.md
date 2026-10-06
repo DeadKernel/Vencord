@@ -181,3 +181,11 @@ It's a social app; he asked for some pizzazz.
   The yellow count chip is the only yellow in the sidebar. Favorites keeps the channel as one row
   ("N in call") instead of listing members twice.
 
+## 8. Drag to reorder servers (2026-10-06)
+
+Servers and folders in the sidebar drag like Discord's rail: the dragged row dims and a 2px accent
+line shows where it lands (above or below the row under the pointer). Dropping calls Discord's own
+`GuildActionCreators.moveById` (what the rail does), so the order saves to his account and syncs
+like any Discord change; dropping on a server inside an open folder moves it into the folder.
+Folders themselves move the same way. No folder creation by dropping (yet).
+

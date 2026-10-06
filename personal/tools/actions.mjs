@@ -84,6 +84,7 @@ await js(`
 	intercept(W.findByProps("saveUserGuildSettingsBulk"), "saveUserGuildSettingsBulk", "guildSettingsBulk");
 	intercept(W.findByProps("openCreateGuildModal"), "openCreateGuildModal", "createGuild");
 	intercept(C.ChannelActionCreators, "openPrivateChannel", "openDmNew");
+	intercept(W.findByProps("moveById", "createGuildFolderLocal"), "moveById", "moveServer");
 	const N = C.NavigationRouter;
 	for (const k of ["transitionTo", "transitionToGuild"]) {
 		const orig = N[k];
@@ -209,6 +210,22 @@ try {
 	const serverRow = `[...document.querySelectorAll('.dk-layer-top .dk-sb-section')].find(s => s.querySelector(".dk-sb-label-toggle")?.textContent === "Servers")?.querySelector(".dk-sb-row[data-dk-id]")`;
 	await js(`${serverRow}?.click()`);
 	check("server row opens the server", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
+	// drag a server below the next one (Discord's move is recorded, not performed)
+	const dragged = await js(`
+		const rows = [...document.querySelectorAll(".dk-layer-top .dk-sb-drag")].filter(r => r.querySelector("[data-dk-id]"));
+		const [a, b] = rows; const tick = () => new Promise(r => setTimeout(r, 50));
+		const dt = new DataTransfer();
+		a.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: dt })); await tick();
+		const r = b.getBoundingClientRect(), y = r.bottom - 3;
+		b.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt, clientY: y })); await tick();
+		const line = b.dataset.dkDrop, dim = !!a.dataset.dkDrag;
+		b.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt, clientY: y }));
+		a.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: dt })); await tick();
+		return { line, dim, a: a.querySelector("[data-dk-id]").dataset.dkId, b: b.querySelector("[data-dk-id]").dataset.dkId, left: !!document.querySelector("[data-dk-drag], [data-dk-drop]") };`);
+	check("dragging a server dims it and shows where it lands", dragged.dim && dragged.line === "below", JSON.stringify(dragged));
+	r = await rec();
+	check("dropping it moves it through Discord's own move", recHas(r, "moveServer", a => a[0] === dragged.a && a[1] === dragged.b && a[2] === true), JSON.stringify(r));
+	check("…and leaves nothing dimmed or marked", !dragged.left);
 	const older = `[...document.querySelectorAll(".dk-layer-top .dk-sb-more")].find(b => b.textContent.startsWith("Older conversations"))`;
 	if (await js(`return !!${older}`)) {
 		const before = await js(`return document.querySelectorAll(".dk-layer-top .dk-sb-row").length`);
