@@ -7,11 +7,11 @@
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin from "@utils/types";
-import { Channel, User } from "@vencord/discord-types";
-import { ChannelStore, Menu } from "@webpack/common";
+import { Channel, Guild, User } from "@vencord/discord-types";
+import { ChannelStore, Menu, ReadStateStore } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
-import { addFavorite, applyAttr, isFavorite, removeFavorite, settings } from "./data";
+import { addFavorite, applyAttr, guildChannelIds, isFavorite, markRead, removeFavorite, settings } from "./data";
 import { Breadcrumb, Toolbar } from "./Header";
 import { Home } from "./Home";
 import { Palette } from "./Palette";
@@ -62,6 +62,14 @@ function favoriteItem(id?: string) {
 const channelMenu: NavContextMenuPatchCallback = (children, { channel }: { channel?: Channel; }) => {
     const item = favoriteItem(channel?.id);
     if (item) children.push(<Menu.MenuSeparator />, item);
+};
+
+// Discord's server menu has no "Mark as read" (only the rail icon's menu does, and the rail is gone)
+const guildHeaderMenu: NavContextMenuPatchCallback = (children, { guild }: { guild?: Guild; }) => {
+    if (!guild) return;
+    const ids = guildChannelIds(guild.id);
+    if (!ids.some(id => ReadStateStore.hasUnread(id) || ReadStateStore.getMentionCount(id) > 0)) return;
+    children.unshift(<Menu.MenuItem id="dk-mark-read" label="Mark as read" action={() => markRead(ids)} />, <Menu.MenuSeparator />);
 };
 
 const userMenu: NavContextMenuPatchCallback = (children, { user, channel }: { user?: User; channel?: Channel; }) => {
@@ -133,7 +141,8 @@ export default definePlugin({
         "channel-context": channelMenu,
         "thread-context": channelMenu,
         "gdm-context": channelMenu,
-        "user-context": userMenu
+        "user-context": userMenu,
+        "guild-header-popout": guildHeaderMenu
     },
 
     RailGate,

@@ -31,11 +31,12 @@ function Star({ channel }: { channel: Channel; }) {
     );
 }
 
-/** Discord's header toolbar items, with our star in front. */
+/** Discord's header toolbar items, with our star last: Discord's buttons only show on hover, so a
+ * star in front of them would float mid-header. */
 export function Toolbar(items: ReactNode, channel?: Channel) {
     try {
         if (!settings.store.enabled || !channel || !Array.isArray(items)) return items;
-        return [<ErrorBoundary noop key="dk-star"><Star channel={channel} /></ErrorBoundary>, ...items];
+        return [...items, <ErrorBoundary noop key="dk-star"><Star channel={channel} /></ErrorBoundary>];
     } catch {
         return items;
     }

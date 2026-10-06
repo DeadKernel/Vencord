@@ -331,6 +331,10 @@ export function openGuild(guildId: string) {
     else NavigationRouter.transitionToGuild(guildId);
 }
 
+const GuildCreateActions = findByPropsLazy("openCreateGuildModal");
+/** Discord's "Add a Server" (create, or join with an invite): the rail's + button, which is gone */
+export const openAddServer = () => GuildCreateActions.openCreateGuildModal({ location: "Guild List" });
+
 export const openFriends = () => NavigationRouter.transitionTo("/channels/@me");
 export const openRequests = () => NavigationRouter.transitionTo("/message-requests");
 

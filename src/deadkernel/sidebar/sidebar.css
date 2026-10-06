@@ -56,12 +56,17 @@ html[data-dk-sidebar] {
    column and the column slides out from behind the sidebar's right edge. Transform and opacity
    for the layers; the container's width animates only while the column opens or closes
    (html[data-dk-sb-anim]), so the resize handle stays instant. ── */
+
+/* With the column open, the sidebar keeps the width he dragged it to, except on small windows:
+   then both columns together take at most 45% of the window, the sidebar never under 240px */
 html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
-    width: calc(var(--custom-guild-sidebar-width) + var(--dk-col-w, 248px)) !important;
+    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 45vw - 248px));
+
+    width: calc(var(--dk-top-w) + 248px) !important;
 }
 
 html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) [class*="sidebarList__"] {
-    width: calc(var(--custom-guild-sidebar-width) + var(--dk-col-w, 248px) - var(--custom-guild-list-width) - 1px) !important;
+    width: calc(var(--dk-top-w) + 248px - var(--custom-guild-list-width) - 1px) !important;
 }
 
 html[data-dk-sb-anim] [class*="sidebar__"],
@@ -145,8 +150,10 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     height: 28px;
     padding: 0 12px;
+    white-space: nowrap;
 }
 
 .dk-sb-label-toggle,
@@ -155,6 +162,8 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     align-items: center;
     gap: 4px;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 11px !important;
     font-weight: 600 !important;
     text-transform: uppercase;
@@ -192,6 +201,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--dk-text-2) !important;
+    flex: none;
 }
 
 .dk-sb-link:hover {
@@ -278,7 +288,8 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 .dk-sb-where {
-    flex: 0 100 auto;
+    /* only the space the name leaves: names never truncate before their context does */
+    flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -459,7 +470,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     background: var(--dk-hover) !important;
 }
 
-.dk-col-title {
+.dk-sb .dk-col-title {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -467,6 +478,18 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     font-size: 15px;
     font-weight: 600;
     color: var(--dk-strong);
+}
+
+.dk-col-title:hover,
+.dk-col-title:hover .dk-col-caret {
+    color: var(--dk-accent) !important;
+}
+
+.dk-col-caret {
+    margin-left: 6px;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--dk-text-2);
 }
 
 .dk-col-category[data-quiet] .dk-sb-label-toggle {
@@ -561,6 +584,11 @@ div.dk-home-member:hover {
     min-height: 0;
     display: flex;
     flex-direction: column;
+}
+
+/* our column's title already opens this server's menu; Discord's header would say it twice */
+.dk-sb-guild-tree header[class*="header_"] {
+    display: none !important;
 }
 
 .dk-sb-guild-tree > * {

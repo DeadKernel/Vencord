@@ -16,10 +16,11 @@ import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react"
 import { Column } from "./Column";
 import {
     addFavorite, backOut, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite,
-    navState, noteRoute, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, presenceWord, PrivateChannelReadStateStore,
+    navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, presenceWord, PrivateChannelReadStateStore,
     removeFavorite, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
+import { openGuildMenu } from "./discordMenus";
 import { ContextItem, openMenu } from "./menu";
 import { occupants, VoiceMembers } from "./voice";
 
@@ -220,7 +221,7 @@ function GuildRow({ guildId }: { guildId: string; }) {
             muted={s.muted && !s.mentions}
             selected={selected}
             onClick={() => openGuild(guildId)}
-            onContextMenu={e => openMenu(e, [
+            onContextMenu={e => openGuildMenu(e, guildId, [
                 { id: "open", label: "Open", action: () => openGuild(guildId) },
                 (s.unread || s.mentions > 0) && { id: "read", label: "Mark server as read", action: () => markRead(guildChannelIds(guildId)) },
                 { id: "suppress", label: "Stop @everyone and role pings here", action: () => suppressBroadcasts(guildId) }
@@ -267,8 +268,8 @@ function DirectSection() {
     const hasMentions = items.some(i => i.kind === "server");
     return (
         <Section id="direct" label="DMs & mentions" aside={hasMentions && (
-            <button className="dk-sb-link" data-dk-nav title="Marks channel mentions read. DMs stay until you open them."
-                onClick={() => markRead(selectMentionChannels())}>Mark mentions read</button>
+            <button className="dk-sb-link" data-dk-nav title="Mark channel mentions read (DMs stay until you open them)"
+                onClick={() => markRead(selectMentionChannels())}>Mark read</button>
         )}>
             {shown.map(item => item.kind === "dm"
                 ? <ConversationRow key={item.id} id={item.id} />
@@ -348,7 +349,7 @@ function ServersSection() {
     const tuckedSet = new Set(tucked);
 
     return (
-        <Section id="servers" label="Servers">
+        <Section id="servers" label="Servers" aside={<button className="dk-sb-link" onClick={openAddServer} data-dk-nav title="Create a server, or join one with an invite">Add</button>}>
             {folders.map(folder => {
                 if (!folder.folderId) {
                     const id = folder.guildIds[0];

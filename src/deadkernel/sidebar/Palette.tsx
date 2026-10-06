@@ -17,7 +17,7 @@ useState, useStateFromStores
 import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
 import {
-    addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openChannel, openFriends, openRequests,
+    addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
     suppressBroadcastsIn, toggleMute, useFavorites,
 userPresence } from "./data";
@@ -184,6 +184,7 @@ function actionLines(query: string): Line[] {
         },
         { key: "a-home", label: "Home", icon: glyph("⌂"), run: openFriends },
         { key: "a-req", label: "Message requests", icon: glyph("?"), run: openRequests },
+        { key: "a-add", label: "Add a server", where: "create, or join with an invite", icon: glyph("+"), run: openAddServer },
         { key: "a-settings", label: "Settings", icon: glyph("⚙"), run: () => SettingsRouter.openUserSettings() }
     ];
     const q = query.trim().toLowerCase();

@@ -16,10 +16,11 @@ import {
 import type { ComponentType, MouseEvent } from "react";
 
 import {
-    addFavorite, ChannelListStore, getFavorites, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
-    snowflakeTime, toggleCategory
+    addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
+    snowflakeTime, suppressBroadcasts, toggleCategory
 } from "./data";
-import { ContextItem, openMenu } from "./menu";
+import { openChannelMenu, openGuildMenu } from "./discordMenus";
+import { ContextItem } from "./menu";
 import { occupants, VoiceMembers } from "./voice";
 
 const DAY = 864e5;
@@ -87,6 +88,12 @@ function channelMenu(channel: Channel): ContextItem[] {
     ];
 }
 
+/** If Discord's server menu can't load: the server actions we have of our own. */
+const serverMenu = (guildId: string): ContextItem[] => [
+    { id: "read", label: "Mark server as read", action: () => markRead(guildChannelIds(guildId)) },
+    { id: "suppress", label: "Stop @everyone and role pings here", action: () => suppressBroadcasts(guildId) }
+];
+
 function glyph(channel: Channel) {
     if (channel.isThread?.()) return "└";
     if (isVoice(channel)) return "♪";
@@ -117,7 +124,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
             <button
                 className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread")}
                 onClick={open}
-                onContextMenu={(e: MouseEvent) => openMenu(e, channelMenu(channel))}
+                onContextMenu={(e: MouseEvent) => openChannelMenu(e, channel, channelMenu(channel))}
                 title={voice ? `${channel.name} · click to join voice` : channel.name}
                 aria-current={selected ? "page" : undefined}
                 data-dk-nav
@@ -187,7 +194,10 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     return (
         <div className="dk-col" key={guildId}>
             <div className="dk-col-header">
-                <span className="dk-col-title" title={guild?.name}>{guild?.name}</span>
+                <button className="dk-col-title" title={`${guild?.name ?? ""}: invite, notifications, settings`} data-dk-nav
+                    onClick={e => openGuildMenu(e, guildId, serverMenu(guildId))} onContextMenu={e => openGuildMenu(e, guildId, serverMenu(guildId))}>
+                    {guild?.name}<span className="dk-col-caret" aria-hidden>▾</span>
+                </button>
                 <button className="dk-col-back" onClick={onBack} title="Close this column (the conversation stays open)" data-dk-nav aria-label="Close">×</button>
             </div>
             {all ? (
