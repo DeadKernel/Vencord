@@ -30,11 +30,19 @@ in the last 60 days, with friends in voice, or with a message in the last 30 day
   bold is the signal. The strip, whose icons can't be bold, keeps dots.
 - Favorites (his stars plus Discord's own pins) and friends in voice come first.
 - Voice rows join on click and list who's there. Threads open beside the chat.
-- **Navigation:** the top-level sidebar folds into a 48px strip (unread DMs, favourite people,
-  servers, with hairlines between the groups) and the column slides in. A person in voice gets
-  the same teal dot a server with friends in voice gets; the only outline in the strip is "you are
-  here". Resting on the strip peeks the full sidebar (300 ms dwell, Esc closes). He asked for "a finder-like column"; this is that, without shrinking the chat.
-  *(Arc/Finder column; the chat pane never resizes, motion §6 of the critique.)*
+- **Navigation: both stay.** v1 folded the sidebar into a 48px strip that peeked open on hover.
+  He found the sidebar disappearing and reappearing under the pointer terrible, so the sidebar is
+  always there and the server's column opens beside it: Discord's sidebar widens by 248px and the
+  column slides out from behind the sidebar's edge (240ms; the width only animates while opening
+  or closing, so the resize handle stays instant). × in the column header closes it; the header's
+  "server ›" crumb reopens it. The chat does resize, once, on purpose.
+- **Fitting small windows:** with the column open, sidebar plus column take at most 45% of the
+  window (sidebar never under 240px, never wider than he dragged it). A thread or search results
+  beside the chat drop the sidebar to 240px.
+- **Discord's own menus:** the column title (▾) and a right-click on any server row open Discord's
+  server menu (invite, notification and privacy settings, leave), with "Mark as read" added.
+  Channel rows open Discord's channel menus, where "Add to Favorites" already appears. Without the
+  rail these were unreachable. "Add" in Servers is the rail's + (create, or join with an invite).
 
 ## 2. The conversation
 
@@ -65,8 +73,13 @@ in the last 60 days, with friends in voice, or with a message in the last 30 day
 Discord's Friends page answers "who are my friends" with four tabs and an Active Now column.
 Home answers "what are my people doing", in one column at reading width:
 
-1. **In voice** (hidden when empty): one row per call his friends are in: avatars, names,
-   "♪ channel · server", and a teal text **Join** at the right. The row opens the channel; only Join joins.
+1. **In voice** (hidden when empty): one block per call his friends are in. The call's row:
+   "♪ channel  server", "live" if anyone is streaming, "N in call · M friends", and a teal text
+   **Join**. Under it, everyone in the call, one 28px line each: friends first (clicking one opens
+   your DM), then streamers, then the rest, with "live", "cam" and "muted"/"deafened" as dim words.
+   Calls he's in come first, then calls in favourited channels or with favourite people.
+   In the sidebar, a favourited voice channel lists who's in it the same way, and a favourite
+   person already listed there isn't shown twice.
 2. **Requests** (hidden when empty): friend requests (pink count; opens Discord's Pending tab in
    place) and message requests (a dim "· N": mostly strangers, so not pink, here or in the sidebar).
 3. **Online · N:** friends online, *not* already listed under In voice (one person, one place),

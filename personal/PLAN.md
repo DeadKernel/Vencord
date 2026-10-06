@@ -98,6 +98,14 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   message-list craft (one-line thread previews, pink mention edge, quiet tags, emoji-only
   composer). Critique by Claude Fable 5.1 on his second Claude account while Codex was out of
   quota.
+- **Persistent columns and a test loop, 2026-10-06.** He disliked the hover-peek strip, so the
+  sidebar and the server column are both always shown. Home's calls list who's in them and who's
+  live. Discord's own server and channel menus open from our rows. `personal/tools/smoke.mjs`
+  checks 45 things over CDP (safe: only opens read channels, restores settings); run it after
+  any Discord update. `personal/tools/pack-friends.mjs` builds a zip for friends (stock Vesktop >
+  Developer Options > Vencord Location) after proving none of his ids are in the bundle.
+- **Lesson:** an effect must never return a value: `scrollIntoView` returns a Promise in this
+  Chromium, React called it as a cleanup, and the sidebar crashed on switching servers.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
