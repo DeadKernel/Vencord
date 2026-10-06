@@ -7,20 +7,20 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ApplicationStreamingStore, ChannelStore, GuildReadStateStore, GuildStore, MessageRequestStore, NavigationRouter,
+    ApplicationStreamingStore, ChannelStore, DraftStore, GuildReadStateStore, GuildStore, MessageRequestStore, NavigationRouter,
     PresenceStore, PrivateChannelSortStore, React, ReadStateStore, RelationshipStore, SelectedChannelStore, SelectedGuildStore,
-    useEffect, useRef, UserGuildSettingsStore, useState, useStateFromStores, VoiceStateStore
+    TypingStore, useEffect, useRef, UserGuildSettingsStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
-import { actionsFor, RowActions } from "./actions";
+import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import { Column } from "./Column";
 import {
-    addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
-moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, presenceWord, PrivateChannelReadStateStore,
-    removeFavorite, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
+    addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
+moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, PrivateChannelReadStateStore,
+    removeFavorite, rowMeta, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
 import { openGuildMenu } from "./discordMenus";
@@ -85,6 +85,8 @@ interface RowProps {
     onContextMenu?(e: MouseEvent): void;
     /** the channel or server id, for tests (personal/tools/actions.mjs) */
     dataId?: string;
+    /** he left an unsent message here */
+    draft?: boolean;
 }
 
 function Row(p: RowProps) {
@@ -105,7 +107,8 @@ function Row(p: RowProps) {
             <span className="dk-sb-name">{p.label}</span>
             {p.where && <span className="dk-sb-where">{p.where}</span>}
             <span className="dk-sb-trail">
-                {p.meta && <span className={classes("dk-sb-meta", p.meta.live && "dk-live")}>{p.meta.text}</span>}
+                {p.draft && <span className="dk-sb-draft" title="Unsent draft"><Icon name="pencil" size={14} /></span>}
+                {p.meta && <span className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={p.meta.text}>{p.meta.text}</span>}
                 {countText ? <span className="dk-sb-count">{countText}</span> : p.dot ? <span className="dk-sb-dot" /> : null}
             </span>
         </button>
@@ -145,7 +148,8 @@ function ConversationRow({ id, fallback, inFavorites, onOpen }: { id: string; fa
     const unread = useStateFromStores([ReadStateStore], () => ReadStateStore.hasUnread(id), [id]);
     const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
     const selected = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getChannelId() === id, [id]);
-    const live = useStateFromStores(liveStores(), () => channel ? JSON.stringify(presenceWord(channel)) : "null", [channel]);
+    const live = useStateFromStores([...liveStores(), TypingStore], () => channel ? JSON.stringify(rowMeta(channel)) : "null", [channel]);
+    const draft = useStateFromStores([DraftStore, SelectedChannelStore], () => SelectedChannelStore.getChannelId() !== id && hasDraft(id), [id]);
     const presence = useStateFromStores(liveStores(), () => channel?.type === 1 ? userPresence(channel.recipients[0]) : undefined, [channel]);
     const menu = (e: MouseEvent) => openMenu(e, conversationMenu(id, !!inFavorites));
 
@@ -165,6 +169,7 @@ function ConversationRow({ id, fallback, inFavorites, onOpen }: { id: string; fa
             unread={unread}
             selected={selected}
             dataId={id}
+            draft={draft}
             onClick={onOpen ?? (() => openChannel(id))}
             onContextMenu={menu}
         />
@@ -276,8 +281,14 @@ function DirectSection() {
                 aria-label="Mark mentions read" onClick={() => { track("mark_mentions_read"); markRead(selectMentionChannels()); }}><Icon name="checks" size={16} /></button>
         )}>
             {shown.map(item => item.kind === "dm"
-                ? <ConversationRow key={item.id} id={item.id} />
-                : <ServerMentionRow key={item.guildId} guildId={item.guildId} channelIds={item.channelIds} mentions={item.mentions} />)}
+                ? <div key={item.id} className="dk-sb-rowwrap">
+                    <ConversationRow id={item.id} />
+                    <RowActions actions={actionsFor(ChannelStore.getChannel(item.id), { triage: true })} />
+                </div>
+                : <div key={item.guildId} className="dk-sb-rowwrap">
+                    <ServerMentionRow guildId={item.guildId} channelIds={item.channelIds} mentions={item.mentions} />
+                    <RowActions actions={serverTriage(item.guildId, item.channelIds)} />
+                </div>)}
             {items.length > DIRECT_MAX && (
                 <button className="dk-sb-more" onClick={() => setAll(!all)} data-dk-nav>
                     {all ? "Show fewer" : `${items.length - DIRECT_MAX} more`}

@@ -916,3 +916,44 @@ rect[mask*="svg-mask-status-streaming"] {
 
 /* What's shown (Nitro, Shop, gift button, boosts, decorations…) is the Declutter plugin's job:
    src/deadkernel/declutter/. This file only sets the look. */
+
+/* The chat's floating bars ("N new messages since…", "viewing older messages · jump to present",
+   the round jump button): one hairline strip in the panel colour, square, no shadow. The new
+   messages bar keeps a 2px pink edge: it's the one bar about something waiting for you. */
+[class*="newMessagesBar_"],
+[class*="bottomBar_"],
+[class*="jumpToPresentButton_"] {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+[class*="newMessagesBar_"] {
+	height: 28px !important;
+	background: var(--hl-bg-raised) !important;
+	color: var(--hl-text) !important;
+	border-bottom: 1px solid var(--hl-border) !important;
+	box-shadow: inset 2px 0 0 var(--hl-pink) !important;
+	font-size: 12px;
+}
+
+[class*="newMessagesBar_"] [class*="barButtonAlt_"] {
+	border-radius: 0 !important;
+	background: transparent !important;
+	color: var(--hl-accent) !important;
+	font-weight: 500;
+}
+
+[class*="bottomBar_"] {
+	background: var(--hl-bg-raised) !important;
+	border: 1px solid var(--hl-border) !important;
+	font-size: 12px;
+}
+
+[class*="bottomBar_"]::before {
+	content: none !important;
+}
+
+[class*="jumpToPresentButton_"] {
+	background: var(--hl-bg-raised) !important;
+	border: 1px solid var(--hl-border);
+}

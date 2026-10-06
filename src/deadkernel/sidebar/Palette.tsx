@@ -7,6 +7,7 @@
 // Ctrl K, inside Discord's own modal. Typing uses Discord's search and ranking (it reaches members
 // and channels we haven't loaded); the empty state and ">" actions are ours. personal/SCREENS.md "Palette".
 
+import { Settings as VencordSettings } from "@api/Settings";
 import { classes } from "@utils/misc";
 import { ModalRoot as ModalRootUntyped } from "@utils/modal";
 import { Channel, Guild, User } from "@vencord/discord-types";
@@ -153,6 +154,33 @@ function emptyLines(): Line[] {
     return lines;
 }
 
+// The look, from the keyboard: HumanLayerTheme's palette and density (">midnight", ">compact").
+const PALETTES = [
+    { value: "humanlayer", name: "HumanLayer", bg: "#1b1e28", accent: "#add7ff" },
+    { value: "midnight", name: "Midnight", bg: "#000", accent: "#7aa2ff" },
+    { value: "gruvbox", name: "Gruvbox", bg: "#1d2021", accent: "#83a598" },
+    { value: "nord", name: "Nord", bg: "#2e3440", accent: "#88c0d0" },
+    { value: "paper", name: "Paper", bg: "#f6f4ee", accent: "#2457c5" }
+];
+const DENSITIES = [{ value: "compact", name: "Compact" }, { value: "default", name: "Default" }, { value: "comfortable", name: "Comfortable" }];
+
+function lookActions(): Entry[] {
+    const theme = VencordSettings.plugins.HumanLayerTheme;
+    if (!theme?.enabled) return [];
+    const palette = theme.palette ?? "humanlayer", density = theme.density ?? "default";
+    return [
+        ...PALETTES.map(p => ({
+            key: `a-palette-${p.value}`, label: `Palette: ${p.name}`, where: p.value === palette ? "current" : undefined,
+            icon: <span className="dk-sb-icon"><span className="dk-pal-swatch" style={{ background: p.bg, borderColor: p.accent }} /></span>,
+            run: () => { theme.palette = p.value; }
+        })),
+        ...DENSITIES.map(d => ({
+            key: `a-density-${d.value}`, label: `Density: ${d.name}`, where: d.value === density ? "current" : undefined,
+            icon: glyph("list"), run: () => { theme.density = d.value; }
+        }))
+    ];
+}
+
 /** ">": the things you'd otherwise right-click for. Each runs only on Enter or click. */
 function actionLines(query: string): Line[] {
     const here = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
@@ -188,6 +216,7 @@ function actionLines(query: string): Line[] {
         { key: "a-home", label: "Home", icon: glyph("home"), run: openFriends },
         { key: "a-req", label: "Message requests", icon: glyph("inbox"), run: openRequests },
         { key: "a-add", label: "Add a server", where: "create, or join with an invite", icon: glyph("plus"), run: openAddServer },
+        ...lookActions(),
         { key: "a-settings", label: "Settings", icon: glyph("settings"), run: () => SettingsRouter.openUserSettings() }
     ];
     const q = query.trim().toLowerCase();

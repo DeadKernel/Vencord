@@ -9,15 +9,22 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 
-import { callChannel, joinVoice, labelFor, openChannel, openVoiceChat } from "./data";
+import { callChannel, joinVoice, labelFor, markRead, openChannel, openVoiceChat, suppressBroadcasts } from "./data";
 import { Icon, IconName } from "./icons";
 
 export interface RowAction { label: string; icon: IconName; title: string; run(): void; primary?: boolean; }
 
 /** What a conversation or voice channel can do besides opening: shown on hover or keyboard focus,
  * over the row's right end. Voice: join (the click) and its chat; people: message (the click) and call. */
-export function actionsFor(channel?: Channel | null): RowAction[] {
+export function actionsFor(channel?: Channel | null, opts: { triage?: boolean; } = {}): RowAction[] {
     if (!channel) return [];
+    // DMs & mentions: deal with it without opening it
+    if (opts.triage) {
+        const read: RowAction = { label: "read", icon: "checks", title: "Mark as read", run: () => markRead([channel.id]) };
+        return channel.type === 1 || channel.type === 3
+            ? [read, { label: "call", icon: "phone", title: `Call ${labelFor(channel)}`, run: () => callChannel(channel) }]
+            : [read];
+    }
     if (channel.type === 2 || channel.type === 13) return [
         { label: "chat", icon: "chat", title: `Open ${channel.name}'s chat without joining`, run: () => openVoiceChat(channel) },
         { label: "join", icon: "join", title: `Join ${channel.name}`, run: () => joinVoice(channel), primary: true }
@@ -40,3 +47,9 @@ export function RowActions({ actions }: { actions: RowAction[]; }) {
         </span>
     );
 }
+
+/** A server's row in DMs & mentions: mark all its mentions read, or stop its broadcast pings. */
+export const serverTriage = (guildId: string, channelIds: string[]): RowAction[] => [
+    { label: "read", icon: "checks", title: "Mark these mentions read", run: () => markRead(channelIds) },
+    { label: "quiet", icon: "mute", title: "Stop @everyone and role pings in this server", run: () => suppressBroadcasts(guildId) }
+];

@@ -16,7 +16,7 @@ import {
 import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
-import { getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
+import { activityOf, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
 import { Icon, IconSlot } from "./icons";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
@@ -33,16 +33,6 @@ function ago(ms: number) {
     return d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
 }
 
-function activityOf(uid: string): string | null {
-    if (ApplicationStreamingStore.getAnyStreamForUser(uid)) return "streaming";
-    const acts = PresenceStore.getActivities(uid) ?? [];
-    const game = acts.find((a: any) => a.type === 0 || a.type === 5);
-    if (game) return `playing ${game.name}`;
-    const listening = acts.find((a: any) => a.type === 2);
-    if (listening) return `listening to ${listening.details ?? listening.name}`;
-    const custom = acts.find((a: any) => a.type === 4 && a.state);
-    return custom?.state ?? null;
-}
 
 function Avatar({ uid, size = 24, status }: { uid: string; size?: number; status?: string; }) {
     const u = UserStore.getUser(uid);

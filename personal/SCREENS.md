@@ -185,3 +185,18 @@ line shows where it lands (above or below the row under the pointer). Dropping c
 like any Discord change; dropping on a server inside an open folder moves it into the folder.
 Folders themselves move the same way. No folder creation by dropping (yet).
 
+## 9. Triage, living rows, the look from Ctrl K (2026-10-06)
+
+- **Triage without opening.** Hover a row in DMs & mentions: a person or group gets ✓ (mark
+  read) and call; a server gets ✓ (mark its mentions read) and a bell (stop @everyone and role
+  pings there). Its count steps aside while you hover. Clearing a dev server's noise is one click,
+  and nothing is opened, so nothing else gets marked read.
+- **Rows say what people are doing.** The right slot of a conversation row reads, in order:
+  "typing" (teal, static, never animated), a call or stream, then for a person their activity
+  ("playing Valorant", "listening to …", custom status), dim and capped so it never squeezes the
+  name. A small pencil marks a conversation with an unsent draft.
+- **The look from the keyboard.** Ctrl K › "Palette: Midnight", "Density: Compact" (each with
+  "current" on the one in use; palettes show a swatch of their background and accent).
+- **The chat's floating bars** ("N new messages", "jump to present", the round jump button) are
+  square hairline strips in the panel colour; the new messages bar keeps a 2px pink edge.
+

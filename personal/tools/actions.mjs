@@ -210,6 +210,20 @@ try {
 	const serverRow = `[...document.querySelectorAll('.dk-layer-top .dk-sb-section')].find(s => s.querySelector(".dk-sb-label-toggle")?.textContent === "Servers")?.querySelector(".dk-sb-row[data-dk-id]")`;
 	await js(`${serverRow}?.click()`);
 	check("server row opens the server", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
+	// triage from DMs & mentions without opening anything (Discord's side effects recorded)
+	const triage = `[...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0]?.querySelector(".dk-sb-rowwrap .dk-sb-actions")`;
+	if (await js(`return !!${triage}`)) {
+		await rec();
+		await js(`${triage}.querySelector('[data-dk-action="read"]').click()`);
+		r = await rec();
+		check("triage ✓ marks read through Discord's bulk ack, without opening", recHas(r, "dispatch", a => a[0] === "BULK_ACK") && !recHas(r, "nav"), JSON.stringify(r));
+		const quiet = await js(`return !!${triage}.querySelector('[data-dk-action="quiet"]')`);
+		if (quiet) {
+			await js(`${triage}.querySelector('[data-dk-action="quiet"]').click()`);
+			check("triage bell stops a server's broadcast pings", recHas(await rec(), "guildNotif"));
+		}
+	}
+
 	// drag a server below the next one (Discord's move is recorded, not performed)
 	const dragged = await js(`
 		const rows = [...document.querySelectorAll(".dk-layer-top .dk-sb-drag")].filter(r => r.querySelector("[data-dk-id]"));
@@ -314,6 +328,14 @@ try {
 	check("› Add a server opens Discord's create/join", recHas(await runAction("Add a server"), "createGuild"));
 	await block(true);
 	check("› Home goes Home", recHas(await runAction("Home"), "nav", a => a[0] === "/channels/@me"));
+	await block(false);
+	const look = await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; return { palette: t.palette, density: t.density };`);
+	await runAction("Palette: Midnight");
+	check("› Palette: Midnight switches the palette", await until(`document.documentElement.dataset.dkPalette === "midnight"`, 1000));
+	await runAction("Density: Compact");
+	check("› Density: Compact switches density", await until(`document.documentElement.dataset.dkDensity === "compact"`, 1000));
+	await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; t.palette = ${JSON.stringify(look.palette ?? "humanlayer")}; t.density = ${JSON.stringify(look.density ?? "default")};`);
+	check("…and his look is back", await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; return (t.palette ?? "humanlayer") === ${JSON.stringify(look.palette ?? "humanlayer")} && (t.density ?? "default") === ${JSON.stringify(look.density ?? "default")}`));
 	await block(false);
 
 	// ── 10. Home, with a call injected into Discord's local voice store (nothing is sent) ──

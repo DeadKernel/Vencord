@@ -12,11 +12,11 @@ import { OptionType } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
 import { filters, findByPropsLazy, findStoreLazy, mapMangledModuleLazy } from "@webpack";
 import {
-    ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, FluxDispatcher, GuildChannelStore, GuildMemberCountStore, GuildReadStateStore,
+    ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, DraftStore, DraftType, FluxDispatcher, GuildChannelStore, GuildMemberCountStore, GuildReadStateStore,
     GuildStore,
     MessageRequestStore, NavigationRouter,
-    PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, UserGuildSettingsStore,
-    UserStore, useStateFromStores, VoiceStateStore
+    PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, TypingStore, UserGuildSettingsStore,
+UserStore, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 
 import { track } from "../core/telemetry";
@@ -304,6 +304,36 @@ export function presenceWord(channel: Channel): { text: string; live: boolean; }
     if (VoiceStateStore.getVoiceStateForUser(uid)?.channelId) return { text: "in voice", live: true };
     return null;
 }
+
+/** What someone's doing, in words: "playing Valorant", "listening to …", or their custom status. */
+export function activityOf(uid: string): string | null {
+    if (ApplicationStreamingStore.getAnyStreamForUser(uid)) return "streaming";
+    const acts = PresenceStore.getActivities(uid) ?? [];
+    const game = acts.find((a: any) => a.type === 0 || a.type === 5);
+    if (game) return `playing ${game.name}`;
+    const listening = acts.find((a: any) => a.type === 2);
+    if (listening) return `listening to ${listening.details ?? listening.name}`;
+    const custom = acts.find((a: any) => a.type === 4 && a.state);
+    return custom?.state ?? null;
+}
+
+/** The dim words at a conversation row's right: someone typing to you first, then calls and
+ * streams, then (people only) what they're doing. Static text, never animated. */
+export function rowMeta(channel: Channel): { text: string; live: boolean; } | null {
+    if (channel.type === 1 || channel.type === 3) {
+        const me = UserStore.getCurrentUser()?.id;
+        const typing = Object.keys(TypingStore.getTypingUsers(channel.id) ?? {}).filter(u => u !== me);
+        if (typing.length) return { text: "typing", live: true };
+    }
+    const presence = presenceWord(channel);
+    if (presence) return presence;
+    if (channel.type !== 1) return null;
+    const activity = activityOf(channel.recipients[0]);
+    return activity ? { text: activity, live: false } : null;
+}
+
+/** An unsent message he left in this conversation. */
+export const hasDraft = (channelId: string) => !!DraftStore.getDraft(channelId, DraftType.ChannelMessage)?.trim();
 
 /** Friends in voice in a server. Strangers in a big community's voice channels aren't news. */
 export function guildVoiceFriends(guildId: string): number {

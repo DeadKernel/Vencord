@@ -335,8 +335,17 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 .dk-sb-meta {
+    max-width: 11em;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 11px;
     font-weight: 400;
+    color: var(--dk-text-2);
+}
+
+/* an unsent draft: a small pencil, dim */
+.dk-sb-draft {
+    display: grid;
     color: var(--dk-text-2);
 }
 
@@ -1135,6 +1144,13 @@ div.dk-home-member:hover {
     color: var(--dk-accent);
     background: var(--dk-accent-15);
     box-shadow: inset 2px 0 0 var(--dk-accent);
+}
+
+.dk-pal-swatch {
+    width: 16px;
+    height: 16px;
+    border: 3px solid;
+    outline: 1px solid var(--dk-border);
 }
 
 .dk-pal-confirm {

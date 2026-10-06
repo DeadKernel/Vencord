@@ -104,13 +104,14 @@ if (cmd === "reset") {
 	const pad = +(h ?? 8);
 	const r = await send("Runtime.evaluate", {
 		// first match that is fully on screen
-		expression: `JSON.stringify([...document.querySelectorAll(${JSON.stringify(w)})].map((e) => e.getBoundingClientRect())
-			.find((b) => b.width && b.top >= 0 && b.bottom <= innerHeight))`,
+		// the page may be zoomed (QuietLayout scales the window): the capture clip is in window pixels
+		expression: `JSON.stringify({ z: devicePixelRatio, b: [...document.querySelectorAll(${JSON.stringify(w)})].map((e) => e.getBoundingClientRect())
+			.find((b) => b.width && b.top >= 0 && b.bottom <= innerHeight + 1) })`,
 		returnByValue: true,
 	});
-	if (!r.result.value) throw new Error(`no element matches ${w}`);
-	const b = JSON.parse(r.result.value);
-	const clip = { x: Math.max(0, b.x - pad), y: Math.max(0, b.y - pad), width: b.width + 2 * pad, height: b.height + 2 * pad, scale: 2 };
+	const { z, b } = JSON.parse(r.result.value);
+	if (!b) throw new Error(`no element matches ${w}`);
+	const clip = { x: Math.max(0, (b.x - pad) * z), y: Math.max(0, (b.y - pad) * z), width: (b.width + 2 * pad) * z, height: (b.height + 2 * pad) * z, scale: 2 / z };
 	const { data } = await send("Page.captureScreenshot", { format: "png", clip });
 	writeFileSync(arg, Buffer.from(data, "base64"));
 	console.log("saved", arg);
