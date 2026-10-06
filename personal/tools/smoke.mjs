@@ -99,7 +99,7 @@ if (target) {
 	await js(`document.querySelector(".dk-col-back").click()`);
 	check("column closes", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "top"`));
 	// the width animates; an occluded window draws no frames, so poll for the end state
-	check("sidebar back to its width", await until(`Math.abs(parseFloat(getComputedStyle(document.querySelector('[class*="sidebar__"]')).width) - ${base}) < 2`, 3000));
+	check("sidebar back to its width", await until(`Math.abs(parseFloat(getComputedStyle(document.querySelector('[class*="sidebar__"]')).width) - ${base}) < 2`, 6000));
 	check("crumb shows after closing", await until(`document.querySelector(".dk-crumb")`));
 	await js(`document.querySelector(".dk-crumb").click()`);
 	check("crumb reopens the column", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "server"`));
