@@ -346,20 +346,6 @@ try {
 	await js(`[...document.querySelectorAll(".dk-home-row")].find(b => b.textContent.includes("Message requests"))?.click()`);
 	r = await rec();
 	check("message requests open (if any)", recHas(r, "nav", a => a[0] === "/message-requests") || !(await js(`return [...document.querySelectorAll(".dk-home-row")].some(b => b.textContent.includes("Message requests"))`)));
-	// Now: a favourited voice channel with people in it becomes a live card
-	await js(`const me = ${C}.UserStore.getCurrentUser().id; const s = Vencord.Settings.plugins.Sidebar; const all = JSON.parse(JSON.stringify(s.favorites)); all[me] = [...(all[me] ?? []).filter(f => f.id !== ${JSON.stringify(t.voice)}), { id: ${JSON.stringify(t.voice)}, label: "test" }]; s.favorites = all;`);
-	const card = `document.querySelector('.dk-now-main[data-dk-id="${t.voice}"]')?.closest(".dk-now-card")`;
-	check("Now shows a card for the favourited call", await until(card, 1500));
-	check("…with everyone's face and who's streaming", await js(`const c = ${card}; return c.querySelectorAll(".dk-now-face").length === 2 && /streaming/.test(c.querySelector(".dk-now-live")?.textContent ?? "")`));
-	check("…and the server's icon", await js(`return !!${card}.querySelector(".dk-now-head .dk-sb-icon")`));
-	await rec();
-	await js(`${card}.querySelector(".dk-now-join").click()`);
-	check("JOIN on the card joins", recHas(await rec(), "join"));
-	await js(`${card}.querySelector(".dk-now-main").click()`);
-	r = await rec();
-	check("the card opens the call's chat, doesn't join", recHas(r, "chatOpen") && !recHas(r, "join"), JSON.stringify(r));
-	await js(`const me = ${C}.UserStore.getCurrentUser().id; const s = Vencord.Settings.plugins.Sidebar; const all = JSON.parse(JSON.stringify(s.favorites)); all[me] = (all[me] ?? []).filter(f => f.id !== ${JSON.stringify(t.voice)}); s.favorites = all;`);
-
 	await block(false);
 	await js(`document.querySelector('[data-dk-action="all-friends"]').click()`);
 	check("All friends shows Discord's page in place", await until(`document.querySelector(".dk-home-discord")`, 1500));

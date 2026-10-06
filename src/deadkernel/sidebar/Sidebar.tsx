@@ -26,8 +26,7 @@ userPresence } from "./data";
 import { openGuildMenu } from "./discordMenus";
 import { Icon, IconSlot } from "./icons";
 import { ContextItem, openMenu } from "./menu";
-import { NowSection } from "./Now";
-import { occupants } from "./voice";
+import { occupants, VoiceMembers } from "./voice";
 
 export interface ChannelAreaProps {
     guildId?: string | null;
@@ -292,8 +291,8 @@ function FavoritesSection() {
     useFavorites();
     const list = getFavorites();
     const key = list.map(f => f.id).join(",");
-    // A favourite voice channel with people in it is a card in Now; a favourite person in that call
-    // doesn't get a second row here until they leave (one person, one place).
+    // A favourite voice channel lists who's in it; a favourite person already listed there doesn't
+    // get a second row until they leave (one person, one place).
     const inCalls = useStateFromStores([VoiceStateStore, ChannelStore], () => list
         .filter(f => isVoiceChannel(ChannelStore.getChannel(f.id)))
         .flatMap(f => occupants(f.id)).sort().join(","), [key]);
@@ -307,6 +306,7 @@ function FavoritesSection() {
                     return (
                         <React.Fragment key={f.id}>
                             <FavoriteRow id={f.id} label={f.label} />
+                            {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
                         </React.Fragment>
                     );
                 })
@@ -521,7 +521,6 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                     <JumpRow />
                     <HomeRow selected={!routeGuildId && !selectedChannelId} />
                     <ReturnRow routeGuildId={routeGuildId} />
-                    <NowSection />
                     <DirectSection />
                     <FavoritesSection />
                     <MessagesSection />
