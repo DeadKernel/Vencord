@@ -38,6 +38,7 @@ const PATHS = {
     list: () => <><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></>,
     settings: () => <><path d="M20 7h-9M14 17H5" /><circle cx="17" cy="17" r="3" /><circle cx="7" cy="7" r="3" /></>,
     dot: () => <><circle cx="12" cy="12" r="2" /></>,
+    moon: () => <><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></>,
     pencil: () => <><path d="M21.2 6.8a2.8 2.8 0 0 0-4-4L4 16l-1 5 5-1Z" /><path d="m15 5 4 4" /></>,
     chevronRight: () => <><path d="m9 18 6-6-6-6" /></>,
     chevronDown: () => <><path d="m6 9 6 6 6-6" /></>,

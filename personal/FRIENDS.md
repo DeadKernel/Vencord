@@ -36,6 +36,8 @@ YOUR FIRST FIVE MINUTES
 - Clicking a voice channel joins it.
 - Right-click a person, group or channel > Add to Favorites (or the star in a conversation's
   header). Favorites are single things, not whole servers.
+- Ctrl 1…9 opens your favourites in order (hold Ctrl to see the numbers).
+- Ctrl K › "Focus for an hour": only your favourites can notify you until it ends.
 - Ctrl K jumps anywhere. Type ">" for actions (mark mentions read, mute this server, stop
   @everyone pings in big servers…). Ctrl U shows members. The inbox button is gone; Ctrl I still
   opens Discord's.

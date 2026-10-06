@@ -24,6 +24,7 @@ import {
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
     suppressBroadcastsIn, toggleMute, useFavorites,
 userPresence } from "./data";
+import { focusLeft, focusOn, setFocus } from "./focus";
 import { Icon, IconName, IconSlot } from "./icons";
 
 const ModalRoot = ModalRootUntyped as ComponentType<any>;
@@ -216,6 +217,12 @@ function actionLines(query: string): Line[] {
         { key: "a-home", label: "Home", icon: glyph("home"), run: openFriends },
         { key: "a-req", label: "Message requests", icon: glyph("inbox"), run: openRequests },
         { key: "a-add", label: "Add a server", where: "create, or join with an invite", icon: glyph("plus"), run: openAddServer },
+        ...(focusOn()
+            ? [{ key: "a-focus-end", label: "End focus", where: focusLeft(), icon: glyph("moon"), run: () => setFocus("off") }]
+            : [
+                { key: "a-focus-1h", label: "Focus for an hour", where: "only favourites notify", icon: glyph("moon"), run: () => setFocus(60) },
+                { key: "a-focus-on", label: "Focus until I end it", where: "only favourites notify", icon: glyph("moon"), run: () => setFocus("on") }
+            ]),
         ...lookActions(),
         { key: "a-settings", label: "Settings", icon: glyph("settings"), run: () => SettingsRouter.openUserSettings() }
     ];

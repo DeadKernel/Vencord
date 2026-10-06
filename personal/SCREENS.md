@@ -200,3 +200,19 @@ Folders themselves move the same way. No folder creation by dropping (yet).
 - **The chat's floating bars** ("N new messages", "jump to present", the round jump button) are
   square hairline strips in the panel colour; the new messages bar keeps a 2px pink edge.
 
+## 10. Focus, Ctrl+1–9, banners, smoother switching (2026-10-06)
+
+- **Focus** (Ctrl K › "Focus for an hour" / "Focus until I end it"): only favourites can notify
+  him: DMs from favourite people, messages in favourite channels and groups, anything a favourite
+  person sends. Everything else still arrives and still counts as unread; it just doesn't pop up
+  or ding. Calls and other notifications are untouched. A "Focus · only favourites notify · 42m
+  left" row sits under Home while it's on; clicking it ends Focus. It filters Discord's own
+  notification call, which carries the sender and channel (`sidebar/focus.ts`). Not Discord's
+  Do Not Disturb, which would silence favourites too.
+- **Ctrl+1…9** (Cmd on a Mac) opens favourite 1…9 in his order; a voice channel opens its chat,
+  Ctrl+Shift joins it. Holding Ctrl for half a second shows the numbers over the favourites' icons.
+- **Server banners:** a server with a banner shows it behind its name at the top of the column,
+  fading into the column, animated if the banner is.
+- **Switching conversations:** the new chat settles in (160ms fade and 4px lift); off under
+  reduced motion.
+

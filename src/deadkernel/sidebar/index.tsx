@@ -13,8 +13,10 @@ import type { ComponentType, ReactNode } from "react";
 
 import { trackError } from "../core/telemetry";
 import { addFavorite, applyAttr, guildChannelIds, isFavorite, markRead, removeFavorite, settings } from "./data";
+import { fromFavourite, startFocusFilter, stopFocusFilter } from "./focus";
 import { Breadcrumb, Toolbar } from "./Header";
 import { Home } from "./Home";
+import { startFavoriteKeys, stopFavoriteKeys } from "./keys";
 import { Palette } from "./Palette";
 import { ChannelAreaProps, Sidebar } from "./Sidebar";
 import style from "./sidebar.css?managed";
@@ -155,9 +157,17 @@ export default definePlugin({
     Breadcrumb,
     HomeArea,
     PaletteArea,
+    /** Focus's rule, for the actions test */
+    focusAllows: fromFavourite,
 
-    start: applyAttr,
+    start() {
+        applyAttr();
+        startFocusFilter();
+        startFavoriteKeys();
+    },
     stop() {
+        stopFocusFilter();
+        stopFavoriteKeys();
         delete document.documentElement.dataset.dkSidebar;
     }
 });

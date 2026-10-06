@@ -11,7 +11,7 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ChannelStore, GuildStore, ReadStateStore, RelationshipStore, SelectedChannelStore, UserStore, useState, useStateFromStores, VoiceStateStore
+    ChannelStore, GuildStore, IconUtils, React, ReadStateStore, RelationshipStore, SelectedChannelStore, UserStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
@@ -202,10 +202,14 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     const all = !!showAll[guildId] || !view.ok;
     const setAll = (v: boolean) => settings.store.showAll = { ...settings.store.showAll, [guildId]: v };
     const [allQuiet, setAllQuiet] = useState(false);
+    // the server's banner behind its name, animated if it is (unless he asked for reduced motion)
+    const banner = guild?.banner
+        ? IconUtils.getGuildBannerURL({ id: guild.id, banner: guild.banner } as any, !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+        : null;
 
     return (
         <div className="dk-col" key={guildId}>
-            <div className="dk-col-header">
+            <div className="dk-col-header" data-banner={banner ? "" : undefined} style={banner ? { "--dk-banner": `url("${banner}")` } as React.CSSProperties : undefined}>
                 <button className="dk-col-title" title={`${guild?.name ?? ""}: invite, notifications, settings`} data-dk-nav
                     onClick={e => openGuildMenu(e, guildId, serverMenu(guildId))} onContextMenu={e => openGuildMenu(e, guildId, serverMenu(guildId))}>
                     {guild?.name}<span className="dk-col-caret" aria-hidden><Icon name="chevronDown" size={14} /></span>

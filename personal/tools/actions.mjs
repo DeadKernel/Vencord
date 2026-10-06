@@ -62,7 +62,7 @@ await sleep(200);
 errors.length = 0;
 
 // ── snapshot his plugin settings (memory and file) ──
-const KEYS = ["favorites", "showAll", "closedSections", "openFolders", "opened"];
+const KEYS = ["favorites", "showAll", "closedSections", "openFolders", "opened", "focusUntil"];
 const snap = await js(`const p = Vencord.Settings.plugins.Sidebar; return JSON.stringify(Object.fromEntries(${JSON.stringify(KEYS)}.map(k => [k, p[k]])))`);
 const snapFile = join(homedir(), ".t3", "data", "actions-test-backup.json");
 writeFileSync(snapFile, snap);
@@ -92,7 +92,7 @@ await js(`
 		dk.restore.push(() => { N[k] = orig; });
 	}
 	const D = C.FluxDispatcher, od = D.dispatch;
-	const BLOCK = ["BULK_ACK", "USER_GUILD_SETTINGS_GUILD_UPDATE", "CATEGORY_COLLAPSE", "CATEGORY_EXPAND"];
+	const BLOCK = ["BULK_ACK", "USER_GUILD_SETTINGS_GUILD_UPDATE", "CATEGORY_COLLAPSE", "CATEGORY_EXPAND", "NOTIFICATION_CREATE"];
 	D.dispatch = function (a) {
 		if (BLOCK.includes(a?.type)) { dk.rec.push(["dispatch", a.type, a.channels?.length ?? a.id ?? a.guildId]); return Promise.resolve(); }
 		return od.call(this, a);
@@ -328,6 +328,31 @@ try {
 	check("› Add a server opens Discord's create/join", recHas(await runAction("Add a server"), "createGuild"));
 	await block(true);
 	check("› Home goes Home", recHas(await runAction("Home"), "nav", a => a[0] === "/channels/@me"));
+	// Focus: only favourites notify (Discord's notification call; the popup itself is recorded)
+	await block(true);
+	await runAction("Focus for an hour");
+	check("› Focus for an hour turns Focus on, and the sidebar says so", await until(`document.querySelector('.dk-sb-row[data-dk-id="focus"]')`, 1000));
+	const allows = (props) => js(`return Vencord.Plugins.plugins.Sidebar.focusAllows(${JSON.stringify(props)})`);
+	check("Focus's filter is on Discord's notification call", await js(`return String(Vencord.Webpack.findByProps("showNotification", "playNotificationSound").showNotification).includes("focus_held")`));
+	check("Focus holds a message from someone who isn't a favourite", !(await allows({ notif_type: "MESSAGE_CREATE", notif_user_id: "1", channel_id: "2" })));
+	const favId = await js(`const me = ${C}.UserStore.getCurrentUser().id; return (Vencord.Settings.plugins.Sidebar.favorites[me] ?? [])[0]?.id ?? null`);
+	if (favId) check("…and lets one in a favourite through", await allows({ notif_type: "MESSAGE_CREATE", notif_user_id: "1", channel_id: favId }));
+	check("…and never touches other notifications (calls, friend requests)", await allows({ notif_type: "INCOMING_CALL" }));
+	await js(`document.querySelector('.dk-sb-row[data-dk-id="focus"]').click()`);
+	check("clicking the Focus row ends it", await until(`!document.querySelector('.dk-sb-row[data-dk-id="focus"]')`, 1000));
+
+	// Ctrl+1 opens favourite 1; holding Ctrl shows the numbers
+	if (favId) {
+		await rec();
+		await js(`window.dispatchEvent(new KeyboardEvent("keydown", { key: "1", code: "Digit1", ctrlKey: true, bubbles: true }))`);
+		const kr = await rec();
+		check("Ctrl+1 opens favourite 1", recHas(kr, "nav") || recHas(kr, "chatOpen"), JSON.stringify(kr));
+	}
+	await js(`window.dispatchEvent(new KeyboardEvent("keydown", { key: "Control", code: "ControlLeft", ctrlKey: true, bubbles: true }))`);
+	check("holding Ctrl shows the favourites' numbers", await until(`"dkCtrl" in document.documentElement.dataset`, 1200));
+	await js(`window.dispatchEvent(new KeyboardEvent("keyup", { key: "Control", code: "ControlLeft", bubbles: true }))`);
+	check("…and letting go hides them", await until(`!("dkCtrl" in document.documentElement.dataset)`, 500));
+
 	await block(false);
 	const look = await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; return { palette: t.palette, density: t.density };`);
 	await runAction("Palette: Midnight");

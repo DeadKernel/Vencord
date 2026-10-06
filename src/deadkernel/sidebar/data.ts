@@ -71,6 +71,11 @@ export const settings = definePluginSettings({
         type: OptionType.CUSTOM,
         default: {} as Record<string, number>
     },
+    /** Focus: 0 off, -1 until he ends it, otherwise when it ends (focus.ts) */
+    focusUntil: {
+        type: OptionType.CUSTOM,
+        default: 0
+    },
     /** guildId → show every channel (Discord's own tree) instead of only the live ones */
     showAll: {
         type: OptionType.CUSTOM,

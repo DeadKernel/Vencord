@@ -24,6 +24,7 @@ moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGu
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
 import { openGuildMenu } from "./discordMenus";
+import { focusLeft, focusOn, setFocus } from "./focus";
 import { Icon, IconSlot } from "./icons";
 import { ContextItem, openMenu } from "./menu";
 import { occupants, VoiceMembers } from "./voice";
@@ -177,11 +178,12 @@ function ConversationRow({ id, fallback, inFavorites, onOpen }: { id: string; fa
 }
 
 /** A favourite: voice channels join on click (Discord's own click opens the full-screen call view). */
-function FavoriteRow({ id, label }: { id: string; label: string; }) {
+function FavoriteRow({ id, label, index }: { id: string; label: string; index: number; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
     const voice = isVoiceChannel(channel);
     return (
         <div className="dk-sb-rowwrap">
+            {index <= 9 && <span className="dk-fav-key" aria-hidden title={`Ctrl ${index}`}>{index}</span>}
             <ConversationRow id={id} fallback={label} inFavorites onOpen={voice && channel ? () => joinVoice(channel) : undefined} />
             <RowActions actions={actionsFor(channel)} />
         </div>
@@ -311,12 +313,12 @@ function FavoritesSection() {
     return (
         <Section id="favorites" label="Favorites">
             {list.length
-                ? list.map(f => {
+                ? list.map((f, i) => {
                     const c = ChannelStore.getChannel(f.id);
                     if (c?.type === 1 && listed.has(c.recipients[0])) return null;
                     return (
                         <React.Fragment key={f.id}>
-                            <FavoriteRow id={f.id} label={f.label} />
+                            <FavoriteRow id={f.id} label={f.label} index={i + 1} />
                             {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
                         </React.Fragment>
                     );
@@ -451,6 +453,21 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
 }
 
 /** The way back to Home from anywhere: who's in voice, who's around, recent DMs. */
+/** While Focus is on: one row saying so, with the time left. Click ends it. */
+function FocusRow() {
+    const { focusUntil } = settings.use(["focusUntil"]);
+    const [, tick] = useState(0);
+    useEffect(() => {
+        const t = window.setInterval(() => tick(n => n + 1), 30_000);
+        return () => clearInterval(t);
+    }, []);
+    if (!focusOn(focusUntil)) return null;
+    return (
+        <Row icon={<IconSlot name="moon" />} label="Focus" where="only favourites notify" meta={{ text: focusLeft(focusUntil), live: true }}
+            dataId="focus" onClick={() => setFocus("off")} />
+    );
+}
+
 function HomeRow({ selected }: { selected: boolean; }) {
     return (
         <Row icon={<IconSlot name="home" />} label="Home" selected={selected} onClick={() => { track("home_row"); openFriends(); }} />
@@ -531,6 +548,7 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                 <div className="dk-sb-scroll" ref={scroller}>
                     <JumpRow />
                     <HomeRow selected={!routeGuildId && !selectedChannelId} />
+                    <FocusRow />
                     <ReturnRow routeGuildId={routeGuildId} />
                     <DirectSection />
                     <FavoritesSection />

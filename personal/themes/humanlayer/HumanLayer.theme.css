@@ -957,3 +957,21 @@ rect[mask*="svg-mask-status-streaming"] {
 	background: var(--hl-bg-raised) !important;
 	border: 1px solid var(--hl-border);
 }
+
+/* Switching conversations: the new chat settles in (160ms fade and 4px lift) instead of snapping */
+[class*="chatContent_"] {
+	animation: hl-settle 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes hl-settle {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[class*="chatContent_"] {
+		animation: none;
+	}
+}

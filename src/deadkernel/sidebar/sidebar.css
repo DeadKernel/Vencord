@@ -540,6 +540,30 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     box-shadow: inset 0 -1px 0 var(--dk-border);
 }
 
+/* a server with a banner: it fills the header and fades into the column; the name sits on it */
+.dk-col-header[data-banner] {
+    position: relative;
+    align-items: flex-end;
+    height: 104px;
+    padding-bottom: 8px;
+    background:
+        linear-gradient(to bottom, transparent 25%, var(--dk-bg) 100%),
+        var(--dk-banner) center / cover no-repeat;
+    animation: dk-settle 260ms var(--dk-enter);
+}
+
+.dk-col-header[data-banner] .dk-col-title {
+    text-shadow: 0 1px 8px var(--dk-bg), 0 0 2px var(--dk-bg);
+}
+
+.dk-col-header[data-banner] .dk-col-back {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    color: var(--dk-strong) !important;
+    background: color-mix(in srgb, var(--dk-bg) 55%, transparent) !important;
+}
+
 .dk-col-back {
     flex: none;
     margin-left: auto;
@@ -592,6 +616,28 @@ button.dk-sb-quiet:hover {
 
 .dk-col-row.dk-thread {
     padding-left: 32px !important;
+}
+
+/* Ctrl+1…9: holding Ctrl shows each favourite's number over its icon */
+.dk-fav-key {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 12px;
+    display: none;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hl-bg, #1b1e28);
+    background: var(--dk-accent);
+    pointer-events: none;
+}
+
+html[data-dk-ctrl] .dk-fav-key {
+    display: grid;
 }
 
 /* ── Hover actions: what a row can do besides its click (join/chat, message/call). Words, not
