@@ -32,9 +32,37 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   JS bundles that day; they rotate, so selectors prefer `[class*="name_"]` with a hash
   fallback. Also covers declutter: Nitro/Shop/Quests in DMs, the gift button, the boost
   bar, Active Now, avatar decorations.
-- **`personal/tools/cdp.mjs`**: evaluates JS in and screenshots a Discord started with
-  `--remote-debugging-port=9222`. This is how the theme was verified. From the box:
-  `pc forward 9222` then run it against localhost.
+- **`personal/tools/cdp.mjs`**: evaluates JS in, screenshots, clicks and hot-swaps CSS in a
+  Discord started with `--remote-debugging-port=9222` (or our Vesktop on 9223 with
+  `CDP_PORT=9223`). This is how the theme was verified. From the box: `pc forward 9222` then
+  run it against localhost.
+
+## Decisions so far
+
+2026-10-06, milestones 1 to 3:
+
+- **Running next to Discord.** `personal/tools/vesktop-dev.ps1` runs the Vesktop fork from
+  source with this repo's `dist/` and its own profile, `%APPDATA%esktop-deadkernel`. Two
+  small changes in the Vesktop fork (branch `dk/side-by-side`): `VENCORD_USER_DATA_DIR` also
+  moves Electron's userData (an installed Vesktop already uses `%APPDATA%esktop`), and
+  `VESKTOP_SIDE_BY_SIDE=1` leaves the `discord://` link handler with the real Discord. Rich
+  Presence (arRPC) is off in that profile. CDP on port 9223 (`CDP_PORT=9223` for the tools).
+- **Dev builds use `pnpm build --disable-updater`.** Vencord's git updater would otherwise
+  `git pull` and rebuild in this checkout by itself. Upstream sync is milestone 8.
+- **Our plugins live in `src/deadkernel/`.** `src/userplugins` is gitignored, so the build
+  globs this folder too (one line in `scripts/build/common.mjs`).
+- **The theme ships as a plugin.** `HumanLayerTheme` is on by default and can be switched off
+  in Plugins. The CSS stays in `personal/themes/humanlayer/`, so the same file still works as a
+  BetterDiscord or Vencord theme. Fonts still come from Google Fonts. If we want no
+  third-party request at startup, bundle IBM Plex Mono later.
+- **Theme re-verified in Vesktop.** Added Discord's newer semantic variables, fixed stale
+  selectors and widened menus for the monospace font. `personal/tools/selector-check.mjs`
+  lists selectors that match nothing on the current page; run it after Discord updates.
+- **Screenshots in this repo are redacted.** Use `personal/tools/redact.css` and look at every
+  image before committing it.
+- **Viewing channels marks them read**, and that syncs to his main Discord. When testing on his
+  account, only open channels with no unreads that are on his channel list.
+- **Audit:** `personal/AUDIT.md`, waiting for his marks.
 
 ## Milestones
 

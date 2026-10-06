@@ -1,0 +1,34 @@
+/* @name Redact */
+/* Blurs personal content before taking screenshots that get committed (the repo is public).
+   node personal/tools/cdp.mjs css personal/tools/redact.css    (reload the window to undo)
+   Still look at every image before committing it. */
+[class*="avatar"],
+img[class*="avatar"],
+[class*="avatarStack"],
+[class*="childWrapper_"],
+[data-list-item-id^="guildsnav___"] img,
+[class*="guildIcon"],
+[class*="nameTag_"],
+[class*="panelTitleContainer_"],
+[class*="panelSubtextContainer_"],
+[class*="username_"],
+[class*="name__"],
+[class*="clanTag"],
+[class*="chipletContainer"],
+[class*="messageContent_"],
+[class*="repliedTextPreview_"],
+[class*="embed"],
+[class*="imageWrapper_"],
+[class*="mosaicItem_"],
+[class*="nameAndDecorators_"],
+[class*="subText_"],
+[class*="titleWrapper_"] h1,
+[class*="title_"] [class*="titleWrapper_"],
+[class*="guildName"],
+[class*="activity"],
+[class*="emoji"],
+[class*="toolbar_"] [class*="search"],
+input::placeholder,
+[class*="placeholder"] {
+	filter: blur(6px) !important;
+}
