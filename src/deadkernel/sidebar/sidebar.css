@@ -521,6 +521,58 @@ button.dk-sb-quiet:hover {
     padding-left: 32px !important;
 }
 
+/* ── Hover actions: what a row can do besides its click (join/chat, message/call). Words, not
+   icons or pills, in the row's right slot, over whatever the slot was showing. ── */
+.dk-sb-rowwrap {
+    position: relative;
+}
+
+.dk-sb-actions {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 8px 0 24px;
+    background: linear-gradient(to right, transparent, var(--dk-row-under, var(--dk-bg)) 20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 80ms linear;
+}
+
+/* the hovered row's own colour, so the actions sit on it rather than on a patch */
+.dk-sb-rowwrap:hover {
+    --dk-row-under: color-mix(in srgb, var(--dk-bg) 94%, rgb(166 172 205));
+}
+
+.dk-sb-rowwrap:has(.dk-selected) {
+    --dk-row-under: color-mix(in srgb, var(--dk-bg) 85%, var(--dk-accent));
+}
+
+/* keyboard focus keeps them up; a mouse click's leftover focus doesn't */
+.dk-sb-rowwrap:is(:hover, :has(:focus-visible)) .dk-sb-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dk-sb .dk-sb-action {
+    height: 22px;
+    padding: 0 6px !important;
+    font-size: 11px;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb .dk-sb-action:hover {
+    color: var(--dk-strong) !important;
+    background: var(--dk-hover) !important;
+}
+
+.dk-sb .dk-sb-action.dk-primary {
+    color: var(--dk-teal) !important;
+}
+
 /* ── People in a call (column, Favorites, Home): one 28px line each, friends in the normal text
    colour, everyone else dim; "live" in teal (teal is voice), cam and muted as dim words ── */
 .dk-col-member {

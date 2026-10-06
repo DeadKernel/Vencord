@@ -157,7 +157,11 @@ export function getFavorites(): Favorite[] {
 }
 
 function setFavorites(list: Favorite[]) {
-    settings.store.favorites = { ...settings.store.favorites, [me()]: list };
+    // Plain copies only. settings.store hands out proxies; a proxy inside a new value can't be
+    // cloned for saving, which threw before any listener ran: no re-render, nothing saved.
+    const all: Record<string, Favorite[]> = JSON.parse(JSON.stringify(settings.plain.favorites ?? {}));
+    all[me()] = list.map(f => ({ id: f.id, label: f.label }));
+    settings.store.favorites = all;
 }
 
 export const isFavorite = (id: string) => getFavorites().some(f => f.id === id);
@@ -325,6 +329,9 @@ export function guildSignal(guildId: string): GuildSignal {
 export function openChannel(id: string) {
     const channel = ChannelStore.getChannel(id);
     if (!channel) return;
+    // a voice channel's route alone is Discord's full-screen call view; open its chat, as Discord's
+    // own "Open Chat" does (joining is always a separate, explicit action)
+    if (channel.type === 2 || channel.type === 13) RtcActions.updateChatOpen(id, true);
     const guildId = channel.getGuildId?.() ?? (channel as any).guild_id;
     NavigationRouter.transitionTo(guildId ? `/channels/${guildId}/${id}` : `/channels/@me/${id}`);
 }
@@ -431,6 +438,21 @@ export function joinVoice(channel: Channel) {
         needSubscriptionToAccess: false,
         locked: false
     });
+}
+
+const CallActions = findByPropsLazy("stopRinging", "call");
+const RtcActions = findByPropsLazy("updateChatOpen");
+
+/** Discord's call button in a DM or group: start the call and ring them. */
+export function callChannel(channel: Channel) {
+    track("dm_call");
+    CallActions.call(channel.id, false, true, channel.type === 1 ? channel.recipients[0] : undefined);
+}
+
+/** A voice channel's text chat, the way Discord's "Open Chat" does it, without joining. */
+export function openVoiceChat(channel: Channel) {
+    track("voice_chat");
+    openChannel(channel.id);
 }
 
 const ThreadActions = mapMangledModuleLazy("all threads must have parents", {

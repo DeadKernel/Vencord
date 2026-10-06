@@ -18,7 +18,7 @@ import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
 import {
-    addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
+    addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, joinVoice, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
     suppressBroadcastsIn, toggleMute, useFavorites,
 userPresence } from "./data";
@@ -55,7 +55,8 @@ const userName = (u: User) => RelationshipStore.getNickname(u.id) || (u as any).
 
 // ── Entries ──────────────────────────────────────────────────────────────────
 
-function channelEntry(channel: Channel, run = () => openChannel(channel.id)): Entry {
+// voice channels join, as everywhere else (Discord's route to one is its full-screen call view)
+function channelEntry(channel: Channel, run = channel.type === 2 || channel.type === 13 ? () => joinVoice(channel) : () => openChannel(channel.id)): Entry {
     const isDm = channel.type === 1 || channel.type === 3;
     const mentions = ReadStateStore.getMentionCount(channel.id);
     const unread = ReadStateStore.hasUnread(channel.id);

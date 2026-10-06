@@ -16,7 +16,7 @@ import {
 import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
-import { getFavorites, joinVoice, labelFor, openChannel, snowflakeTime } from "./data";
+import { getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
@@ -84,7 +84,7 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     return (
         <div className="dk-home-callblock">
             <div className="dk-home-row dk-home-call">
-                <button className="dk-home-main" onClick={() => openChannel(channel.id)} title={`Open ${labelFor(channel)}`}>
+                <button className="dk-home-main" onClick={() => openVoiceChat(channel as Channel)} title={`Open ${labelFor(channel)}'s chat (Join joins)`}>
                     <span className="dk-sb-icon dk-sb-hash" aria-hidden>♪</span>
                     <span className="dk-home-name">{guild ? channel.name : labelFor(channel)}</span>
                     <span className="dk-home-dim">{guild ? guild.name : "call"}</span>

@@ -16,9 +16,10 @@ import {
 import type { ComponentType, MouseEvent } from "react";
 
 import { track } from "../core/telemetry";
+import { actionsFor, RowActions } from "./actions";
 import {
     addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
-    snowflakeTime, suppressBroadcasts, toggleCategory
+    snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites
 } from "./data";
 import { openChannelMenu, openGuildMenu } from "./discordMenus";
 import { ContextItem } from "./menu";
@@ -122,21 +123,25 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
 
     return (
         <>
-            <button
-                className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread")}
-                onClick={open}
-                onContextMenu={(e: MouseEvent) => openChannelMenu(e, channel, channelMenu(channel))}
-                title={voice ? `${channel.name} · click to join voice` : channel.name}
-                aria-current={selected ? "page" : undefined}
-                data-dk-nav
-            >
-                <span className="dk-sb-icon dk-sb-hash" aria-hidden>{glyph(channel)}</span>
-                <span className="dk-sb-name">{channel.name}</span>
-                <span className="dk-sb-trail">
-                    {voice && users.length > 0 && <span className="dk-sb-meta dk-live">· {users.length}</span>}
-                    {mentions > 0 ? <span className="dk-sb-count">@{mentions > 99 ? "99+" : mentions}</span> : null}
-                </span>
-            </button>
+            <div className="dk-sb-rowwrap">
+                <button
+                    className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread")}
+                    onClick={open}
+                    data-dk-id={id}
+                    onContextMenu={(e: MouseEvent) => openChannelMenu(e, channel, channelMenu(channel))}
+                    title={voice ? `${channel.name} · click to join voice` : channel.name}
+                    aria-current={selected ? "page" : undefined}
+                    data-dk-nav
+                >
+                    <span className="dk-sb-icon dk-sb-hash" aria-hidden>{glyph(channel)}</span>
+                    <span className="dk-sb-name">{channel.name}</span>
+                    <span className="dk-sb-trail">
+                        {voice && users.length > 0 && <span className="dk-sb-meta dk-live">· {users.length}</span>}
+                        {mentions > 0 ? <span className="dk-sb-count">@{mentions > 99 ? "99+" : mentions}</span> : null}
+                    </span>
+                </button>
+                {voice && <RowActions actions={actionsFor(channel)} />}
+            </div>
             {voice && users.length > 0 && <VoiceMembers channelId={id} />}
             {threadIds && threadIds.split(",").map(t => <ChannelRow key={t} id={t} threads={false} />)}
         </>
@@ -187,10 +192,13 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     onBack(): void;
 }) {
     const guild = useStateFromStores([GuildStore], () => GuildStore.getGuild(guildId), [guildId]);
-    const { showAll } = settings.use(["showAll", "opened", "favorites"]);
+    const { showAll } = settings.use(["showAll", "opened"]);
+    // the model reads favourites and the opened log, which aren't Discord stores: recompute on them too
+    const favKey = useFavorites().map(f => f.id).join(",");
+    const openedKey = Object.keys(settings.store.opened).length;
     const json = useStateFromStores(
         [ChannelListStore, ReadStateStore, SelectedChannelStore, VoiceStateStore, RelationshipStore, UserStore],
-        () => selectColumn(guildId), [guildId]
+        () => selectColumn(guildId), [guildId, favKey, openedKey]
     );
     const view: ColumnView = JSON.parse(json);
     // Discord's full tree: chosen with "> Use Discord's channel list here", or when our model fails

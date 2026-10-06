@@ -14,10 +14,11 @@ import {
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
+import { actionsFor, RowActions } from "./actions";
 import { Column } from "./Column";
 import {
-    addFavorite, backOut, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite,
-    navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, presenceWord, PrivateChannelReadStateStore,
+    addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
+navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, presenceWord, PrivateChannelReadStateStore,
     removeFavorite, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
@@ -80,6 +81,8 @@ interface RowProps {
     unavailable?: boolean;
     onClick(): void;
     onContextMenu?(e: MouseEvent): void;
+    /** the channel or server id, for tests (personal/tools/actions.mjs) */
+    dataId?: string;
 }
 
 function Row(p: RowProps) {
@@ -94,6 +97,7 @@ function Row(p: RowProps) {
             onClick={p.onClick}
             onContextMenu={p.onContextMenu}
             data-dk-nav
+            data-dk-id={p.dataId}
         >
             {p.icon}
             <span className="dk-sb-name">{p.label}</span>
@@ -114,6 +118,8 @@ export function Square({ src, text, presence, size = "person" }: { src?: string 
         </span>
     );
 }
+
+const isVoiceChannel = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
 
 function avatarSrc(channel: Channel) {
     if (channel.type === 1) return UserStore.getUser(channel.recipients[0])?.getAvatarURL(undefined, 48);
@@ -137,8 +143,15 @@ function conversationMenu(id: string, inFavorites: boolean): ContextItem[] {
     const list = getFavorites();
     const index = list.findIndex(f => f.id === id);
     const unread = ReadStateStore.hasUnread(id) || ReadStateStore.getMentionCount(id) > 0;
+    const channel = ChannelStore.getChannel(id);
+    const voice = channel?.type === 2 || channel?.type === 13;
+    const callable = channel?.type === 1 || channel?.type === 3;
     return [
-        { id: "open", label: "Open", action: () => openChannel(id) },
+        voice
+            ? { id: "join", label: "Join", action: () => joinVoice(channel!) }
+            : { id: "open", label: "Open", action: () => openChannel(id) },
+        voice && { id: "chat", label: "Open chat", action: () => openVoiceChat(channel!) },
+        callable && { id: "call", label: "Call", action: () => callChannel(channel!) },
         unread && { id: "read", label: "Mark as read", action: () => markRead([id]) },
         isFavorite(id)
             ? { id: "unfav", label: "Remove from Favorites", action: () => removeFavorite(id) }
@@ -151,7 +164,7 @@ function conversationMenu(id: string, inFavorites: boolean): ContextItem[] {
 // ── Rows bound to Discord data (plain functions, not React.memo: Vencord's React resolves after
 // module load, and each row subscribes to its own data anyway) ──
 
-function ConversationRow({ id, fallback, inFavorites }: { id: string; fallback?: string; inFavorites?: boolean; }) {
+function ConversationRow({ id, fallback, inFavorites, onOpen }: { id: string; fallback?: string; inFavorites?: boolean; onOpen?(): void; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
     const unread = useStateFromStores([ReadStateStore], () => ReadStateStore.hasUnread(id), [id]);
     const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
@@ -175,9 +188,22 @@ function ConversationRow({ id, fallback, inFavorites }: { id: string; fallback?:
             dot={unread && !mentions}
             unread={unread}
             selected={selected}
-            onClick={() => openChannel(id)}
+            dataId={id}
+            onClick={onOpen ?? (() => openChannel(id))}
             onContextMenu={menu}
         />
+    );
+}
+
+/** A favourite: voice channels join on click (Discord's own click opens the full-screen call view). */
+function FavoriteRow({ id, label }: { id: string; label: string; }) {
+    const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
+    const voice = isVoiceChannel(channel);
+    return (
+        <div className="dk-sb-rowwrap">
+            <ConversationRow id={id} fallback={label} inFavorites onOpen={voice && channel ? () => joinVoice(channel) : undefined} />
+            <RowActions actions={actionsFor(channel)} />
+        </div>
     );
 }
 
@@ -284,8 +310,6 @@ function DirectSection() {
     );
 }
 
-const isVoiceChannel = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
-
 function FavoritesSection() {
     useFavorites();
     const list = getFavorites();
@@ -304,7 +328,7 @@ function FavoritesSection() {
                     if (c?.type === 1 && listed.has(c.recipients[0])) return null;
                     return (
                         <React.Fragment key={f.id}>
-                            <ConversationRow id={f.id} fallback={f.label} inFavorites />
+                            <FavoriteRow id={f.id} label={f.label} />
                             {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
                         </React.Fragment>
                     );
