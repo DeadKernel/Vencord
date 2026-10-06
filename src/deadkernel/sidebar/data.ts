@@ -12,7 +12,8 @@ import { OptionType } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
 import { filters, findByPropsLazy, findStoreLazy, mapMangledModuleLazy } from "@webpack";
 import {
-    ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, FluxDispatcher, GuildChannelStore, GuildReadStateStore,
+    ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, FluxDispatcher, GuildChannelStore, GuildMemberCountStore, GuildReadStateStore,
+    GuildStore,
     MessageRequestStore, NavigationRouter,
     PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, UserGuildSettingsStore,
     UserStore, VoiceStateStore
@@ -376,6 +377,29 @@ const NotificationActions = findByPropsLazy("updateGuildNotificationSettings");
 /** Discord's per-server "Suppress @everyone and @here" + "Suppress all role @mentions". */
 export function suppressBroadcasts(guildId: string) {
     NotificationActions.updateGuildNotificationSettings(guildId, { suppress_everyone: true, suppress_roles: true });
+}
+
+const GuildSettingsSave = findByPropsLazy("saveUserGuildSettingsBulk");
+const BROADCAST_MIN_MEMBERS = 100;
+
+/** Communities (over 100 members) that still let @everyone and role pings through. Smaller
+ * servers are mostly friends, where "@everyone voice?" is a real ask, so they're left alone. */
+export function broadcastServers(): string[] {
+    return Object.keys(GuildStore.getGuilds()).filter(id =>
+        (GuildMemberCountStore.getMemberCount(id) ?? 0) > BROADCAST_MIN_MEMBERS
+        && !(UserGuildSettingsStore.isSuppressEveryoneEnabled(id) && UserGuildSettingsStore.isSuppressRolesEnabled(id)));
+}
+
+/** The same setting as suppressBroadcasts, for many servers in one request: Discord's local update
+ * per server, then one bulk save (what its own per-server call does, once instead of N times). */
+export function suppressBroadcastsIn(guildIds: string[]) {
+    const change = { suppress_everyone: true, suppress_roles: true };
+    for (const guildId of guildIds) FluxDispatcher.dispatch({ type: "USER_GUILD_SETTINGS_GUILD_UPDATE", guildId, settings: change });
+    GuildSettingsSave.saveUserGuildSettingsBulk(Object.fromEntries(guildIds.map(id => [id, change])));
+}
+
+export function toggleMute(guildId: string) {
+    NotificationActions.updateGuildNotificationSettings(guildId, { muted: !UserGuildSettingsStore.isMuted(guildId) });
 }
 
 export const VoiceActions = findByPropsLazy("handleVoiceConnect");

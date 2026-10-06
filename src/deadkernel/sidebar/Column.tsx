@@ -147,31 +147,33 @@ function VoiceMember({ userId }: { userId: string; }) {
     );
 }
 
-/** A category shows its live channels; its quiet ones unfold in place when you ask (· N). A category
- * with nothing live is one dim row. Discord's own collapse state applies to the live rows. */
-function CategoryBlock({ cat }: { cat: CategoryView; }) {
+/** A category shows its live channels; its quiet ones unfold in place when you ask ("· N" after its
+ * name, or "Show all quiet channels" at the end). A category with nothing live is one dim row.
+ * Discord's own collapse state applies to the live rows. */
+function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean; }) {
     const [quietOpen, setQuietOpen] = useState(false);
+    const open = quietOpen || allQuiet;
     const hasLive = cat.live.length > 0;
-    const toggleQuiet = () => setQuietOpen(!quietOpen);
+    const toggleQuiet = () => setQuietOpen(!open);
     const showRows = !cat.collapsed || !hasLive;
     return (
-        <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive ? cat.collapsed : !quietOpen) || undefined} data-quiet={!hasLive || undefined}>
+        <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive ? cat.collapsed : !open) || undefined} data-quiet={!hasLive || undefined}>
             {cat.name && (
                 <div className="dk-sb-label">
-                    <button className="dk-sb-label-toggle" data-dk-nav aria-expanded={hasLive ? !cat.collapsed : quietOpen}
+                    <button className="dk-sb-label-toggle" data-dk-nav aria-expanded={hasLive ? !cat.collapsed : open}
                         onClick={() => hasLive ? toggleCategory(cat.id, cat.collapsed) : toggleQuiet()}>
-                        <span className="dk-sb-caret" aria-hidden>{(hasLive ? cat.collapsed : !quietOpen) ? "▸" : "▾"}</span>{cat.name}
+                        <span className="dk-sb-caret" aria-hidden>{(hasLive ? cat.collapsed : !open) ? "▸" : "▾"}</span>{cat.name}
                     </button>
                     {cat.quiet.length > 0 && (
-                        <button className="dk-sb-quiet" onClick={toggleQuiet} data-dk-nav
-                            title={quietOpen ? "Hide quiet channels" : `Show ${cat.quiet.length} quiet channel${cat.quiet.length === 1 ? "" : "s"}`}>
-                            {quietOpen ? "hide" : `· ${cat.quiet.length}`}
+                        <button className="dk-sb-quiet" onClick={toggleQuiet} data-dk-nav aria-expanded={open}
+                            title={open ? "Hide quiet channels" : `Show ${cat.quiet.length} quiet channel${cat.quiet.length === 1 ? "" : "s"}`}>
+                            · {cat.quiet.length}
                         </button>
                     )}
                 </div>
             )}
             {showRows && hasLive && <div className="dk-sb-rows">{cat.live.map(id => <ChannelRow key={id} id={id} />)}</div>}
-            {quietOpen && <div className="dk-sb-rows dk-col-quiet">{cat.quiet.map(id => <ChannelRow key={id} id={id} />)}</div>}
+            {open && <div className="dk-sb-rows dk-col-quiet">{cat.quiet.map(id => <ChannelRow key={id} id={id} />)}</div>}
         </section>
     );
 }
@@ -189,8 +191,10 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
         () => selectColumn(guildId), [guildId]
     );
     const view: ColumnView = JSON.parse(json);
+    // Discord's full tree: chosen with "> Use Discord's channel list here", or when our model fails
     const all = !!showAll[guildId] || !view.ok;
     const setAll = (v: boolean) => settings.store.showAll = { ...settings.store.showAll, [guildId]: v };
+    const [allQuiet, setAllQuiet] = useState(false);
 
     return (
         <div className="dk-col" key={guildId}>
@@ -200,7 +204,7 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
             </div>
             {all ? (
                 <>
-                    {view.ok && <button className="dk-sb-more dk-col-mode" onClick={() => setAll(false)} data-dk-nav>Show only live channels</button>}
+                    {view.ok && <button className="dk-sb-more dk-col-mode" onClick={() => setAll(false)} data-dk-nav>Back to live channels</button>}
                     <div className="dk-sb-guild-tree">
                         <GuildSidebar key={guildId} guildId={guildId} selectedChannelId={selectedChannelId ?? SelectedChannelStore.getChannelId(guildId)} />
                     </div>
@@ -219,10 +223,10 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
                             {view.voice.map(id => <ChannelRow key={id} id={id} />)}
                         </section>
                     )}
-                    {view.categories.map(cat => <CategoryBlock key={cat.id} cat={cat} />)}
+                    {view.categories.map(cat => <CategoryBlock key={cat.id} cat={cat} allQuiet={allQuiet} />)}
                     {view.quiet > 0 && (
-                        <button className="dk-sb-more" onClick={() => setAll(true)} data-dk-nav>
-                            Show {view.quiet} quiet channel{view.quiet === 1 ? "" : "s"}
+                        <button className="dk-sb-more" onClick={() => setAllQuiet(!allQuiet)} data-dk-nav aria-expanded={allQuiet}>
+                            {allQuiet ? "Hide quiet channels" : `Show all ${view.quiet} quiet channel${view.quiet === 1 ? "" : "s"}`}
                         </button>
                     )}
                 </div>

@@ -14,7 +14,7 @@ import style from "./quietLayout.css?managed";
 const Options = {
     squareRail: "Square server icons and thin square indicators",
     monoRail: "Server icons in grey until hovered, selected or mentioning you; mention counts become dots; no unread pips",
-    bareTitlebar: "Empty title bar: no server name or back/forward arrows",
+    bareTitlebar: "Empty title bar: no server name, back/forward arrows or inbox (Ctrl I still opens it)",
     quietHeader: "Channel header: the topic as one dim line, buttons on hover, search as an icon until you use it",
     quietSidebar: "Channel list: bold is the unread signal, muted channels dimmed, no post counts, user limits or stream previews, row and category buttons on hover",
     noDmPanel: "No profile panel beside DMs (click a name for the profile)",
@@ -24,9 +24,11 @@ const Options = {
     smallAvatars: "Smaller square avatars where avatars show",
     hoverTimestamps: "Timestamps appear when you hover a message",
     readingWidth: "Messages wrap at a reading width (about 100 characters) instead of the full window",
+    quietReplies: "Replies as one dim line above the message (↩ name, first line), no curved connector",
+    quietReactions: "Reactions as small hairline chips; the add-reaction button only on the message you point at",
     compactEmbeds: "Smaller embeds and media, embed descriptions clipped to three lines, thread previews as one dim line",
     flatComposer: "Composer as a flat line: no box or glow, emoji the only button on the right (GIFs and stickers are tabs in its picker), faint until you use it",
-    slimUserPanel: "Slim user panel: no status line or device carets",
+    slimUserPanel: "Account panel as a plain bar across the sidebar bottom: no status line, device carets or red wash when muted",
     quietScrollbars: "Scrollbars show only while you hover",
     stillMotion: "Nothing moves by itself: no typing dots or looping effects",
 } as const;

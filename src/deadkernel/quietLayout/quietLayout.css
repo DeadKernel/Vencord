@@ -133,6 +133,16 @@
     visibility: hidden;
 }
 
+/* the inbox: the sidebar's DMs & mentions is the inbox (Ctrl I still opens Discord's) */
+[data-dk-layout~="bareTitlebar"] [class*="bar_"] [class*="trailing_"] > [class*="iconWrapper_"]:has([aria-label="Inbox"]) {
+    display: none !important;
+}
+
+/* ...and the divider that separated it from the window buttons */
+[data-dk-layout~="bareTitlebar"] [class*="bar_"] [class*="winButtonsWithDivider_"]::before {
+    content: none !important;
+}
+
 /* Quiet header: name, then the topic as one dim line (it matters in dev servers); buttons on hover */
 [data-dk-layout~="quietHeader"] section[class*="title_"] :is([class*="topicDivider_"], svg[class*="dot_"]) {
     display: none !important;
@@ -151,6 +161,13 @@
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] :is([data-text-variant], [data-text-variant] *) {
     font-size: inherit !important;
     color: inherit !important;
+}
+
+/* the channel glyph is neither where you are nor what the rules are: small and dim */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="channelIcon_"] svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: var(--hl-text-2, var(--text-muted)) !important;
 }
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] > :not([class*="search"]) {
@@ -220,6 +237,68 @@
 :root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
 :root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="repliedMessage_"]::before {
     content: none !important;
+}
+
+/* Replies: one dim line above the message, "↩ name  first line…". No curved spine, no avatar. */
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"]::before {
+    content: "↩" !important;
+    position: static !important;
+    flex: none;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 6px 0 0 !important;
+    border: 0 !important;
+    color: var(--hl-text-muted, var(--text-muted));
+}
+
+[data-dk-layout~="quietReplies"] [class*="repliedMessageClickableSpine_"],
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] > img {
+    display: none !important;
+}
+
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] :is([class*="username_"], [class*="repliedTextPreview_"], [class*="repliedTextContent_"]) {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    color: var(--hl-text-2, var(--text-muted)) !important;
+}
+
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="username_"] {
+    margin-right: 8px;
+}
+
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="repliedTextPreview_"]:hover [class*="repliedTextContent_"] {
+    color: var(--hl-text, var(--text-default)) !important;
+}
+
+/* Reactions: 22px hairline chips; "add reaction" only on the message you're pointing at */
+[data-dk-layout~="quietReactions"] [class*="reactions_"] :is([class*="reaction_"], [class*="reactionBtn_"]) {
+    height: 22px;
+    min-height: 0;
+    margin: 0 4px 4px 0 !important;
+    padding: 0 6px !important;
+    background: transparent !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reaction_"] img {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reactionCount_"] {
+    font-size: 11px !important;
+    color: var(--hl-text-2, var(--text-muted)) !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reaction_"][class*="reactionMe_"] {
+    border-color: var(--hl-accent, var(--text-brand)) !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reaction_"][class*="reactionMe_"] [class*="reactionCount_"] {
+    color: var(--hl-accent, var(--text-brand)) !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="message_"]:not(:hover, :focus-within) [class*="reactionBtn_"] {
+    opacity: 0 !important;
 }
 
 /* Timestamps on hover */
@@ -303,7 +382,18 @@
     color: var(--hl-accent, var(--text-link)) !important;
 }
 
-/* Flat composer */
+/* Flat composer: a hairline across the chat, no box and no inset */
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:not([class*="inner_"]) {
+    margin-bottom: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+[data-dk-layout~="flatComposer"] form:has(> * > [class*="channelBottomBarArea_"]),
+[data-dk-layout~="flatComposer"] form:has(> [class*="channelBottomBarArea_"]) {
+    padding-inline: 0 !important;
+}
+
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="scrollableContainer_"] {
     background: transparent !important;
     border: 0 !important;
@@ -332,6 +422,27 @@
 
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:is(:hover, :focus-within) :is([class*="buttons_"], [class*="attachWrapper_"]) {
     opacity: 1;
+}
+
+/* The account panel is a bar across the bottom of the sidebar, not a floating card */
+[data-dk-layout~="slimUserPanel"] [class*="sidebar_"] > [class*="panels_"] {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    border: 0 !important;
+    border-top: 1px solid var(--hl-border, var(--border-subtle)) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* muted is a state, not an alarm: the glyph in pink, no red wash */
+[data-dk-layout~="slimUserPanel"] [class*="panels_"] [class*="redGlow_"] {
+    background: transparent !important;
+}
+
+[data-dk-layout~="slimUserPanel"] [class*="panels_"] [class*="redGlow_"] svg {
+    color: var(--hl-pink, var(--status-danger)) !important;
 }
 
 /* Slim user panel */

@@ -193,7 +193,7 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
                             <span className="dk-sb-icon dk-sb-hash">+</span><span className="dk-home-name">Friend requests</span><span className="dk-sb-count">{pending}</span>
                         </button>}
                         {requests > 0 && <button className="dk-home-row dk-home-main" onClick={() => NavigationRouter.transitionTo("/message-requests")}>
-                            <span className="dk-sb-icon dk-sb-hash">?</span><span className="dk-home-name">Message requests</span><span className="dk-sb-count">{requests}</span>
+                            <span className="dk-sb-icon dk-sb-hash">?</span><span className="dk-home-name">Message requests</span><span className="dk-home-dim dk-home-time">· {requests}</span>
                         </button>}
                     </section>
                 )}

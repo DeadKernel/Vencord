@@ -4,8 +4,8 @@ Status: v1, 2026-10-06. Built in `src/deadkernel/sidebar/` (column, header, Home
 `src/deadkernel/quietLayout/` plus the theme (conversation). Follows `SIDEBAR.md`.
 Inputs: a prior-art pass (Slack, Linear, Raycast, Superhuman, VS Code, Telegram, Element); a live
 technical survey of Discord's client (patch points, stores, class maps); one critique round from
-Claude Fable 5.1 on redacted screenshots (Codex was out of quota). The decisions below say which
-input drove them.
+Claude Fable 5.1 on redacted screenshots (Codex was out of quota), and a second Fable round on the
+built screens. The decisions below say which input drove them.
 
 The screens he looks at most, in order: the conversation, the channel list inside a server,
 Home (nothing open), and Ctrl K. Each one gets the sidebar's rules: one line per row, bold is
@@ -18,23 +18,30 @@ Discord's channel list shows every channel the server owns. In a dev community m
 noise to him. The column shows the **live** ones: selected, unread, mentioning him, opened by him
 in the last 60 days, with friends in voice, or with a message in the last 30 days.
 
-- Categories keep Discord's order. Quiet channels fold into a dim "· N" after the category name,
-  and unfold in place. A category with nothing live is one dim row. *(Fable: "quiet is a fold,
-  not a filter".)*
-- "Show N quiet channels" at the end switches that server to Discord's full tree, remembered per
-  server. Discord's tree is the escape hatch, not a mode to learn. *(Element sections lesson.)*
+- Categories keep Discord's order. Quiet channels fold into a dim "· N" right after the category
+  name, and unfold in place. A category with nothing live is one dim row. *(Fable: "quiet is a
+  fold, not a filter".)*
+- "Show all N quiet channels" at the end unfolds every category in place, including channels with
+  no category, so the counts add up. One mechanism, not two. *(Fable r2: the old row swapped in
+  Discord's tree, a second control for the same set.)*
+- Discord's full tree is `> Use Discord's channel list here` (remembered per server) and the
+  fallback if our model breaks. *(Element sections lesson.)*
+- The right edge of a row is for pink (mentions) and teal (voice) only. Rows have no unread dot:
+  bold is the signal. The strip, whose icons can't be bold, keeps dots.
 - Favorites (his stars plus Discord's own pins) and friends in voice come first.
 - Voice rows join on click and list who's there. Threads open beside the chat.
 - **Navigation:** the top-level sidebar folds into a 48px strip (unread DMs, favourite people,
-  servers) and the column slides in. Resting on the strip peeks the full sidebar (300 ms dwell,
-  Esc closes). He asked for "a finder-like column"; this is that, without shrinking the chat.
+  servers, with hairlines between the groups) and the column slides in. A person in voice gets
+  the same teal dot a server with friends in voice gets; the only outline in the strip is "you are
+  here". Resting on the strip peeks the full sidebar (300 ms dwell, Esc closes). He asked for "a finder-like column"; this is that, without shrinking the chat.
   *(Arc/Finder column; the chat pane never resizes, motion §6 of the critique.)*
 
 ## 2. The conversation
 
-- **Header:** "server ›" before the channel name (click: that server's column), a ☆ star to
-  favourite the channel, the topic as one dim 12px line (it matters in dev servers), buttons on
-  hover, search an icon until used. *(Fable: the topic carries rules in dev servers, so dim it,
+- **Header:** a small dim "#", the channel name, a ☆ star to favourite it, the topic as one dim
+  12px line (it matters in dev servers), buttons on hover, search an icon until used. "server ›"
+  shows only after he has backed out of that server, as the way back in; while the column shows
+  the server it would say the same thing twice. *(Fable r2.)* *(Fable: the topic carries rules in dev servers, so dim it,
   don't hide it.)*
 - **Thread previews:** one dim line, "└ thread name  2 Messages ›". No box, spine or "no recent
   messages" line. The boxed preview was the last Discord-shaped element in the list. *(Fable.)*
@@ -42,9 +49,16 @@ in the last 60 days, with friends in voice, or with a message in the last 30 day
   all the pink there is. *(Fable; sidebar principle "pink = needs you".)*
 - **Tags:** APP/OFFICIAL become a dim lowercase word.
 - **Embeds:** 400px, brand stripe replaced by a grey edge, descriptions clipped to 3 lines.
-- **Composer:** a flat line; emoji is the only button on the right. GIFs and stickers are tabs in
-  the emoji picker; gift and apps are gone.
-- Not done: Fable's thread side-pane header, 20px reaction chips, the "3 new · Jump" hairline bar.
+- **Replies:** one dim 12px line above the message, "↩ name  first line…". No curved spine.
+- **Reactions:** 22px hairline chips, count 11px dim, his own in accent; "add reaction" only on
+  the message under the pointer.
+- **Composer:** a hairline across the whole chat, no box, no inset; emoji is the only button on
+  the right. GIFs and stickers are tabs in the emoji picker; gift and apps are gone.
+- **Chrome:** the account panel is a bar across the sidebar's bottom, not a floating card; muted
+  is a pink glyph, not a red wash. The title bar has no inbox (the sidebar is the inbox; Ctrl I
+  still opens Discord's).
+- Not done: Fable's thread side-pane header, "threads · N" in the header, the "3 new · Jump"
+  hairline bar.
 
 ## 3. Home (nothing open)
 
@@ -52,13 +66,16 @@ Discord's Friends page answers "who are my friends" with four tabs and an Active
 Home answers "what are my people doing", in one column at reading width:
 
 1. **In voice** (hidden when empty): one row per call his friends are in: avatars, names,
-   "♪ channel · server", and **Join** at the right. The row opens the channel; only Join joins.
-2. **Requests** (hidden when empty): friend requests (opens Discord's Pending tab in place) and
-   message requests.
+   "♪ channel · server", and a teal text **Join** at the right. The row opens the channel; only Join joins.
+2. **Requests** (hidden when empty): friend requests (pink count; opens Discord's Pending tab in
+   place) and message requests (a dim "· N": mostly strangers, so not pink, here or in the sidebar).
 3. **Online · N:** friends online, *not* already listed under In voice (one person, one place),
    with their activity ("playing X", custom status). Sorted by when he last talked to them,
    computed once, so nothing reorders under the pointer. *(Slack/Telegram presence lessons.)*
 4. **Recent:** DMs from the last 30 days, 10 shown, the rest behind "N more".
+
+Rows are 32px like the sidebar's, and the header links, Join and counts share one right edge (the
+720px column's).
 
 "All friends" and "Add friend" open Discord's own page in place with a "← Home" bar. A deep link
 to a Friends tab, the setting off, or a crash all render Discord's page.
@@ -78,11 +95,18 @@ Fable §5.)*
   where he just was, like Discord's own "previous channel". *(Slack's switcher opens on recents.)*
 - **Typing:** Discord's results in our rows. Unprefixed, an exact name goes first and favorites
   ahead of the rest. Discord's prefixes `@ # ! *` still work.
-- **`>` actions:** mark mentions read, favourite/unfavourite this channel, show every/only live
-  channels here, stop @everyone and role pings here, Home, message requests. *(Superhuman: a
-  palette that only navigates becomes a second-class route; VS Code's `>`.)*
+- **`>` actions:** mark mentions read, favourite/unfavourite this channel, Discord's channel list
+  here, mute/unmute this server, stop @everyone and role pings here, the same **in all large
+  servers**, Home, message requests, Settings. *(Superhuman: a palette that only navigates becomes
+  a second-class route; VS Code's `>`.)*
+- **Broadcast pings, everywhere at once** *(Fable r2's top fix: eight dev servers that @everyone
+  weekly make eight pink chips forever)*. It sets Discord's own "suppress @everyone/@here" and
+  "suppress role mentions" on every server over 100 members that doesn't have them yet, in **one**
+  request (Discord's local update per server, then its bulk save). Smaller servers are left alone:
+  they're mostly friends, where "@everyone voice?" is a real ask. It changes his account's
+  settings across servers, so it asks for a second ↵.
 - **Keys:** ↑↓, ↵ open, ⇧↵ star/unstar, Esc clears the query and then closes (Raycast). One
-  legend line at the bottom teaches them.
+  legend line at the bottom teaches them ("↵ run · esc back" in `>` mode).
 - With the palette off, Discord's switcher shows without PROTIP or the tutorial arrows.
 
 ## Rules that held

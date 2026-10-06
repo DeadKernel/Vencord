@@ -11,14 +11,15 @@ import { classes } from "@utils/misc";
 import { ModalRoot as ModalRootUntyped } from "@utils/modal";
 import { Channel, Guild, User } from "@vencord/discord-types";
 import {
-    ChannelStore, GuildStore, ReadStateStore, RelationshipStore, SelectedChannelStore, useEffect, useMemo, useRef, useState,
-    useStateFromStores
+    ChannelStore, GuildStore, ReadStateStore, RelationshipStore, SelectedChannelStore, SettingsRouter, useEffect, useMemo, useRef, UserGuildSettingsStore,
+useState, useStateFromStores
 } from "@webpack/common";
 import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
 import {
-    addFavorite, DirectItem, getFavorites, isFavorite, labelFor, markRead, openChannel, openFriends, openRequests, QuickSwitcher,
-    QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts, userPresence
+    addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openChannel, openFriends, openRequests,
+    QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
+    suppressBroadcastsIn, toggleMute, userPresence
 } from "./data";
 import { channelIcon, guildIcon, Square } from "./Sidebar";
 
@@ -37,6 +38,8 @@ interface Entry {
     dot?: boolean;
     /** the channel ⇧↵ stars */
     favId?: string;
+    /** asks for a second ↵ first, showing this instead of `where` (changes to his Discord settings across servers) */
+    confirm?: string;
     run(): void;
 }
 type Line = Entry | { key: string; header: string; };
@@ -152,6 +155,7 @@ function actionLines(query: string): Line[] {
     const here = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
     const guild = here?.guild_id ? GuildStore.getGuild(here.guild_id) : null;
     const mentions = selectMentionChannels();
+    const broadcast = broadcastServers();
     const all: (Entry | false | null | undefined)[] = [
         mentions.length > 0 && {
             key: "a-read", label: "Mark mentions read", where: `${mentions.length} channel${mentions.length === 1 ? "" : "s"}`,
@@ -161,15 +165,26 @@ function actionLines(query: string): Line[] {
             ? { key: "a-unfav", label: "Remove from Favorites", where: labelFor(here), icon: glyph("☆"), run: () => removeFavorite(here.id) }
             : { key: "a-fav", label: "Add to Favorites", where: labelFor(here), icon: glyph("★"), run: () => addFavorite(here.id) }),
         guild && {
-            key: "a-all", label: settings.store.showAll[guild.id] ? "Show only live channels" : "Show every channel", where: guild.name,
+            key: "a-tree", label: settings.store.showAll[guild.id] ? "Back to live channels" : "Use Discord's channel list here", where: guild.name,
             icon: glyph("≡"), run: () => settings.store.showAll = { ...settings.store.showAll, [guild.id]: !settings.store.showAll[guild.id] }
         },
         guild && {
-            key: "a-quiet", label: "Stop @everyone and role pings", where: guild.name,
+            key: "a-mute", label: UserGuildSettingsStore.isMuted(guild.id) ? "Unmute server" : "Mute server", where: guild.name,
+            icon: glyph("○"), run: () => toggleMute(guild.id)
+        },
+        guild && {
+            key: "a-quiet", label: "Stop @everyone and role pings here", where: guild.name,
             icon: glyph("@"), run: () => suppressBroadcasts(guild.id)
         },
+        broadcast.length > 0 && {
+            key: "a-quiet-all", label: "Stop @everyone and role pings in large servers",
+            where: `${broadcast.length} server${broadcast.length === 1 ? "" : "s"} over 100 members`,
+            confirm: `↵ again · ${broadcast.length} server${broadcast.length === 1 ? "" : "s"}`,
+            icon: glyph("@"), run: () => suppressBroadcastsIn(broadcast)
+        },
         { key: "a-home", label: "Home", icon: glyph("⌂"), run: openFriends },
-        { key: "a-req", label: "Message requests", icon: glyph("?"), run: openRequests }
+        { key: "a-req", label: "Message requests", icon: glyph("?"), run: openRequests },
+        { key: "a-settings", label: "Settings", icon: glyph("⚙"), run: () => SettingsRouter.openUserSettings() }
     ];
     const q = query.trim().toLowerCase();
     return all.filter((e): e is Entry => !!e && (!q || `${e.label} ${e.where ?? ""}`.toLowerCase().includes(q)));
@@ -186,7 +201,7 @@ function resultLines(p: SwitcherProps, text: string): Line[] {
 
 // ── The palette ──────────────────────────────────────────────────────────────
 
-function Row({ entry, selected, onHover, onRun }: { entry: Entry; selected: boolean; onHover(): void; onRun(): void; }) {
+function Row({ entry, selected, armed, onHover, onRun }: { entry: Entry; selected: boolean; armed: boolean; onHover(): void; onRun(): void; }) {
     const countText = entry.count ? `${entry.mention ? "@" : ""}${entry.count > 99 ? "99+" : entry.count}` : "";
     const fav = entry.favId && isFavorite(entry.favId);
     return (
@@ -197,7 +212,7 @@ function Row({ entry, selected, onHover, onRun }: { entry: Entry; selected: bool
         >
             {entry.icon}
             <span className="dk-sb-name">{entry.label}</span>
-            {entry.where && <span className="dk-sb-where">{entry.where}</span>}
+            {armed ? <span className="dk-sb-where dk-pal-confirm">{entry.confirm}</span> : entry.where && <span className="dk-sb-where">{entry.where}</span>}
             <span className="dk-sb-trail">
                 {fav && <span className="dk-pal-fav" aria-label="favorite">★</span>}
                 {countText ? <span className="dk-sb-count">{countText}</span> : entry.dot ? <span className="dk-sb-dot" /> : null}
@@ -207,14 +222,16 @@ function Row({ entry, selected, onHover, onRun }: { entry: Entry; selected: bool
 }
 
 export function Palette({ Original, ...modal }: { Original: ComponentType<any>; transitionState: any; onClose(): void; }) {
-    const { favorites } = settings.use(["favorites"]);
+    // settings.use hands back a fresh proxy each render; the ids are what the list depends on
+    settings.use(["favorites"]);
+    const favKey = getFavorites().map(f => f.id).join(",");
     const [text, setText] = useState("");
     const switcher: SwitcherProps = useStateFromStores([QuickSwitcherStore], () => QuickSwitcherStore.getProps(), [],
         (a: SwitcherProps, b: SwitcherProps) => a.results === b.results && a.queryMode === b.queryMode);
 
     const lines = useMemo(
         () => text === "" ? emptyLines() : text.startsWith(">") ? actionLines(text.slice(1)) : resultLines(switcher, text),
-        [text, switcher, favorites]
+        [text, switcher, favKey]
     );
     const selectable = lines.flatMap((l, i) => isEntry(l) ? [i] : []);
     const [sel, setSel] = useState(-1);
@@ -231,7 +248,10 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
         setText(next);
         if (!next.startsWith(">")) QuickSwitcher.search(next);
     };
+    const [armed, setArmed] = useState<string | null>(null);
+    useEffect(() => setArmed(null), [lines, current]);
     const run = (e: Entry) => {
+        if (e.confirm && armed !== e.key) return setArmed(e.key);
         e.run();
         modal.onClose();
     };
@@ -269,12 +289,14 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
             </div>
             <div className="dk-pal-list" id="dk-pal-list" role="listbox" ref={listRef}>
                 {lines.map((l, i) => isEntry(l)
-                    ? <Row key={l.key} entry={l} selected={i === current} onHover={() => setSel(i)} onRun={() => run(l)} />
+                    ? <Row key={l.key} entry={l} selected={i === current} armed={armed === l.key} onHover={() => setSel(i)} onRun={() => run(l)} />
                     : <div key={l.key} className="dk-pal-header" role="presentation">{l.header}</div>)}
                 {!selectable.length && <p className="dk-pal-empty">{text ? `Nothing matches “${text}”.` : "Nothing waiting. Type to jump anywhere."}</p>}
             </div>
             <footer className="dk-pal-keys" aria-hidden>
-                <span>↵ open</span><span>⇧↵ favorite</span><span>&gt; actions</span><span>esc {text ? "clear" : "close"}</span>
+                {text.startsWith(">")
+                    ? <><span>↵ run</span><span>esc back</span></>
+                    : <><span>↵ open</span><span>⇧↵ favorite</span><span>&gt; actions</span><span>esc {text ? "clear" : "close"}</span></>}
             </footer>
         </ModalRoot>
     );

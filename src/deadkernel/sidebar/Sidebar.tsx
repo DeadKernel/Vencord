@@ -315,7 +315,8 @@ function MessagesSection() {
             {shown.map(id => <ConversationRow key={id} id={id} />)}
             {hidden > 0 && !more && <button className="dk-sb-more" onClick={() => setMore(true)} data-dk-nav>Older conversations · {hidden}</button>}
             {more && <button className="dk-sb-more" onClick={() => setMore(false)} data-dk-nav>Show fewer</button>}
-            {requests > 0 && <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>?</span>} label="Message requests" count={requests} onClick={openRequests} />}
+            {/* mostly strangers: a dim count, not pink (pink means someone needs you) */}
+            {requests > 0 && <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>?</span>} label="Message requests" meta={{ text: `· ${requests}`, live: false }} onClick={openRequests} />}
         </Section>
     );
 }
@@ -392,10 +393,12 @@ function StripDm({ id }: { id: string; }) {
     const inVoice = useStateFromStores(liveStores(), () => !!channel && !!presenceWord(channel)?.live, [channel]);
     if (!channel) return null;
     return (
-        <button className={classes("dk-strip-item", unread && "dk-unread", inVoice && "dk-in-voice")} onClick={() => openChannel(id)}
-            title={labelFor(channel)} onContextMenu={e => openMenu(e, conversationMenu(id, isFavorite(id)))}>
+        <button className={classes("dk-strip-item", unread && "dk-unread")} onClick={() => openChannel(id)}
+            title={inVoice ? `${labelFor(channel)} · in voice` : labelFor(channel)} onContextMenu={e => openMenu(e, conversationMenu(id, isFavorite(id)))}>
             <Square src={avatarSrc(channel)} text={labelFor(channel)[0]} presence={presence} />
             {mentions > 0 && <span className="dk-strip-chip">{mentions > 9 ? "9+" : mentions}</span>}
+            {/* the same teal dot a server gets for friends in voice; outlines mean "you are here" only */}
+            {!mentions && inVoice && <i className="dk-strip-dot dk-teal" />}
         </button>
     );
 }

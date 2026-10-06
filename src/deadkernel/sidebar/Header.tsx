@@ -10,9 +10,10 @@
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Channel, Guild } from "@vencord/discord-types";
+import { React } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
-import { addFavorite, drillIn, isFavorite, openGuild, removeFavorite, settings } from "./data";
+import { addFavorite, drillIn, isFavorite, navState, openGuild, removeFavorite, settings } from "./data";
 
 function Star({ channel }: { channel: Channel; }) {
     settings.use(["favorites"]);
@@ -40,12 +41,15 @@ export function Toolbar(items: ReactNode, channel?: Channel) {
     }
 }
 
-/** "server ›" before the channel name. Click: open that server's column. */
+/** "server ›" before the channel name, only while the sidebar has backed out of that server (the
+ * column already names it otherwise). Click: open that server's column again. */
 export const Breadcrumb = ErrorBoundary.wrap(({ channel, guild, discordShows, Original }: {
     channel: Channel; guild?: Guild | null; discordShows: boolean; Original: ComponentType<any>;
 }) => {
     const { enabled } = settings.use(["enabled"]);
+    const backedOut = React.useSyncExternalStore(navState.subscribe, navState.backedOutOf);
     if (enabled && guild) {
+        if (backedOut !== guild.id) return null;
         return (
             <button className="dk-crumb" title={`${guild.name}: show its channels`} onClick={() => { drillIn(); openGuild(guild.id); }}>
                 <span className="dk-crumb-name">{guild.name}</span><span className="dk-crumb-sep" aria-hidden>›</span>
