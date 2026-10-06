@@ -1,0 +1,730 @@
+/**
+ * @name HumanLayer
+ * @author Aditya Padwal
+ * @version 0.1.0
+ * @description HumanLayer's design system for Discord: Poimandres palette, IBM Plex Mono, square corners, hairline borders, calmer spacing, fewer upsells.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tweaks: the knobs you are most likely to want to turn
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+	--hl-font: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+	--hl-chat-size: 0.9rem;        /* message text; ≈14.4px at 100% zoom, same as humanlayer.dev body copy */
+	--hl-chat-leading: 1.6;
+	--hl-group-gap: 1.5rem;        /* space between message groups (Discord default ≈1.06rem) */
+	--hl-sidebar-row: 32px;        /* channel row height */
+	--hl-label-tracking: 0.05em;   /* uppercase label letter-spacing */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tokens: lifted straight from humanlayer.dev [data-theme=poimandres]
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+	--hl-bg: #1b1e28;
+	--hl-bg-raised: #252836;
+	--hl-bg-hover: #303340;
+	--hl-bg-active: #3a3d4a;
+	--hl-border: #303340;
+
+	--hl-text: #a6accd;
+	--hl-text-2: #8990b3;
+	--hl-text-muted: #6b7394;
+	--hl-text-strong: #e4f0fb;
+
+	--hl-accent: #add7ff;
+	--hl-accent-hover: #5de4c7;
+	--hl-accent-15: rgb(173 215 255 / 0.15);
+	--hl-accent-08: rgb(173 215 255 / 0.08);
+	--hl-teal: #5de4c7;
+	--hl-yellow: #fffac2;
+	--hl-pink: #d0679d;
+	--hl-pink-bright: #f087bd;
+	--hl-blue: #89ddff;
+
+	--hl-hover: rgb(166 172 205 / 0.06);
+	--hl-selected: var(--hl-accent-15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Discord semantic variables → HumanLayer tokens
+   Applied to every theme class so the light/ash/onyx toggles all land here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.theme-dark,
+.theme-darker,
+.theme-midnight,
+.theme-light {
+	/* surfaces */
+	--background-base-lowest: var(--hl-bg);
+	--background-base-lower: var(--hl-bg);
+	--background-base-low: var(--hl-bg-raised);
+	--background-surface-high: var(--hl-bg-raised);
+	--background-surface-higher: var(--hl-bg-raised);
+	--background-surface-highest: var(--hl-bg-hover);
+	--background-accent: var(--hl-bg-active);
+	--background-code: var(--hl-bg-raised);
+	--background-mod-muted: rgb(166 172 205 / 0.04);
+	--background-mod-subtle: var(--hl-hover);
+	--background-mod-normal: rgb(166 172 205 / 0.1);
+	--background-mod-strong: rgb(166 172 205 / 0.14);
+	--background-scrim: rgb(13 15 20 / 0.8);
+	--app-frame-background: var(--hl-bg);
+	--app-frame-border: var(--hl-border);
+	--chat-background: var(--hl-bg);
+	--chat-background-default: var(--hl-bg);
+	--chat-border: var(--hl-border);
+	--channeltextarea-background: var(--hl-bg-raised);
+	--custom-channel-members-bg: var(--hl-bg);
+	--panel-bg: var(--hl-bg);
+	--modal-background: var(--hl-bg);
+	--modal-footer-background: var(--hl-bg-raised);
+	--bg-surface-raised: var(--hl-bg-raised);
+	--card-background-default: var(--hl-bg-raised);
+	--card-secondary-bg: var(--hl-bg-raised);
+	--home-background: var(--hl-bg);
+
+	/* legacy surface names still used by older modules */
+	--background-primary: var(--hl-bg);
+	--background-secondary: var(--hl-bg);
+	--background-secondary-alt: var(--hl-bg-raised);
+	--background-tertiary: var(--hl-bg);
+	--background-floating: var(--hl-bg-raised);
+	--background-modifier-hover: var(--hl-hover);
+	--background-modifier-active: rgb(166 172 205 / 0.1);
+	--background-modifier-selected: var(--hl-selected);
+	--background-modifier-accent: var(--hl-border);
+
+	/* borders */
+	--border-muted: var(--hl-border);
+	--border-subtle: var(--hl-border);
+	--border-normal: var(--hl-border);
+	--border-strong: var(--hl-bg-active);
+	--border-focus: var(--hl-accent);
+	--card-border-default: var(--hl-border);
+
+	/* text */
+	--text-strong: var(--hl-text-strong);
+	--text-default: var(--hl-text);
+	--text-normal: var(--hl-text);
+	--text-subtle: var(--hl-text-2);
+	--text-muted: var(--hl-text-muted);
+	--text-link: var(--hl-accent);
+	--text-brand: var(--hl-accent);
+	--text-code: var(--hl-text);
+	--text-feedback-positive: var(--hl-teal);
+	--text-feedback-warning: var(--hl-yellow);
+	--text-feedback-critical: var(--hl-pink);
+	--text-feedback-info: var(--hl-blue);
+	--header-primary: var(--hl-text-strong);
+	--header-secondary: var(--hl-text-2);
+	--chat-text-muted: var(--hl-text-muted);
+	--channel-text-area-placeholder: var(--hl-text-muted);
+	--input-placeholder-text-default: var(--hl-text-muted);
+	--textbox-markdown-syntax: var(--hl-text-muted);
+
+	/* icons */
+	--icon-strong: var(--hl-text-strong);
+	--icon-default: var(--hl-text-2);
+	--icon-subtle: var(--hl-text-muted);
+	--icon-muted: var(--hl-text-muted);
+	--icon-brand: var(--hl-accent);
+	--icon-link: var(--hl-accent);
+	--channel-icon: var(--hl-text-muted);
+
+	/* interactive rows (channel list, DM list, menus) */
+	--channels-default: var(--hl-text-2);
+	--interactive-normal: var(--hl-text-2);
+	--interactive-hover: var(--hl-text);
+	--interactive-active: var(--hl-accent);
+	--interactive-muted: rgb(107 115 148 / 0.6);
+	--interactive-text-default: var(--hl-text-2);
+	--interactive-text-hover: var(--hl-text);
+	--interactive-text-active: var(--hl-accent);
+	--interactive-icon-default: var(--hl-text-2);
+	--interactive-icon-hover: var(--hl-text);
+	--interactive-icon-active: var(--hl-accent);
+	--interactive-background-default: transparent;
+	--interactive-background-hover: var(--hl-hover);
+	--interactive-background-active: var(--hl-selected);
+	--interactive-background-selected: var(--hl-selected);
+
+	/* inputs */
+	--input-background-default: var(--hl-bg-raised);
+	--input-border-default: var(--hl-border);
+	--input-border-hover: var(--hl-bg-active);
+	--input-border-active: var(--hl-accent);
+	--input-text-default: var(--hl-text);
+
+	/* buttons: HumanLayer primary = accent outline on a 15% accent wash */
+	--control-primary-background-default: var(--hl-accent-15);
+	--control-primary-background-hover: rgb(173 215 255 / 0.22);
+	--control-primary-background-active: rgb(173 215 255 / 0.28);
+	--control-primary-border-default: var(--hl-accent);
+	--control-primary-border-hover: var(--hl-accent);
+	--control-primary-border-active: var(--hl-accent);
+	--control-primary-text-default: var(--hl-accent);
+	--control-primary-text-hover: var(--hl-text-strong);
+	--control-primary-text-active: var(--hl-text-strong);
+	--control-primary-icon-default: var(--hl-accent);
+	--control-primary-icon-hover: var(--hl-text-strong);
+	--control-primary-icon-active: var(--hl-text-strong);
+	--control-secondary-background-default: transparent;
+	--control-secondary-background-hover: var(--hl-hover);
+	--control-secondary-background-active: rgb(166 172 205 / 0.1);
+	--control-secondary-border-default: var(--hl-border);
+	--control-secondary-border-hover: var(--hl-bg-active);
+	--control-secondary-border-active: var(--hl-bg-active);
+	--control-secondary-text-default: var(--hl-text);
+	--control-secondary-text-hover: var(--hl-text-strong);
+	--control-secondary-text-active: var(--hl-text-strong);
+	--control-brand-foreground: var(--hl-accent);
+	--control-brand-foreground-new: var(--hl-accent);
+	--brand-500: var(--hl-accent);
+	--brand-560: var(--hl-accent);
+
+	/* messages */
+	--message-background-hover: rgb(166 172 205 / 0.03);
+	--message-mentioned-background-default: var(--hl-accent-08);
+	--message-mentioned-background-hover: rgb(173 215 255 / 0.11);
+	--message-highlight-background-default: rgb(93 228 199 / 0.07);
+	--message-highlight-background-hover: rgb(93 228 199 / 0.1);
+	--mention-foreground: var(--hl-accent);
+	--mention-background: var(--hl-accent-15);
+
+	/* status */
+	--status-positive: var(--hl-teal);
+	--status-online: var(--hl-teal);
+	--status-warning: var(--hl-yellow);
+	--status-danger: var(--hl-pink);
+	--status-speaking: var(--hl-teal);
+
+	/* scrollbars */
+	--scrollbar-auto-thumb: var(--hl-bg-hover);
+	--scrollbar-auto-track: transparent;
+	--scrollbar-thin-thumb: var(--hl-bg-hover);
+	--scrollbar-thin-track: transparent;
+
+	/* no shadows, no rounding */
+	--elevation-stroke: 0 0 0 1px var(--hl-border);
+	--elevation-low: none;
+	--elevation-medium: none;
+	--elevation-high: none;
+	--shadow-low: none;
+	--shadow-low-hover: none;
+	--shadow-low-active: none;
+	--shadow-medium: none;
+	--shadow-high: none;
+	--shadow-ledge: none;
+	--shadow-border: 0 0 0 1px var(--hl-border);
+	--shadow-top-ledge: none;
+	--shadow-top-low: none;
+	--shadow-top-high: none;
+	--radius-xs: 0px;
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+	--radius-xxl: 0px;
+	--custom-app-top-bar-item-radius: 0px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Type
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+	--font-primary: var(--hl-font) !important;
+	--font-display: var(--hl-font) !important;
+	--font-headline: var(--hl-font) !important;
+	--font-code: var(--hl-font) !important;
+}
+
+body,
+input,
+textarea,
+button,
+select {
+	font-family: var(--hl-font);
+	letter-spacing: -0.01em;
+}
+
+::selection {
+	background: rgb(173 215 255 / 0.25);
+	color: var(--hl-text-strong);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   App frame: flat panes split by 1px hairlines
+   ═══════════════════════════════════════════════════════════════════════════ */
+[class*="bar_c38106"] {
+	background: var(--hl-bg);
+	border-bottom: 1px solid var(--hl-border);
+}
+
+[class*="sidebarList_"] {
+	background: var(--hl-bg-raised) !important;
+	border: 0 !important;
+	border-right: 1px solid var(--hl-border) !important;
+	border-radius: 0 !important;
+}
+
+[class*="sidebarListRounded_"] {
+	border-radius: 0 !important;
+}
+
+[class*="chat_f75fb0"] {
+	background: var(--hl-bg);
+}
+
+[class*="membersWrap_"] {
+	border-left: 1px solid var(--hl-border);
+}
+
+[class*="membersWrap_"],
+[class*="members_c8ffbb"] {
+	background: var(--hl-bg) !important;
+}
+
+/* Channel header bar */
+[class*="chat_"] > section[class*="title_"] {
+	background: var(--hl-bg);
+	border-bottom: 1px solid var(--hl-border);
+	box-shadow: none;
+}
+
+/* User panel at the bottom of the sidebar: square, flush, divided by a hairline */
+[class*="panels__"] {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	border: 1px solid var(--hl-border) !important;
+	background: var(--hl-bg-raised) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Channel list: HumanLayer task-list rows
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Category headers become small tracked uppercase labels */
+[class*="containerDefault__29444"] [class*="name__29444"],
+[class*="containerDefault_"] [class*="mainContent_"] [class*="name_"] {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: var(--hl-label-tracking);
+	color: var(--hl-text-muted);
+}
+
+[class*="containerDefault__29444"] {
+	padding-top: 20px;
+}
+
+[class*="containerDefault_"] [class*="link__2ea32"],
+[class*="containerDefault_"] [class*="link_"][href^="/channels/"] {
+	min-height: var(--hl-sidebar-row);
+	border-radius: 0;
+	padding-inline: 10px;
+	box-shadow: inset 2px 0 0 transparent;
+	transition: background-color 80ms, box-shadow 80ms;
+}
+
+[class*="containerDefault_"] [class*="name__2ea32"] {
+	font-size: 13px;
+}
+
+[class*="modeSelected_"] [class*="link_"] {
+	background: var(--hl-selected) !important;
+	box-shadow: inset 2px 0 0 var(--hl-accent) !important;
+}
+
+[class*="modeSelected_"] [class*="link_"],
+[class*="modeSelected_"] [class*="name_"],
+[class*="modeSelected_"] [class*="icon_"] {
+	color: var(--hl-accent) !important;
+}
+
+[class*="modeUnreadImportant_"] [class*="name_"] {
+	color: var(--hl-text-strong) !important;
+}
+
+[class*="wrapper__2ea32"] [class*="unread__2ea32"] {
+	background: var(--hl-accent);
+	border-radius: 0;
+	width: 2px;
+}
+
+/* DM list rows share the same treatment */
+[class*="interactive__972a0"],
+[class*="privateChannels_"] [class*="interactive_"] {
+	border-radius: 0 !important;
+}
+
+[class*="interactiveSelected_"] {
+	background: var(--hl-selected) !important;
+	box-shadow: inset 2px 0 0 var(--hl-accent) !important;
+}
+
+[class*="interactiveSelected_"],
+[class*="interactiveSelected_"] a,
+[class*="interactiveSelected_"] [class*="name_"] {
+	color: var(--hl-accent) !important;
+}
+
+/* Member list group headers */
+[class*="membersGroup_"] {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: var(--hl-label-tracking);
+	color: var(--hl-text-muted);
+}
+
+[class*="member_c8ffbb"] > div,
+[class*="member_c8ffbb"] [class*="layout_"] {
+	border-radius: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Messages
+   ═══════════════════════════════════════════════════════════════════════════ */
+[class*="markup__75297"],
+[class*="messageContent_"] {
+	font-size: var(--hl-chat-size);
+	line-height: var(--hl-chat-leading);
+	color: var(--hl-text);
+}
+
+/* Breathing room between authors, tight within a group */
+[class*="cozyMessage_"][class*="groupStart_"] {
+	margin-top: var(--hl-group-gap) !important;
+}
+
+[class*="cozyMessage_"] [class*="header_c19a55"],
+[class*="cozyMessage_"] h3[class*="header_"] {
+	margin-bottom: 2px;
+}
+
+[class*="cozyMessage_"] [class*="username_"] {
+	font-weight: 600;
+	font-size: 0.875rem;
+	letter-spacing: -0.02em;
+}
+
+[class*="cozyMessage_"] [class*="timestamp_"],
+[class*="cozyMessage_"] [class*="timestamp_"] time {
+	color: var(--hl-text-muted);
+	font-size: 11px;
+}
+
+/* Square avatars in chat (only the plain <img> ones; masked SVG avatars elsewhere stay round) */
+[class*="cozyMessage_"] img[class*="avatar_"] {
+	border-radius: 0;
+}
+
+/* Mentions get the HumanLayer selected-row look: accent edge + light wash */
+[class*="message_"][class*="mentioned_"]::before {
+	background: var(--hl-accent) !important;
+	width: 2px !important;
+}
+
+/* Inline mentions / channel links */
+.mention,
+[class*="mention_"][class*="interactive"] {
+	border-radius: 0;
+	padding: 0 3px;
+	font-weight: 500;
+}
+
+/* Date separators: hairline with a small tracked label */
+[class*="divider__908e2"] {
+	border-top-color: var(--hl-border) !important;
+}
+
+[class*="divider__908e2"] [class*="content__908e2"] {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: var(--hl-label-tracking);
+	color: var(--hl-text-muted);
+	background: var(--hl-bg);
+}
+
+[class*="divider__908e2"][class*="isUnread_"] {
+	border-top-color: var(--hl-pink) !important;
+}
+
+[class*="divider__908e2"][class*="isUnread_"] [class*="content__908e2"],
+[class*="unreadPillCap_"] {
+	color: var(--hl-pink) !important;
+}
+
+[class*="unreadPillCap_"] {
+	background: var(--hl-bg) !important;
+	border-radius: 0;
+}
+
+/* Code */
+[class*="markup_"] code {
+	font-family: var(--hl-font);
+}
+
+[class*="markup_"] :not(pre) > code {
+	background: var(--hl-bg-raised);
+	border: 1px solid var(--hl-border);
+	border-radius: 0;
+	padding: 0 4px;
+	font-size: 0.85em;
+}
+
+[class*="markup_"] pre,
+[class*="markup_"] pre code,
+[class*="codeContainer_"] {
+	background: var(--hl-bg-raised) !important;
+	border-radius: 0 !important;
+}
+
+[class*="markup_"] pre code {
+	border: 1px solid var(--hl-border);
+}
+
+[class*="blockquoteDivider_"] {
+	background: var(--hl-bg-active);
+	border-radius: 0;
+	width: 2px;
+}
+
+/* Embeds and attachments */
+[class*="embedFull_"] {
+	background: var(--hl-bg-raised) !important;
+	border-radius: 0 !important;
+	border-top: 1px solid var(--hl-border);
+	border-right: 1px solid var(--hl-border);
+	border-bottom: 1px solid var(--hl-border);
+}
+
+[class*="imageWrapper_"],
+[class*="imageContainer_"],
+[class*="mosaicItem_"],
+[class*="attachment_"] {
+	border-radius: 0 !important;
+}
+
+/* Reactions: outlined tags, like HumanLayer's status chips */
+[class^="reaction_"],
+[class*=" reaction_"] {
+	border-radius: 0 !important;
+	background: transparent !important;
+	border: 1px solid var(--hl-border) !important;
+}
+
+[class^="reaction_"]:hover,
+[class*=" reaction_"]:hover {
+	border-color: var(--hl-bg-active) !important;
+	background: var(--hl-hover) !important;
+}
+
+[class*="reactionMe_"] {
+	background: var(--hl-accent-15) !important;
+	border-color: var(--hl-accent) !important;
+}
+
+[class*="reactionMe_"] [class*="reactionCount_"] {
+	color: var(--hl-accent) !important;
+}
+
+/* Hover toolbar on messages */
+[class*="buttonsInner_"],
+[class*="cozyMessage_"] [class*="buttons_"] > div {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	border: 1px solid var(--hl-border);
+	background: var(--hl-bg-raised);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Composer
+   ═══════════════════════════════════════════════════════════════════════════ */
+[class*="channelTextArea_"] {
+	border-radius: 0 !important;
+}
+
+[class*="channelTextArea__74017"] [class*="scrollableContainer_"],
+[class*="channelTextArea_"] > [class*="scrollableContainer_"] {
+	background: var(--hl-bg-raised) !important;
+	border: 1px solid var(--hl-border) !important;
+	border-radius: 0 !important;
+	transition: border-color 80ms;
+}
+
+[class*="channelTextArea_"]:focus-within [class*="scrollableContainer_"] {
+	border-color: var(--hl-accent) !important;
+}
+
+[class*="channelTextArea_"] [role="textbox"] {
+	font-size: var(--hl-chat-size);
+	line-height: var(--hl-chat-leading);
+}
+
+[class*="typing_f75fb0"] {
+	font-size: 11px;
+	color: var(--hl-text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Buttons, inputs, popouts, menus, modals
+   ═══════════════════════════════════════════════════════════════════════════ */
+button[class*="hasText_"],
+button[class*="lookFilled_"],
+button[class*="lookOutlined_"],
+button[class*="button_a22cb0"]:not([class*="icon_"]) {
+	border-radius: 0 !important;
+}
+
+/* HumanLayer buttons are uppercase and tracked (full-width secondary = search fields, left alone) */
+button[class*="hasText_"]:not([class*="secondary_"][class*="fullWidth_"]),
+button[class*="lookFilled_"][class*="sizeMedium_"],
+button[class*="lookFilled_"][class*="sizeSmall_"] {
+	text-transform: uppercase;
+	letter-spacing: var(--hl-label-tracking);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+/* Legacy brand buttons → accent outline */
+button[class*="lookFilled_"][class*="colorBrand_"] {
+	background: var(--hl-accent-15) !important;
+	color: var(--hl-accent) !important;
+	border: 1px solid var(--hl-accent) !important;
+}
+
+button[class*="lookFilled_"][class*="colorBrand_"]:hover {
+	background: rgb(173 215 255 / 0.22) !important;
+	color: var(--hl-text-strong) !important;
+}
+
+input[class*="input_"],
+textarea[class*="input_"],
+[class*="inputWrapper_"],
+[class*="searchBar_"],
+[class*="select_"],
+[class*="container_a16aea"] {
+	border-radius: 0 !important;
+}
+
+[role="menu"],
+[role="dialog"],
+[role="listbox"],
+[class*="popout_"],
+[class*="tooltip_"],
+[class*="layer_"] > [class*="menu_"] {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+[role="menu"],
+[class*="layer_"] > [class*="menu_"] {
+	background: var(--hl-bg-raised) !important;
+	border: 1px solid var(--hl-border) !important;
+}
+
+[role="menu"] [role="menuitem"],
+[role="menu"] [role="menuitemcheckbox"],
+[role="menu"] [role="menuitemradio"] {
+	border-radius: 0 !important;
+}
+
+[role="menu"] [role="menuitem"]:is(:hover, :focus, [class*="focused_"]) {
+	background: var(--hl-selected) !important;
+	color: var(--hl-accent) !important;
+}
+
+[role="dialog"][aria-modal="true"] {
+	border: 1px solid var(--hl-border);
+}
+
+[class*="tooltip_"][class*="tooltipPrimary_"] {
+	background: var(--hl-bg-raised) !important;
+	color: var(--hl-text) !important;
+	border: 1px solid var(--hl-border);
+	font-size: 12px;
+}
+
+[class*="tooltipPointer_"] {
+	display: none;
+}
+
+/* Tags (APP, OFFICIAL) as outlined chips instead of blurple pills */
+[class*="botTag_"] {
+	background: transparent !important;
+	color: var(--hl-accent) !important;
+	border: 1px solid var(--hl-accent);
+	border-radius: 0 !important;
+}
+
+[class*="botTag_"] svg path {
+	fill: var(--hl-accent);
+}
+
+/* Notification counters in HumanLayer pink, square */
+.theme-dark,
+.theme-darker,
+.theme-midnight,
+.theme-light {
+	--badge-notification-background: var(--hl-pink);
+}
+
+[class*="numberBadge_"] {
+	border-radius: 0 !important;
+	color: var(--hl-bg) !important;
+	font-weight: 600;
+}
+
+/* Thin, quiet scrollbars */
+::-webkit-scrollbar-thumb {
+	border-radius: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Declutter
+   Delete any block below to bring that thing back.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Nitro / Shop / Quests entries at the top of the DM list */
+[class*="privateChannels_"] li:has(a[href="/store"]),
+[class*="privateChannels_"] li:has(a[href="/shop"]),
+[class*="privateChannels_"] li:has(a[href="/quest-home"]),
+[class*="privateChannels_"] [class*="channel_"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]) {
+	display: none !important;
+}
+
+/* Gift button in the composer */
+[class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Send a gift"]) {
+	display: none !important;
+}
+
+/* Server boost goal bar and "Server Boosts" row at the top of the channel list */
+#channels [role="button"]:has([class*="boostCountText_"]),
+#channels li:has([id^="skill-trees-"]) {
+	display: none !important;
+}
+
+/* "Download apps" in the server rail */
+[data-list-item-id="guildsnav___app-download-button"] {
+	display: none !important;
+}
+
+/* Help button in the title bar */
+[class*="trailing_c38106"] a[href*="support.discord.com"] {
+	display: none !important;
+}
+
+/* "Active Now" column on the Friends page */
+[class*="nowPlayingColumn_"] {
+	display: none !important;
+}
+
+/* Animated avatar decorations and profile effects */
+img[class*="avatarDecoration_"],
+[class*="profileEffects_"] {
+	display: none !important;
+}
