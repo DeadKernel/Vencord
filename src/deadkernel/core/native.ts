@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// The only two network calls DeadKernel makes, from Electron's main process (Discord's page CSP
-// doesn't allow these hosts). The URLs are fixed here, not passed in, so nothing in the page can
-// point them elsewhere.
+// DeadKernel's main-process side: its only two network calls (Discord's page CSP doesn't allow these
+// hosts; the URLs are fixed here, not passed in, so nothing in the page can point them elsewhere),
+// and the Windows taskbar buttons.
 
-import { IpcMainInvokeEvent } from "electron";
+import { BrowserWindow, IpcMainInvokeEvent, nativeImage } from "electron";
 
 import { NOTICES_URL, POSTHOG_HOST, POSTHOG_KEY } from "./config";
 
@@ -32,3 +32,20 @@ export async function fetchNotices(_: IpcMainInvokeEvent): Promise<string | null
         return null;
     }
 }
+
+/** Windows' thumbnail toolbar (the buttons under the taskbar preview, like a media player's):
+ * Mute, Deafen, Disconnect. A click calls back into the page by button id. Empty list clears it. */
+export function setTaskbarButtons(e: IpcMainInvokeEvent, buttons: { id: string; tooltip: string; icon: string; }[]): boolean {
+    if (process.platform !== "win32") return false;
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win || !Array.isArray(buttons)) return false;
+    const page = e.sender;
+    return win.setThumbarButtons(buttons.filter(b => /^[a-z]+$/.test(b.id) && b.icon.startsWith("data:image/png")).map(b => ({
+        tooltip: String(b.tooltip).slice(0, 60),
+        icon: nativeImage.createFromDataURL(b.icon),
+        click: () => {
+            if (!page.isDestroyed()) page.executeJavaScript(`Vencord.Plugins.plugins.DeadKernel?.taskbarClick?.("${b.id}")`);
+        }
+    })));
+}
+

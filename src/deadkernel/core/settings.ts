@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
+import { startTaskbar, stopTaskbar } from "./taskbar";
 import { TelemetryPreview } from "./TelemetryPreview";
 
 export const settings = definePluginSettings({
@@ -18,6 +19,12 @@ export const settings = definePluginSettings({
     preview: {
         type: OptionType.COMPONENT,
         component: TelemetryPreview
+    },
+    taskbar: {
+        type: OptionType.BOOLEAN,
+        description: "Windows: Mute, Deafen (and Disconnect in a call) buttons when you hover Discord's taskbar icon",
+        default: true,
+        onChange: (on: boolean) => { stopTaskbar(); if (on) startTaskbar(); }
     },
     notices: {
         type: OptionType.BOOLEAN,

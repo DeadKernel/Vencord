@@ -85,6 +85,9 @@ await js(`
 	intercept(W.findByProps("openCreateGuildModal"), "openCreateGuildModal", "createGuild");
 	intercept(C.ChannelActionCreators, "openPrivateChannel", "openDmNew");
 	intercept(W.findByProps("moveById", "createGuildFolderLocal"), "moveById", "moveServer");
+	intercept(W.findByProps("toggleSelfMute", "toggleSelfDeaf"), "toggleSelfMute", "selfMute");
+	intercept(W.findByProps("toggleSelfMute", "toggleSelfDeaf"), "toggleSelfDeaf", "selfDeaf");
+	intercept(W.findByProps("selectVoiceChannel", "disconnect"), "disconnect", "disconnect");
 	const N = C.NavigationRouter;
 	for (const k of ["transitionTo", "transitionToGuild"]) {
 		const orig = N[k];
@@ -340,6 +343,16 @@ try {
 	check("…and never touches other notifications (calls, friend requests)", await allows({ notif_type: "INCOMING_CALL" }));
 	await js(`document.querySelector('.dk-sb-row[data-dk-id="focus"]').click()`);
 	check("clicking the Focus row ends it", await until(`!document.querySelector('.dk-sb-row[data-dk-id="focus"]')`, 1000));
+
+	// Windows taskbar buttons: Discord accepts them, and each click does Discord's own thing
+	if (await js(`return navigator.userAgent.includes("Windows")`)) {
+		check("taskbar buttons are accepted by Windows", await js(`const c = document.createElement("canvas"); c.width = c.height = 32; return VencordNative.pluginHelpers.DeadKernel.setTaskbarButtons([{ id: "mute", tooltip: "Mute", icon: c.toDataURL("image/png") }])`));
+		await js(`const s = Vencord.Settings.plugins.DeadKernel; s.taskbar = false; s.taskbar = true;`);
+		await rec();
+		await js(`const k = Vencord.Plugins.plugins.DeadKernel; k.taskbarClick("mute"); k.taskbarClick("deafen"); k.taskbarClick("leave");`);
+		const tr = await rec();
+		check("taskbar Mute, Deafen, Disconnect do Discord's own toggles", recHas(tr, "selfMute") && recHas(tr, "selfDeaf") && recHas(tr, "disconnect"), JSON.stringify(tr));
+	}
 
 	// Ctrl+1 opens favourite 1; holding Ctrl shows the numbers
 	if (favId) {

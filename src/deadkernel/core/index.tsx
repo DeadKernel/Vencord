@@ -16,6 +16,7 @@ import { changes, checkForUpdates, update } from "@utils/updater";
 import { Alerts } from "@webpack/common";
 
 import { settings } from "./settings";
+import { startTaskbar, stopTaskbar, taskbarClick } from "./taskbar";
 import { canSend, startTelemetry, stopTelemetry } from "./telemetry";
 
 const Native = VencordNative.pluginHelpers.DeadKernel as PluginNative<typeof import("./native")>;
@@ -81,13 +82,17 @@ async function checkUpdate() {
 
 export default definePlugin({
     name: "DeadKernel",
-    description: "Updates from DeadKernel's GitHub releases, announcements about new builds, and opt-in anonymous usage telemetry.",
+    description: "Updates from DeadKernel's GitHub releases, announcements about new builds, Windows taskbar mute/deafen buttons, and opt-in anonymous usage telemetry.",
     authors: [{ name: "Aditya Padwal", id: 0n }],
     enabledByDefault: true,
     settings,
 
+    /** called by the main process when a taskbar button is clicked (native.ts) */
+    taskbarClick,
+
     start() {
         startTelemetry();
+        if (settings.store.taskbar) startTaskbar();
         timers.push(
             window.setTimeout(askConsent, 10_000),
             window.setTimeout(checkNotices, 30_000),
@@ -98,6 +103,7 @@ export default definePlugin({
 
     stop() {
         stopTelemetry();
+        stopTaskbar();
         timers.forEach(t => { clearTimeout(t); clearInterval(t); });
         timers.length = 0;
     }

@@ -216,3 +216,13 @@ Folders themselves move the same way. No folder creation by dropping (yet).
 - **Switching conversations:** the new chat settles in (160ms fade and 4px lift); off under
   reduced motion.
 
+## 11. Title bar and taskbar (2026-10-06)
+
+- **Title bar:** Discord's mark and "Discord" at the left, in the dim text colour (follows the
+  palette). The mark is Simple Icons' (CC0), drawn as a CSS mask.
+- **Taskbar (Windows):** hovering Discord's taskbar icon shows Mute and Deafen under the preview,
+  where media players put play/pause, plus Disconnect while in a call. Icons and tooltips follow
+  his state (red when muted or deafened); each click is Discord's own toggle. Electron's
+  thumbnail toolbar (`setThumbarButtons`) from the DeadKernel plugin's native.ts; icons are drawn
+  from the same line set into 32px PNGs. DeadKernel › Taskbar switches it off; nothing on a Mac.
+
