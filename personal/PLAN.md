@@ -91,6 +91,13 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   crash falls back to stock Discord; a live toggle switches back.
 - **Lesson:** never touch Vencord's `React` (or other `@webpack/common` exports) at module
   load. `React.memo` at top level threw before Vencord started and took every plugin down.
+- **The other screens, 2026-10-06** (`personal/SCREENS.md`). He loved the sidebar and asked for
+  the same treatment of the screens he uses most. Built: the live-channel column inside a server
+  with the folding strip and peek; the conversation header (server crumb, favourite star, dim
+  topic); Home instead of the Friends tabs; Ctrl K as our palette on Discord's search; and
+  message-list craft (one-line thread previews, pink mention edge, quiet tags, emoji-only
+  composer). Critique by Claude Fable 5.1 on his second Claude account while Codex was out of
+  quota.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 

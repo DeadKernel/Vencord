@@ -133,9 +133,24 @@
     visibility: hidden;
 }
 
-/* Quiet header: name only; buttons on hover */
-[data-dk-layout~="quietHeader"] section[class*="title_"] :is([class*="topic_"], [class*="topicDivider_"], svg[class*="dot_"]) {
+/* Quiet header: name, then the topic as one dim line (it matters in dev servers); buttons on hover */
+[data-dk-layout~="quietHeader"] section[class*="title_"] :is([class*="topicDivider_"], svg[class*="dot_"]) {
     display: none !important;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] {
+    margin-left: 12px;
+    font-size: 12px !important;
+    color: var(--hl-text-2, var(--text-muted)) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* the topic's own text spans set a colour and size; the line is one dim voice */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] :is([data-text-variant], [data-text-variant] *) {
+    font-size: inherit !important;
+    color: inherit !important;
 }
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] > :not([class*="search"]) {
@@ -147,8 +162,22 @@
     opacity: 1;
 }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search"] :is([class*="searchBar_"], [class*="search_"]) {
-    width: 180px;
+/* search: an icon until you use it (Ctrl+F or a click), then it opens to full width */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:has([class*="searchBar_"]) {
+    width: auto !important;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
+    width: 32px !important;
+    transition: width 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:focus-within [class*="searchBar_"] {
+    width: 240px !important;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] [class*="editor_"] {
+    opacity: 0;
 }
 
 /* Quiet channel list, continued */
@@ -211,7 +240,7 @@
 
 /* Compact embeds and media */
 [data-dk-layout~="compactEmbeds"] [class*="embedFull_"] {
-    max-width: 480px !important;
+    max-width: 400px !important;
 }
 
 [data-dk-layout~="compactEmbeds"] [class*="embedDescription_"] {
@@ -225,8 +254,53 @@
     max-width: 360px !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has([class*="topLine_"]) [class*="bottomLine_"] {
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has([class*="topLine_"]) [class*="bottomLine_"],
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="spine_"]:has(+ [class*="container_"] > [class*="topLine_"]) {
     display: none !important;
+}
+
+/* Thread previews: one dim line under the message, "└ thread name  2 Messages ›". No box, no spine. */
+[data-dk-layout~="compactEmbeds"] [class*="cozyMessage_"][class*="hasThread_"]::after {
+    content: none !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has(> [class*="topLine_"]) {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: 100%;
+    min-height: 0 !important;
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] {
+    gap: 8px;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"]::before {
+    content: "└";
+    flex: none;
+    color: var(--hl-text-muted, var(--text-muted));
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] :is([class*="name_"], [class*="cta_"]) {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    color: var(--hl-text-2, var(--text-muted)) !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:hover > [class*="topLine_"] [class*="name_"] {
+    color: var(--hl-text, var(--text-default)) !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:hover > [class*="topLine_"] [class*="cta_"] {
+    color: var(--hl-accent, var(--text-link)) !important;
 }
 
 /* Flat composer */
@@ -235,6 +309,16 @@
     border: 0 !important;
     border-top: 1px solid var(--hl-border, var(--border-subtle)) !important;
     box-shadow: none !important;
+}
+
+/* emoji is the one button on the right: GIFs and stickers are tabs inside its picker */
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > :is(
+    [aria-label="Send a gift"], :has([aria-label="Send a gift"]),
+    [aria-label="Open GIF picker"], :has([aria-label="Open GIF picker"]),
+    [aria-label="Open sticker picker"], :has([aria-label="Open sticker picker"]),
+    [class*="app-launcher-entrypoint"]
+) {
+    display: none !important;
 }
 
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:focus-within [class*="scrollableContainer_"] {

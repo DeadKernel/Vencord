@@ -9,9 +9,12 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin from "@utils/types";
 import { Channel, User } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import { addFavorite, applyAttr, isFavorite, removeFavorite, settings } from "./data";
+import { Breadcrumb, Toolbar } from "./Header";
+import { Home } from "./Home";
+import { Palette } from "./Palette";
 import { ChannelAreaProps, Sidebar } from "./Sidebar";
 import style from "./sidebar.css?managed";
 
@@ -29,6 +32,24 @@ const ChannelArea = ErrorBoundary.wrap((props: ChannelAreaProps) => {
     return enabled ? <Sidebar {...props} /> : <>{props.original()}</>;
 }, {
     fallback: ({ wrappedProps }) => <>{wrappedProps.original()}</>
+});
+
+// Home, or Discord's Friends page (setting off, a deep link to a Friends tab, or a crash).
+const HomeArea = ErrorBoundary.wrap((props: { Original: ComponentType<any>; initialSection?: string; }) => {
+    const { enabled, home } = settings.use(["enabled", "home"]);
+    const { Original, ...rest } = props;
+    return enabled && home ? <Home {...props} /> : <Original {...rest} />;
+}, {
+    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />
+});
+
+// Ctrl K: our palette in Discord's modal, or Discord's switcher (setting off, or a crash).
+const PaletteArea = ErrorBoundary.wrap((props: { Original: ComponentType<any>; transitionState: any; onClose(): void; }) => {
+    const { enabled, palette } = settings.use(["enabled", "palette"]);
+    const { Original, ...rest } = props;
+    return enabled && palette ? <Palette {...props} /> : <Original {...rest} />;
+}, {
+    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />
 });
 
 function favoriteItem(id?: string) {
@@ -57,7 +78,40 @@ export default definePlugin({
     settings,
     managedStyle: style,
 
-    patches: [{
+    patches: [
+        // Home: our page instead of Discord's Friends tabs when nothing is open (personal/SCREENS.md)
+        {
+            find: '"confirm-age"',
+            replacement: {
+                match: /(\i\.\i\.isInitialized\(\)\)\?)\(0,(\i)\.jsx\)\((\i),\{\.\.\.(\i)\}\)/,
+                replace: "$1(0,$2.jsx)($self.HomeArea,{...$4,Original:$3})"
+            }
+        },
+        // Ctrl K: the palette, inside the modal Discord opens for its switcher (personal/SCREENS.md)
+        {
+            find: '"QUICK_SWITCHER_MODAL_KEY"',
+            replacement: {
+                match: /(\(0,\i\.openModal\)\((\i)=>\(0,(\i)\.jsx\)\()(\i)(,\{\.\.\.\2\}\))/,
+                replace: "$1$self.PaletteArea,{...$2,Original:$4})"
+            }
+        },
+        // Conversation header: a favourite star in front of Discord's buttons (personal/SCREENS.md)
+        {
+            find: "Missing channel in Channel.renderHeaderToolbar",
+            replacement: {
+                match: /toolbar:this\.renderHeaderToolbar\(\)/,
+                replace: "toolbar:$self.Toolbar(this.renderHeaderToolbar(),this.props.channel)"
+            }
+        },
+        // ...and "server ›" before the channel name, in the slot Discord uses for its icon-only crumb
+        {
+            find: "Missing channel in Channel.renderHeaderToolbar",
+            replacement: {
+                match: /(\i)&&\(0,(\i)\.jsx\)\((\i\.\i),\{channel:(\i),guild:(\i),caretPosition:"right"\}\)/,
+                replace: "(0,$2.jsx)($self.Breadcrumb,{channel:$4,guild:$5,discordShows:$1,Original:$3})"
+            }
+        },
+        {
         find: "APPLICATION_LIBRARY,render:",
         group: true,
         replacement: [
@@ -72,7 +126,8 @@ export default definePlugin({
                 replace: "(0,$2.jsx)($self.ChannelArea,{guildId:$1,selectedChannelId:$4,GuildSidebar:$3,PrivateChannels:$5,original:()=>$&})"
             }
         ]
-    }],
+        }
+    ],
 
     contextMenus: {
         "channel-context": channelMenu,
@@ -83,6 +138,10 @@ export default definePlugin({
 
     RailGate,
     ChannelArea,
+    Toolbar,
+    Breadcrumb,
+    HomeArea,
+    PaletteArea,
 
     start: applyAttr,
     stop() {

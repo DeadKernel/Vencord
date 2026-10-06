@@ -354,6 +354,11 @@ html[data-dk-sidebar] {
     object-fit: cover;
 }
 
+/* a deleted avatar 404s to nothing; the square still reads as a person */
+.dk-sb-person {
+    background: var(--hl-bg-hover, var(--background-mod-normal));
+}
+
 .dk-sb-server {
     width: 20px;
     height: 20px;
@@ -604,9 +609,438 @@ button.dk-sb-quiet:hover {
     min-height: 0;
 }
 
+/* ── Conversation header (personal/SCREENS.md) ── */
+.dk-crumb {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 220px;
+    margin-right: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--hl-text-2, var(--text-muted));
+    cursor: pointer;
+}
+
+.dk-crumb:hover {
+    color: var(--hl-accent, var(--text-link));
+}
+
+.dk-crumb-name {
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dk-crumb-sep {
+    color: var(--hl-text-muted, var(--text-muted));
+}
+
+.dk-star {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    color: var(--hl-text-2, var(--interactive-normal));
+    cursor: pointer;
+    transition: color 80ms linear, transform 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dk-star:hover {
+    color: var(--hl-accent, var(--interactive-hover));
+}
+
+.dk-star:active {
+    transform: scale(0.88);
+}
+
+.dk-star[data-on] {
+    color: var(--hl-accent, var(--text-brand));
+    opacity: 1 !important;
+}
+
+/* ── Home (personal/SCREENS.md) ── */
+.dk-home,
+.dk-home-discord {
+    --dk-bg: var(--hl-bg, var(--background-base-lowest));
+    --dk-text: var(--hl-text, var(--text-default));
+    --dk-text-2: var(--hl-text-2, var(--text-muted));
+    --dk-strong: var(--hl-text-strong, var(--text-strong));
+    --dk-accent: var(--hl-accent, var(--text-brand));
+    --dk-border: var(--hl-border, var(--border-subtle));
+    --dk-teal: var(--hl-teal, var(--status-positive));
+    --dk-pink: var(--hl-pink, var(--status-danger));
+    --dk-yellow: var(--hl-yellow, var(--status-warning));
+
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    background: var(--dk-bg);
+    color: var(--dk-text);
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.dk-home-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 32px;
+    box-shadow: inset 0 -1px 0 var(--dk-border);
+}
+
+.dk-home-header h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dk-strong);
+}
+
+.dk-home-links {
+    display: flex;
+    gap: 20px;
+}
+
+.dk-home-links button,
+.dk-home-back {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dk-text-2);
+    cursor: pointer;
+}
+
+.dk-home-links button:hover,
+.dk-home-back:hover {
+    color: var(--dk-accent);
+}
+
+.dk-home-back {
+    flex: none;
+    height: 32px;
+    padding: 0 32px;
+    text-align: left;
+    box-shadow: inset 0 -1px 0 var(--dk-border);
+}
+
+.dk-home-body {
+    flex: 1;
+    overflow: hidden auto;
+    padding: 16px 32px 48px;
+    max-width: 720px;
+    animation: dk-settle 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dk-home-body section + section {
+    margin-top: 24px;
+}
+
+.dk-home-body h2 {
+    margin: 0 0 4px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dk-text-2);
+}
+
+.dk-home-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    width: calc(100% + 20px);
+    height: 36px;
+    padding: 0 10px;
+    margin: 0 -10px;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--dk-text);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 80ms linear;
+}
+
+.dk-home-row:hover,
+.dk-home-call:hover {
+    background: var(--hl-hover, var(--background-mod-subtle));
+}
+
+.dk-home-row.dk-unread .dk-home-name {
+    color: var(--dk-strong);
+    font-weight: 600;
+}
+
+.dk-home-call {
+    cursor: default;
+}
+
+.dk-home-call .dk-home-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dk-home-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dk-home-dim {
+    flex: 0 100 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    color: var(--dk-text-2);
+}
+
+.dk-home-time {
+    margin-left: auto;
+}
+
+.dk-home-stack {
+    display: flex;
+    flex: none;
+}
+
+.dk-home-stack .dk-sb-icon + .dk-sb-icon {
+    margin-left: -6px;
+    box-shadow: 0 0 0 2px var(--dk-bg);
+}
+
+.dk-home-join {
+    flex: none;
+    height: 24px;
+    padding: 0 10px;
+    border: 1px solid var(--dk-teal);
+    background: rgb(93 228 199 / 12%);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dk-teal);
+    cursor: pointer;
+    transition: background-color 80ms linear;
+}
+
+.dk-home-join:hover {
+    background: rgb(93 228 199 / 22%);
+}
+
+.dk-home-here {
+    flex: none;
+    font-size: 11px;
+    color: var(--dk-teal);
+}
+
+.dk-home-empty {
+    margin: 0;
+    font-size: 12px;
+    color: var(--dk-text-2);
+}
+
+.dk-home .dk-sb-more {
+    padding-left: 34px !important;
+}
+
+.dk-home .dk-sb-count {
+    margin-left: auto;
+}
+
+/* ── Palette (Ctrl K): 560px, high on the screen like Raycast and Linear, flat and square.
+   Sections are 11px labels, rows are the sidebar's rows, one legend line at the bottom. ── */
+.dk-pal {
+    --dk-bg: var(--hl-bg-raised, var(--background-base-lower));
+    --dk-hover: var(--hl-hover, var(--background-mod-subtle));
+    --dk-border: var(--hl-border, var(--border-subtle));
+    --dk-text: var(--hl-text, var(--text-default));
+    --dk-text-2: var(--hl-text-2, var(--text-muted));
+    --dk-strong: var(--hl-text-strong, var(--text-strong));
+    --dk-accent: var(--hl-accent, var(--text-brand));
+    --dk-accent-15: var(--hl-accent-15, var(--background-modifier-selected));
+    --dk-pink: var(--hl-pink, var(--status-danger));
+    --dk-teal: var(--hl-teal, var(--status-positive));
+    --dk-yellow: var(--hl-yellow, var(--status-warning));
+
+    display: flex;
+    flex-direction: column;
+    width: 560px !important;
+    max-width: calc(100vw - 32px);
+    max-height: min(520px, calc(100vh - 128px)) !important;
+    min-height: 0 !important;
+    border: 1px solid var(--dk-border) !important;
+    border-radius: 0 !important;
+    background: var(--dk-bg) !important;
+    box-shadow: 0 16px 48px rgb(0 0 0 / 35%) !important;
+    color: var(--dk-text);
+    font-size: 13px;
+    line-height: 20px;
+    overflow: hidden;
+}
+
+/* the layer centres modals: put this one 64px from the top (24px layer padding + 40px), and the
+   theme's frame on the focus-lock wrapper goes, so the palette is the only edge */
+[class*="layer_"]:has(> [class*="focusLock_"] > .dk-pal) {
+    justify-content: flex-start !important;
+}
+
+[class*="focusLock_"]:has(> .dk-pal) {
+    margin-top: 40px;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.dk-pal-input {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 16px;
+    box-shadow: inset 0 -1px 0 var(--dk-border);
+}
+
+.dk-pal-glyph {
+    flex: none;
+    width: 24px;
+    text-align: center;
+    color: var(--dk-text-2);
+}
+
+.dk-pal-input input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--dk-strong);
+}
+
+.dk-pal-input input::placeholder {
+    color: var(--dk-text-2);
+}
+
+.dk-pal-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden auto;
+    padding: 4px 0 8px;
+    scrollbar-width: none;
+}
+
+.dk-pal-header {
+    height: 28px;
+    padding: 4px 16px 0;
+    line-height: 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dk-text-2);
+}
+
+.dk-pal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 32px;
+    padding: 0 16px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dk-pal-row.dk-unread {
+    color: var(--dk-strong);
+    font-weight: 600;
+}
+
+.dk-pal-row.dk-selected {
+    color: var(--dk-accent);
+    background: var(--dk-accent-15);
+    box-shadow: inset 2px 0 0 var(--dk-accent);
+}
+
+.dk-pal-row.dk-selected .dk-sb-dot {
+    background: var(--dk-accent);
+}
+
+.dk-pal-fav {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--dk-text-2);
+}
+
+.dk-pal-empty {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--dk-text-2);
+}
+
+.dk-pal-keys {
+    flex: none;
+    display: flex;
+    gap: 16px;
+    height: 28px;
+    padding: 0 16px;
+    line-height: 28px;
+    font-size: 11px;
+    color: var(--dk-text-2);
+    box-shadow: inset 0 1px 0 var(--dk-border);
+}
+
+/* Discord's own switcher (palette off): at least no PROTIP and no tutorial arrows */
+html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*="tutorial__"]) {
+    display: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .dk-sb *,
-    .dk-sb {
+    .dk-sb,
+    .dk-home,
+    .dk-home *,
+    .dk-pal * {
         transition: none !important;
         animation: none !important;
     }

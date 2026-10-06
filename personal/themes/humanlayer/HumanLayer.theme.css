@@ -186,8 +186,8 @@
 
 	/* messages */
 	--message-background-hover: rgb(166 172 205 / 0.03);
-	--message-mentioned-background-default: var(--hl-accent-08);
-	--message-mentioned-background-hover: rgb(173 215 255 / 0.11);
+	--message-mentioned-background-default: transparent;
+	--message-mentioned-background-hover: rgb(166 172 205 / 0.03);
 	--message-highlight-background-default: rgb(93 228 199 / 0.07);
 	--message-highlight-background-hover: rgb(93 228 199 / 0.1);
 	--mention-foreground: var(--hl-accent);
@@ -574,9 +574,10 @@ select {
 	border-radius: 0;
 }
 
-/* Mentions get the HumanLayer selected-row look: accent edge + light wash */
+/* A message that mentions you: a 2px pink edge, no wash. Pink means "this needs you" everywhere
+   (sidebar counts, the NEW line), so it's the only pink in the list. */
 [class*="message_"][class*="mentioned_"]::before {
-	background: var(--hl-accent) !important;
+	background: var(--hl-pink) !important;
 	width: 2px !important;
 }
 
@@ -653,8 +654,10 @@ select {
 }
 
 /* Embeds and attachments */
+/* the brand stripe becomes a grey edge: a link preview shouldn't outshout the message */
 [class*="embedFull_"] {
 	background: var(--hl-bg-raised) !important;
+	border-left-color: var(--hl-bg-active) !important;
 	border-radius: 0 !important;
 	border-top: 1px solid var(--hl-border);
 	border-right: 1px solid var(--hl-border);
@@ -824,16 +827,19 @@ textarea[class*="input_"],
 	display: none;
 }
 
-/* Tags (APP, OFFICIAL) as outlined chips instead of blurple pills */
+/* Tags (APP, OFFICIAL) as a dim lowercase word: it's a fact about the sender, not a signal */
 [class*="botTag_"] {
 	background: transparent !important;
-	color: var(--hl-accent) !important;
-	border: 1px solid var(--hl-accent);
+	color: var(--hl-text-2) !important;
+	border: 0;
 	border-radius: 0 !important;
+	padding-inline: 2px !important;
+	font-weight: 400 !important;
+	text-transform: lowercase;
 }
 
 [class*="botTag_"] svg path {
-	fill: var(--hl-accent);
+	fill: var(--hl-text-2);
 }
 
 /* Notification counters in HumanLayer pink, square */

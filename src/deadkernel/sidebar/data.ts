@@ -53,6 +53,16 @@ export const settings = definePluginSettings({
         type: OptionType.CUSTOM,
         default: {} as Record<string, boolean>
     },
+    home: {
+        type: OptionType.BOOLEAN,
+        description: "Home: who's in voice, who's around and recent conversations, instead of Discord's Friends tabs",
+        default: true
+    },
+    palette: {
+        type: OptionType.BOOLEAN,
+        description: "Ctrl K: a quieter switcher that knows your favorites and where you've been, with > for actions",
+        default: true
+    },
     peek: {
         type: OptionType.BOOLEAN,
         description: "Inside a server, resting the pointer on the slim strip unfolds the full sidebar",
@@ -80,10 +90,16 @@ export const SortedGuildStoreTyped = findStoreLazy("SortedGuildStore") as {
     getGuildFolders(): { folderId?: number | string; folderName?: string; folderColor?: number; guildIds: string[]; }[];
 };
 
-// "QUICKSWITCHER_OPENED" is in three modules; this find is unique (personal research, screens-tech §4.3)
-const QuickSwitcher = mapMangledModuleLazy('type:"QUICKSWITCHER_SEARCH"', {
-    show: filters.byCode('"KEYBIND"')
+// "QUICKSWITCHER_OPENED" is in three modules; this find is unique (personal research, screens-tech §4.3).
+// The palette keeps Discord's search and ranking and only replaces the look (personal/SCREENS.md).
+export const QuickSwitcher = mapMangledModuleLazy('type:"QUICKSWITCHER_SEARCH"', {
+    show: filters.byCode('"KEYBIND"'),
+    hide: filters.byCode("QUICKSWITCHER_CLOSED"),
+    search: filters.byCode('"QUICKSWITCHER_SEARCH"'),
+    /** (result, isTextChannelMode): what Enter does in Discord's switcher */
+    go: filters.byCode("navigationReplace:!0")
 });
+export const QuickSwitcherStore = findStoreLazy("QuickSwitcherStore");
 
 export function openQuickSwitcher() {
     try {

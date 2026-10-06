@@ -106,7 +106,7 @@ function Row(p: RowProps) {
     );
 }
 
-function Square({ src, text, presence, size = "person" }: { src?: string | null; text?: string; presence?: string; size?: "person" | "server"; }) {
+export function Square({ src, text, presence, size = "person" }: { src?: string | null; text?: string; presence?: string; size?: "person" | "server"; }) {
     return (
         <span className={`dk-sb-icon dk-sb-${size}`}>
             {src ? <img src={src} alt="" loading="lazy" draggable={false} /> : <span className="dk-sb-glyph">{text}</span>}
@@ -121,12 +121,12 @@ function avatarSrc(channel: Channel) {
     return null;
 }
 
-const guildIcon = (guildId: string) => {
+export const guildIcon = (guildId: string) => {
     const g = GuildStore.getGuild(guildId);
     return g?.icon ? IconUtils.getGuildIconURL({ id: g.id, icon: g.icon, size: 40 }) : null;
 };
 
-function channelIcon(channel: Channel, presence?: string) {
+export function channelIcon(channel: Channel, presence?: string) {
     if (channel.type === 1 || channel.type === 3)
         return <Square src={avatarSrc(channel)} text={labelFor(channel)[0]} presence={presence} />;
     const glyph = channel.isThread?.() ? "↳" : channel.type === 2 ? "♪" : channel.type === 15 ? "≡" : "#";

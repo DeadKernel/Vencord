@@ -2,7 +2,8 @@
 //   node personal/tools/cdp.mjs eval "<js expression>"
 //   node personal/tools/cdp.mjs shot out.png [width height]
 //   node personal/tools/cdp.mjs clip out.png "<css selector>" [padding]
-//   node personal/tools/cdp.mjs hover|click|rclick x y     node personal/tools/cdp.mjs key Escape
+//   node personal/tools/cdp.mjs hover|click|rclick x y     node personal/tools/cdp.mjs key Escape|Shift+Enter|Ctrl+k
+//   node personal/tools/cdp.mjs type "some text"   (into whatever has focus)
 //   node personal/tools/cdp.mjs css theme.css   (hot-swap a theme without rebuilding)
 // CDP_PORT=9223 targets our Vesktop instead (see vesktop-dev.ps1).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -65,9 +66,18 @@ if (cmd === "eval") {
 	}
 	console.log(cmd, at.x, at.y);
 } else if (cmd === "key") {
-	// node cdp.mjs key Escape
-	for (const type of ["keyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: arg, code: arg, windowsVirtualKeyCode: arg === "Escape" ? 27 : 0 });
+	// node cdp.mjs key Escape | ArrowDown | Shift+Enter | Ctrl+k
+	const parts = arg.split("+");
+	const key = parts.pop();
+	const modifiers = (parts.includes("Alt") ? 1 : 0) | (parts.includes("Ctrl") ? 2 : 0) | (parts.includes("Meta") ? 4 : 0) | (parts.includes("Shift") ? 8 : 0);
+	const codes = { Escape: 27, Enter: 13, Tab: 9, Backspace: 8, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, Home: 36, End: 35 };
+	const vk = codes[key] ?? (key.length === 1 ? key.toUpperCase().charCodeAt(0) : 0);
+	const code = codes[key] ? key : key.length === 1 ? `Key${key.toUpperCase()}` : key;
+	for (const type of ["rawKeyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key, code, modifiers, windowsVirtualKeyCode: vk });
 	console.log("key", arg);
+} else if (cmd === "type") {
+	await send("Input.insertText", { text: arg });
+	console.log("typed", arg);
 } else if (cmd === "clip") {
 	// node cdp.mjs clip out.png "<css selector>" [padding]: the element's box at 2x
 	const pad = +(h ?? 8);
