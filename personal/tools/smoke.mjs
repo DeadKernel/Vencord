@@ -134,7 +134,7 @@ if (target) {
 }
 
 // ── 3b. Add a server: Discord's dialog opens (and is closed untouched) ──
-await js(`[...document.querySelectorAll(".dk-sb-link")].find(b => b.textContent === "Add").click()`);
+await js(`document.querySelector('[data-dk-action="add-server"]').click()`);
 check("Add opens Discord's add-a-server dialog", await until(`document.querySelector('[role="dialog"]')`, 3000));
 await until(`document.querySelector('[role="dialog"] [aria-label="Close"]')`, 3000);
 await js(`document.querySelector('[role="dialog"] [aria-label="Close"]')?.click()`);

@@ -11,6 +11,7 @@ import { classes } from "@utils/misc";
 import { ApplicationStreamingStore, ChannelActionCreators, ChannelStore, RelationshipStore, UserStore, useStateFromStores, VoiceStateStore } from "@webpack/common";
 
 import { openChannel } from "./data";
+import { Icon } from "./icons";
 
 export const occupants = (channelId: string) => Object.keys(VoiceStateStore.getVoiceStatesForChannel(channelId) ?? {});
 
@@ -43,14 +44,16 @@ export function openDm(uid: string) {
     else ChannelActionCreators.openPrivateChannel(uid);
 }
 
-/** "live", "cam", and a dim "muted"/"deafened": the words, not Discord's icons. */
+/** Streaming, camera, muted or deafened, as Discord's own call UI shows them: small icons, live in teal. */
 export function Flags({ uid }: { uid: string; }) {
     const f: VoiceFlags = JSON.parse(useStateFromStores([VoiceStateStore, ApplicationStreamingStore], () => JSON.stringify(voiceFlags(uid)), [uid]));
     return (
         <>
-            {f.live && <span className="dk-vc-live">live</span>}
-            {f.video && <span className="dk-vc-flag">cam</span>}
-            {(f.deaf || f.muted) && <span className="dk-vc-flag dk-vc-off">{f.deaf ? "deafened" : "muted"}</span>}
+            {f.live && <span className="dk-vc-live" title="Streaming"><Icon name="screen" size={16} title="Streaming" /></span>}
+            {f.video && <span className="dk-vc-flag" title="Camera on"><Icon name="camera" size={16} title="Camera on" /></span>}
+            {(f.deaf || f.muted) && <span className="dk-vc-flag dk-vc-off" title={f.deaf ? "Deafened" : "Muted"}>
+                <Icon name={f.deaf ? "deafened" : "micOff"} size={16} title={f.deaf ? "Deafened" : "Muted"} />
+            </span>}
         </>
     );
 }

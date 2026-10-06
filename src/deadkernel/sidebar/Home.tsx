@@ -17,6 +17,7 @@ import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
 import { getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
+import { Icon, IconSlot } from "./icons";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
@@ -85,14 +86,14 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
         <div className="dk-home-callblock">
             <div className="dk-home-row dk-home-call">
                 <button className="dk-home-main" onClick={() => openVoiceChat(channel as Channel)} title={`Open ${labelFor(channel)}'s chat (Join joins)`}>
-                    <span className="dk-sb-icon dk-sb-hash" aria-hidden>♪</span>
+                    <IconSlot name="voice" />
                     <span className="dk-home-name">{guild ? channel.name : labelFor(channel)}</span>
                     <span className="dk-home-dim">{guild ? guild.name : "call"}</span>
                     <span className="dk-home-dim dk-home-time">{count}</span>
                 </button>
                 {mine
                     ? <span className="dk-home-here">you're here</span>
-                    : <button className="dk-home-join" onClick={() => joinVoice(channel as Channel)}>Join</button>}
+                    : <button className="dk-home-join" data-dk-action="join" title={`Join ${channel.name ?? "the call"}`} aria-label="Join" onClick={() => joinVoice(channel as Channel)}><Icon name="join" size={20} /></button>}
             </div>
             <VoiceMembers channelId={channelId} max={8} className="dk-home-member" />
         </div>
@@ -176,11 +177,12 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
             <header className="dk-home-header">
                 <h1>Home</h1>
                 <span className="dk-home-links">
-                    <button onClick={() => { track("home_all_friends"); setDiscord("ALL"); }}>All friends</button>
-                    <button onClick={() => { track("home_add_friend"); setDiscord("ADD_FRIEND"); }}>Add friend</button>
+                    <button data-dk-action="all-friends" title="All friends" aria-label="All friends" onClick={() => { track("home_all_friends"); setDiscord("ALL"); }}><Icon name="people" size={20} /></button>
+                    <button data-dk-action="add-friend" title="Add friend" aria-label="Add friend" onClick={() => { track("home_add_friend"); setDiscord("ADD_FRIEND"); }}><Icon name="addPerson" size={20} /></button>
                 </span>
             </header>
             <div className="dk-home-body">
+                <div className="dk-home-flow">
                 {calls.length > 0 && (
                     <section>
                         <h2>In voice</h2>
@@ -191,10 +193,10 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
                     <section>
                         <h2>Requests</h2>
                         {pending > 0 && <button className="dk-home-row dk-home-main" onClick={() => setDiscord("PENDING")}>
-                            <span className="dk-sb-icon dk-sb-hash">+</span><span className="dk-home-name">Friend requests</span><span className="dk-sb-count">{pending}</span>
+                            <IconSlot name="addPerson" /><span className="dk-home-name">Friend requests</span><span className="dk-sb-count">{pending}</span>
                         </button>}
                         {requests > 0 && <button className="dk-home-row dk-home-main" onClick={() => NavigationRouter.transitionTo("/message-requests")}>
-                            <span className="dk-sb-icon dk-sb-hash">?</span><span className="dk-home-name">Message requests</span><span className="dk-home-dim dk-home-time">· {requests}</span>
+                            <IconSlot name="inbox" /><span className="dk-home-name">Message requests</span><span className="dk-home-dim dk-home-time">· {requests}</span>
                         </button>}
                     </section>
                 )}
@@ -213,6 +215,7 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
                         </button>
                     )}
                 </section>
+                </div>
             </div>
         </main>
     );

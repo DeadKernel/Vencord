@@ -23,6 +23,7 @@ navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQui
     suppressBroadcasts, useFavorites,
 userPresence } from "./data";
 import { openGuildMenu } from "./discordMenus";
+import { Icon, IconSlot } from "./icons";
 import { ContextItem, openMenu } from "./menu";
 import { occupants, VoiceMembers } from "./voice";
 
@@ -58,7 +59,7 @@ function Section({ id, label, aside, children }: { id: string; label: string; as
         <section className="dk-sb-section" data-closed={closed || undefined}>
             <div className="dk-sb-label">
                 <button className="dk-sb-label-toggle" onClick={toggle} aria-expanded={!closed} data-dk-nav>
-                    <span className="dk-sb-caret" aria-hidden>{closed ? "▸" : "▾"}</span>{label}
+                    <span className="dk-sb-caret" aria-hidden><Icon name={closed ? "chevronRight" : "chevronDown"} size={12} /></span>{label}
                 </button>
                 {aside}
             </div>
@@ -135,8 +136,8 @@ export const guildIcon = (guildId: string) => {
 export function channelIcon(channel: Channel, presence?: string) {
     if (channel.type === 1 || channel.type === 3)
         return <Square src={avatarSrc(channel)} text={labelFor(channel)[0]} presence={presence} />;
-    const glyph = channel.isThread?.() ? "↳" : channel.type === 2 ? "♪" : channel.type === 15 ? "≡" : "#";
-    return <span className="dk-sb-icon dk-sb-hash" aria-hidden>{glyph}</span>;
+    return <IconSlot name={channel.isThread?.() ? "thread" : channel.type === 2 || channel.type === 13 ? "voice"
+        : channel.type === 15 || channel.type === 16 ? "forum" : channel.type === 5 ? "announce" : "hash"} />;
 }
 
 function conversationMenu(id: string, inFavorites: boolean): ContextItem[] {
@@ -247,6 +248,7 @@ function GuildRow({ guildId }: { guildId: string; }) {
             unread={s.unread && !s.muted}
             muted={s.muted && !s.mentions}
             selected={selected}
+            dataId={guildId}
             onClick={() => openGuild(guildId)}
             onContextMenu={e => openGuildMenu(e, guildId, [
                 { id: "open", label: "Open", action: () => openGuild(guildId) },
@@ -269,7 +271,7 @@ function FolderRow({ folder, open, onToggle }: { folder: Folder; open: boolean; 
     const color = folder.folderColor != null ? `#${folder.folderColor.toString(16).padStart(6, "0")}` : undefined;
     return (
         <Row
-            icon={<span className="dk-sb-icon dk-sb-server dk-sb-foldericon" style={{ boxShadow: color ? `inset 2px 0 0 ${color}` : undefined }} aria-hidden>{open ? "▾" : "▸"}</span>}
+            icon={<span className="dk-sb-icon dk-sb-glyphicon dk-sb-foldericon" style={{ color: color ?? undefined }} aria-hidden><Icon name={open ? "folderOpen" : "folder"} /></span>}
             label={name}
             where={`${folder.guildIds.length}`}
             count={open ? 0 : s.mentions}
@@ -295,8 +297,8 @@ function DirectSection() {
     const hasMentions = items.some(i => i.kind === "server");
     return (
         <Section id="direct" label="DMs & mentions" aside={hasMentions && (
-            <button className="dk-sb-link" data-dk-nav title="Mark channel mentions read (DMs stay until you open them)"
-                onClick={() => { track("mark_mentions_read"); markRead(selectMentionChannels()); }}>Mark read</button>
+            <button className="dk-sb-iconlink" data-dk-nav data-dk-action="mark-read" title="Mark channel mentions read (DMs stay until you open them)"
+                aria-label="Mark mentions read" onClick={() => { track("mark_mentions_read"); markRead(selectMentionChannels()); }}><Icon name="checks" size={16} /></button>
         )}>
             {shown.map(item => item.kind === "dm"
                 ? <ConversationRow key={item.id} id={item.id} />
@@ -358,7 +360,7 @@ function MessagesSection() {
             {hidden > 0 && !more && <button className="dk-sb-more" onClick={() => setMore(true)} data-dk-nav>Older conversations · {hidden}</button>}
             {more && <button className="dk-sb-more" onClick={() => setMore(false)} data-dk-nav>Show fewer</button>}
             {/* mostly strangers: a dim count, not pink (pink means someone needs you) */}
-            {requests > 0 && <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>?</span>} label="Message requests" meta={{ text: `· ${requests}`, live: false }} onClick={openRequests} />}
+            {requests > 0 && <Row icon={<IconSlot name="inbox" />} label="Message requests" meta={{ text: `· ${requests}`, live: false }} onClick={openRequests} />}
         </Section>
     );
 }
@@ -374,7 +376,7 @@ function ServersSection() {
     const tuckedSet = new Set(tucked);
 
     return (
-        <Section id="servers" label="Servers" aside={<button className="dk-sb-link" onClick={openAddServer} data-dk-nav title="Create a server, or join one with an invite">Add</button>}>
+        <Section id="servers" label="Servers" aside={<button className="dk-sb-iconlink" onClick={openAddServer} data-dk-nav data-dk-action="add-server" aria-label="Add a server" title="Add a server: create one, or join with an invite"><Icon name="plus" size={16} /></button>}>
             {folders.map(folder => {
                 if (!folder.folderId) {
                     const id = folder.guildIds[0];
@@ -408,7 +410,7 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
         <button className="dk-sb-return" data-dk-nav
             onClick={() => { track("return_row"); drillIn(); NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`); }}
             title={`Return to ${labelFor(channel)}${guild ? ` · ${guild.name}` : ""}`}>
-            <span className="dk-sb-icon dk-sb-hash" aria-hidden>↩</span>
+            <IconSlot name="back" />
             <span className="dk-sb-name">Return to {labelFor(channel)}</span>
             {guild && <span className="dk-sb-where">{guild.name}</span>}
         </button>
@@ -418,14 +420,14 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
 /** The way back to Home from anywhere: who's in voice, who's around, recent DMs. */
 function HomeRow({ selected }: { selected: boolean; }) {
     return (
-        <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>⌂</span>} label="Home" selected={selected} onClick={() => { track("home_row"); openFriends(); }} />
+        <Row icon={<IconSlot name="home" />} label="Home" selected={selected} onClick={() => { track("home_row"); openFriends(); }} />
     );
 }
 
 function JumpRow() {
     return (
         <button className="dk-sb-row dk-sb-jump" onClick={openQuickSwitcher} data-dk-nav title="Jump to anything (Ctrl K)">
-            <span className="dk-sb-icon dk-sb-hash" aria-hidden>⌕</span>
+            <IconSlot name="search" />
             <span className="dk-sb-name">Jump to…</span>
             <span className="dk-sb-trail"><kbd>Ctrl K</kbd></span>
         </button>

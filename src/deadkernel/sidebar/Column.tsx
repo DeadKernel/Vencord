@@ -22,6 +22,7 @@ import {
     snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites
 } from "./data";
 import { openChannelMenu, openGuildMenu } from "./discordMenus";
+import { Icon, IconName, IconSlot } from "./icons";
 import { ContextItem } from "./menu";
 import { occupants, VoiceMembers } from "./voice";
 
@@ -96,12 +97,12 @@ const serverMenu = (guildId: string): ContextItem[] => [
     { id: "suppress", label: "Stop @everyone and role pings here", action: () => suppressBroadcasts(guildId) }
 ];
 
-function glyph(channel: Channel) {
-    if (channel.isThread?.()) return "└";
-    if (isVoice(channel)) return "♪";
-    if (channel.type === 15 || channel.type === 16) return "≡";
-    if (channel.type === 5) return "»";
-    return "#";
+function glyph(channel: Channel): IconName {
+    if (channel.isThread?.()) return "thread";
+    if (isVoice(channel)) return "voice";
+    if (channel.type === 15 || channel.type === 16) return "forum";
+    if (channel.type === 5) return "announce";
+    return "hash";
 }
 
 function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) {
@@ -133,7 +134,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     aria-current={selected ? "page" : undefined}
                     data-dk-nav
                 >
-                    <span className="dk-sb-icon dk-sb-hash" aria-hidden>{glyph(channel)}</span>
+                    <IconSlot name={glyph(channel)} />
                     <span className="dk-sb-name">{channel.name}</span>
                     <span className="dk-sb-trail">
                         {voice && users.length > 0 && <span className="dk-sb-meta dk-live">· {users.length}</span>}
@@ -163,7 +164,7 @@ function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean
                 <div className="dk-sb-label">
                     <button className="dk-sb-label-toggle" data-dk-nav aria-expanded={hasLive ? !cat.collapsed : open}
                         onClick={() => hasLive ? toggleCategory(cat.id, cat.collapsed) : toggleQuiet()}>
-                        <span className="dk-sb-caret" aria-hidden>{(hasLive ? cat.collapsed : !open) ? "▸" : "▾"}</span>{cat.name}
+                        <span className="dk-sb-caret" aria-hidden><Icon name={(hasLive ? cat.collapsed : !open) ? "chevronRight" : "chevronDown"} size={12} /></span>{cat.name}
                     </button>
                     {cat.quiet.length > 0 && (
                         <button className="dk-sb-quiet" onClick={toggleQuiet} data-dk-nav aria-expanded={open}
@@ -211,9 +212,9 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
             <div className="dk-col-header">
                 <button className="dk-col-title" title={`${guild?.name ?? ""}: invite, notifications, settings`} data-dk-nav
                     onClick={e => openGuildMenu(e, guildId, serverMenu(guildId))} onContextMenu={e => openGuildMenu(e, guildId, serverMenu(guildId))}>
-                    {guild?.name}<span className="dk-col-caret" aria-hidden>▾</span>
+                    {guild?.name}<span className="dk-col-caret" aria-hidden><Icon name="chevronDown" size={14} /></span>
                 </button>
-                <button className="dk-col-back" onClick={onBack} title="Close this column (the conversation stays open)" data-dk-nav aria-label="Close">×</button>
+                <button className="dk-col-back" onClick={onBack} title="Close this column (the conversation stays open)" data-dk-nav aria-label="Close"><Icon name="close" size={16} /></button>
             </div>
             {all ? (
                 <>

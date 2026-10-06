@@ -128,3 +128,21 @@ Fable §5.)*
 - Nothing marks anything read except Discord, on his click. Testing only opens read channels.
 - Stores are read through selectors that return ids or JSON, so rows re-render only when
   membership or order changes.
+
+## 5. Size and symbols (2026-10-06, after he ran it full screen on a 3440×1440 monitor)
+
+- **The app scales with the window.** QuietLayout zooms the whole app by window height: 100% at
+  720px tall or less, rising to 130% from 1300px, in 5% steps, plus an "Overall size" slider
+  (80–150%). It's CSS `zoom` in a `<style>` of ours (Discord rewrites `<html style>`), which keeps
+  hit-testing, menus and popouts right. `--dk-vw` is the window's width in zoomed pixels.
+- **Room rules use real room.** A member list, thread or search results only shrink the sidebar
+  when the chat would otherwise drop under ~720px; full screen keeps the width he dragged.
+- **Home uses the width:** its sections flow into as many 420px columns as fit, up to three.
+- **Symbols, not words:** one line-icon set (`src/deadkernel/sidebar/icons.tsx`, after Lucide)
+  replaces the word controls (hover actions chat/join/call/message, mark read, add a server, Home's
+  friend links, Join, live/cam/muted) and the Unicode glyphs (# ♪ ⌂ ⌕ ↩ ? ▸ ▾ ×). Every control keeps
+  its name as a tooltip and an accessible label. Icons are 18px in a 24px slot (server icons were
+  20px, now 24px); action buttons are 28px targets.
+- Hover actions take the row's right slot: the count steps aside and the text truncates sooner,
+  so the actions sit on the row rather than on a patch over it.
+

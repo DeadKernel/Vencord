@@ -117,7 +117,7 @@ try {
 		return { texts, dm: dm?.id };`);
 
 	// ── 1. Favourites: add/remove from Discord's channel menu updates at once and is saved ──
-	const voiceRowAny = `[...document.querySelectorAll(".dk-col .dk-col-row")].find(r => r.querySelector(".dk-sb-hash")?.textContent === "♪")`;
+	const voiceRowAny = `[...document.querySelectorAll(".dk-col .dk-col-row")].find(r => [2, 13].includes(Vencord.Webpack.Common.ChannelStore.getChannel(r.dataset.dkId)?.type))`;
 	for (const [text, guild] of t.texts) {
 		await go(`/channels/${guild}/${text}`);
 		await until(`document.querySelector(".dk-col")`);
@@ -146,11 +146,11 @@ try {
 	let r = await rec();
 	check("favourite voice click joins", recHas(r, "join"), JSON.stringify(r));
 	check("…and doesn't navigate to Discord's call view", !recHas(r, "nav"), JSON.stringify(r));
-	check("favourite voice hover actions: chat, join", (await js(`return [...${favRow}.querySelectorAll(".dk-sb-action")].map(b => b.textContent).join(",")`)) === "chat,join");
-	await js(`[...${favRow}.querySelectorAll(".dk-sb-action")].find(b => b.textContent === "chat").click()`);
+	check("favourite voice hover actions: chat, join", (await js(`return [...${favRow}.querySelectorAll(".dk-sb-action")].map(b => b.dataset.dkAction).join(",")`)) === "chat,join");
+	await js(`[...${favRow}.querySelectorAll(".dk-sb-action")].find(b => b.dataset.dkAction === "chat").click()`);
 	r = await rec();
 	check("chat opens the voice chat without joining", recHas(r, "chatOpen") && recHas(r, "nav") && !recHas(r, "join"), JSON.stringify(r));
-	await js(`[...${favRow}.querySelectorAll(".dk-sb-action")].find(b => b.textContent === "join").click()`);
+	await js(`[...${favRow}.querySelectorAll(".dk-sb-action")].find(b => b.dataset.dkAction === "join").click()`);
 	check("join joins", recHas(await rec(), "join"));
 
 	// ── 3. Column voice row: click joins; hover actions ──
@@ -176,13 +176,13 @@ try {
 	if (!hadDm) await js(`const me = ${C}.UserStore.getCurrentUser().id; const s = Vencord.Settings.plugins.Sidebar; const all = JSON.parse(JSON.stringify(s.favorites)); all[me] = [...(all[me] ?? []), { id: ${JSON.stringify(t.dm)}, label: "test" }]; s.favorites = all;`);
 	const dmRow = `[...document.querySelectorAll(".dk-layer-top .dk-sb-rowwrap")].find(w => w.querySelector(".dk-sb-row") && ${C}.ChannelStore.getChannel(${JSON.stringify(t.dm)}) && w.textContent.includes(Vencord.Webpack.Common.UserStore.getUser(${C}.ChannelStore.getChannel(${JSON.stringify(t.dm)}).recipients[0])?.globalName ?? "§") || w.textContent.includes(Vencord.Webpack.Common.UserStore.getUser(${C}.ChannelStore.getChannel(${JSON.stringify(t.dm)}).recipients[0])?.username ?? "§"))`;
 	await until(dmRow);
-	check("favourite person hover actions: call, message", (await js(`return [...(${dmRow}?.querySelectorAll(".dk-sb-action") ?? [])].map(b => b.textContent).join(",")`)) === "call,message");
+	check("favourite person hover actions: call, message", (await js(`return [...(${dmRow}?.querySelectorAll(".dk-sb-action") ?? [])].map(b => b.dataset.dkAction).join(",")`)) === "call,message");
 	await block(true);
 	await rec();
-	await js(`[...${dmRow}.querySelectorAll(".dk-sb-action")].find(b => b.textContent === "call").click()`);
+	await js(`[...${dmRow}.querySelectorAll(".dk-sb-action")].find(b => b.dataset.dkAction === "call").click()`);
 	r = await rec();
 	check("call rings them (Discord's call, ring on)", recHas(r, "call", a => a[0] === t.dm && a[2] === true), JSON.stringify(r));
-	await js(`[...${dmRow}.querySelectorAll(".dk-sb-action")].find(b => b.textContent === "message").click()`);
+	await js(`[...${dmRow}.querySelectorAll(".dk-sb-action")].find(b => b.dataset.dkAction === "message").click()`);
 	check("message opens the DM", recHas(await rec(), "nav", a => a[0].endsWith(t.dm)));
 	await js(`${dmRow}.querySelector(".dk-sb-row").click()`);
 	check("row click opens the DM", recHas(await rec(), "nav", a => a[0].endsWith(t.dm)));
@@ -190,21 +190,21 @@ try {
 
 	// ── 6. Top-level rows and links (navigation recorded, not performed) ──
 	await rec();
-	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent === "⌂Home")?.click()`);
+	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent === "Home")?.click()`);
 	check("Home row goes Home", recHas(await rec(), "nav", a => a[0] === "/channels/@me"));
 	const dmMention = await js(`return !![...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0]?.querySelector(".dk-sb-row")`);
 	if (dmMention) {
 		await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0].querySelector(".dk-sb-row").click()`);
 		check("DMs & mentions row opens its conversation", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
-		await js(`[...document.querySelectorAll(".dk-sb-link")].find(b => b.textContent === "Mark read")?.click()`);
+		await js(`document.querySelector('[data-dk-action="mark-read"]')?.click()`);
 		r = await rec();
-		check("Mark read acks only through Discord's bulk ack", recHas(r, "dispatch", a => a[0] === "BULK_ACK") || !(await js(`return [...document.querySelectorAll(".dk-sb-link")].some(b => b.textContent === "Mark read")`)), JSON.stringify(r));
+		check("Mark read acks only through Discord's bulk ack", recHas(r, "dispatch", a => a[0] === "BULK_ACK") || !(await js(`return !!document.querySelector('[data-dk-action="mark-read"]')`)), JSON.stringify(r));
 	}
-	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent.startsWith("?Message requests"))?.click()`);
+	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent.startsWith("Message requests"))?.click()`);
 	check("Message requests row opens message requests", recHas(await rec(), "nav", a => a[0] === "/message-requests"));
-	await js(`[...document.querySelectorAll(".dk-sb-link")].find(b => b.textContent === "Add")?.click()`);
+	await js(`document.querySelector('[data-dk-action="add-server"]')?.click()`);
 	check("Servers › Add opens Discord's create/join", recHas(await rec(), "createGuild"));
-	const serverRow = `[...document.querySelectorAll('.dk-layer-top .dk-sb-section')].find(s => s.textContent.startsWith("▾Servers") || s.textContent.startsWith("▸Servers"))?.querySelector(".dk-sb-row")`;
+	const serverRow = `[...document.querySelectorAll('.dk-layer-top .dk-sb-section')].find(s => s.querySelector(".dk-sb-label-toggle")?.textContent === "Servers")?.querySelector(".dk-sb-row[data-dk-id]")`;
 	await js(`${serverRow}?.click()`);
 	check("server row opens the server", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
 	const older = `[...document.querySelectorAll(".dk-layer-top .dk-sb-more")].find(b => b.textContent.startsWith("Older conversations"))`;
@@ -287,7 +287,7 @@ try {
 		window.__dkVoice = { ids: friends.slice(0, 2), g: vc.guild_id, vc: vc.id };
 		C.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: window.__dkVoice.ids.map((u, i) => ({ userId: u, channelId: vc.id, guildId: vc.guild_id, sessionId: "dk-test-" + u, selfMute: i === 1, selfDeaf: false, selfVideo: false, selfStream: i === 0, mute: false, deaf: false, suppress: false })) });`);
 	check("Home lists the call", await until(`document.querySelector(".dk-home-callblock")`, 1500));
-	check("…with who's in it, live and muted as words", await js(`const b = document.querySelector(".dk-home-callblock"); return b.querySelectorAll(".dk-home-member").length === 2 && b.textContent.includes("live") && b.textContent.includes("muted")`));
+	check("…with who's in it, and who's live or muted", await js(`const b = document.querySelector(".dk-home-callblock"); return b.querySelectorAll(".dk-home-member").length === 2 && !!b.querySelector(".dk-vc-live") && !!b.querySelector(".dk-vc-off")`));
 	await block(true);
 	await rec();
 	await js(`document.querySelector(".dk-home-callblock .dk-home-main").click()`);
@@ -307,7 +307,7 @@ try {
 	r = await rec();
 	check("message requests open (if any)", recHas(r, "nav", a => a[0] === "/message-requests") || !(await js(`return [...document.querySelectorAll(".dk-home-row")].some(b => b.textContent.includes("Message requests"))`)));
 	await block(false);
-	await js(`[...document.querySelectorAll(".dk-home-links button")].find(b => b.textContent === "All friends").click()`);
+	await js(`document.querySelector('[data-dk-action="all-friends"]').click()`);
 	check("All friends shows Discord's page in place", await until(`document.querySelector(".dk-home-discord")`, 1500));
 	await js(`document.querySelector(".dk-home-back").click()`);
 	check("← Home comes back", await until(`document.querySelector(".dk-home")`, 1500));

@@ -14,6 +14,7 @@ import { React } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 import { addFavorite, drillIn, isFavorite, navState, openGuild, removeFavorite, settings, useFavorites } from "./data";
+import { Icon } from "./icons";
 
 function Star({ channel }: { channel: Channel; }) {
     useFavorites();
@@ -26,7 +27,7 @@ function Star({ channel }: { channel: Channel; }) {
             title={fav ? "Remove from Favorites" : "Add to Favorites"}
             onClick={() => fav ? removeFavorite(channel.id) : addFavorite(channel.id)}
         >
-            {fav ? "★" : "☆"}
+            <Icon name="star" filled={fav} size={20} />
         </button>
     );
 }

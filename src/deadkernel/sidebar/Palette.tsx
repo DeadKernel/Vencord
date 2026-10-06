@@ -22,6 +22,7 @@ import {
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
     suppressBroadcastsIn, toggleMute, useFavorites,
 userPresence } from "./data";
+import { Icon, IconName, IconSlot } from "./icons";
 import { channelIcon, guildIcon, Square } from "./Sidebar";
 
 const ModalRoot = ModalRootUntyped as ComponentType<any>;
@@ -49,7 +50,7 @@ const isEntry = (l: Line): l is Entry => !("header" in l);
 interface SwitcherResult { type: string; record: any; comparator?: string; }
 interface SwitcherProps { query: string; queryMode: string | null; results: SwitcherResult[]; }
 
-const glyph = (g: string) => <span className="dk-sb-icon dk-sb-hash" aria-hidden>{g}</span>;
+const glyph = (name: IconName, filled?: boolean) => <IconSlot name={name} filled={filled} />;
 
 const userName = (u: User) => RelationshipStore.getNickname(u.id) || (u as any).globalName || u.username;
 
@@ -115,7 +116,7 @@ function resultEntry(r: SwitcherResult, i: number, mode: string | null): Line | 
             return { key, label: g.name, where: "server", icon: <Square src={guildIcon(g.id)} text={g.name[0]} size="server" />, run: go };
         }
         default:
-            return { key, label: String(r.record?.name ?? r.comparator ?? r.type), where: r.type.toLowerCase().replace(/_/g, " "), icon: glyph("·"), run: go };
+            return { key, label: String(r.record?.name ?? r.comparator ?? r.type), where: r.type.toLowerCase().replace(/_/g, " "), icon: glyph("dot"), run: go };
     }
 }
 
@@ -161,33 +162,33 @@ function actionLines(query: string): Line[] {
     const all: (Entry | false | null | undefined)[] = [
         mentions.length > 0 && {
             key: "a-read", label: "Mark mentions read", where: `${mentions.length} channel${mentions.length === 1 ? "" : "s"}`,
-            icon: glyph("✓"), run: () => markRead(mentions)
+            icon: glyph("checks"), run: () => markRead(mentions)
         },
         here && (isFavorite(here.id)
-            ? { key: "a-unfav", label: "Remove from Favorites", where: labelFor(here), icon: glyph("☆"), run: () => removeFavorite(here.id) }
-            : { key: "a-fav", label: "Add to Favorites", where: labelFor(here), icon: glyph("★"), run: () => addFavorite(here.id) }),
+            ? { key: "a-unfav", label: "Remove from Favorites", where: labelFor(here), icon: glyph("star"), run: () => removeFavorite(here.id) }
+            : { key: "a-fav", label: "Add to Favorites", where: labelFor(here), icon: glyph("star", true), run: () => addFavorite(here.id) }),
         guild && {
             key: "a-tree", label: settings.store.showAll[guild.id] ? "Back to live channels" : "Use Discord's channel list here", where: guild.name,
-            icon: glyph("≡"), run: () => settings.store.showAll = { ...settings.store.showAll, [guild.id]: !settings.store.showAll[guild.id] }
+            icon: glyph("list"), run: () => settings.store.showAll = { ...settings.store.showAll, [guild.id]: !settings.store.showAll[guild.id] }
         },
         guild && {
             key: "a-mute", label: UserGuildSettingsStore.isMuted(guild.id) ? "Unmute server" : "Mute server", where: guild.name,
-            icon: glyph("○"), run: () => toggleMute(guild.id)
+            icon: glyph("mute"), run: () => toggleMute(guild.id)
         },
         guild && {
             key: "a-quiet", label: "Stop @everyone and role pings here", where: guild.name,
-            icon: glyph("@"), run: () => suppressBroadcasts(guild.id)
+            icon: glyph("at"), run: () => suppressBroadcasts(guild.id)
         },
         broadcast.length > 0 && {
             key: "a-quiet-all", label: "Stop @everyone and role pings in large servers",
             where: `${broadcast.length} server${broadcast.length === 1 ? "" : "s"} over 100 members`,
             confirm: `↵ again · ${broadcast.length} server${broadcast.length === 1 ? "" : "s"}`,
-            icon: glyph("@"), run: () => suppressBroadcastsIn(broadcast)
+            icon: glyph("at"), run: () => suppressBroadcastsIn(broadcast)
         },
-        { key: "a-home", label: "Home", icon: glyph("⌂"), run: openFriends },
-        { key: "a-req", label: "Message requests", icon: glyph("?"), run: openRequests },
-        { key: "a-add", label: "Add a server", where: "create, or join with an invite", icon: glyph("+"), run: openAddServer },
-        { key: "a-settings", label: "Settings", icon: glyph("⚙"), run: () => SettingsRouter.openUserSettings() }
+        { key: "a-home", label: "Home", icon: glyph("home"), run: openFriends },
+        { key: "a-req", label: "Message requests", icon: glyph("inbox"), run: openRequests },
+        { key: "a-add", label: "Add a server", where: "create, or join with an invite", icon: glyph("plus"), run: openAddServer },
+        { key: "a-settings", label: "Settings", icon: glyph("settings"), run: () => SettingsRouter.openUserSettings() }
     ];
     const q = query.trim().toLowerCase();
     return all.filter((e): e is Entry => !!e && (!q || `${e.label} ${e.where ?? ""}`.toLowerCase().includes(q)));
@@ -217,7 +218,7 @@ function Row({ entry, selected, armed, onHover, onRun }: { entry: Entry; selecte
             <span className="dk-sb-name">{entry.label}</span>
             {armed ? <span className="dk-sb-where dk-pal-confirm">{entry.confirm}</span> : entry.where && <span className="dk-sb-where">{entry.where}</span>}
             <span className="dk-sb-trail">
-                {fav && <span className="dk-pal-fav" aria-label="favorite">★</span>}
+                {fav && <span className="dk-pal-fav" title="Favorite"><Icon name="star" filled size={14} /></span>}
                 {countText ? <span className="dk-sb-count">{countText}</span> : entry.dot ? <span className="dk-sb-dot" /> : null}
             </span>
         </div>
@@ -284,7 +285,7 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
     return (
         <ModalRoot {...modal} className="dk-pal" aria-label="Jump to">
             <div className="dk-pal-input">
-                <span className="dk-pal-glyph" aria-hidden>⌕</span>
+                <span className="dk-pal-glyph" aria-hidden><Icon name="search" /></span>
                 <input
                     autoFocus spellCheck={false} value={text} placeholder="Jump to…  (> for actions)"
                     role="combobox" aria-expanded aria-controls="dk-pal-list"

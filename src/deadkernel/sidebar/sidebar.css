@@ -60,15 +60,15 @@ html[data-dk-sidebar] {
 /* With the column open, the sidebar keeps the width he dragged it to, except on small windows:
    then both columns together take at most 45% of the window, the sidebar never under 240px */
 html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
-    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 45vw - 248px));
+    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, var(--dk-vw, 100vw) * 0.45 - 248px));
 
     width: calc(var(--dk-top-w) + 248px) !important;
 }
 
-/* a thread, search results or the member list beside the chat: the sidebar takes its minimum, so
-   the conversation in the middle keeps a readable width */
+/* a thread, search results or the member list beside the chat: the sidebar gives up width only
+   while the chat would otherwise drop under ~720px (room for a ~440px panel); full screen keeps it */
 html[data-dk-sidebar]:has([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"], [class*="membersWrap_"]) [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
-    --dk-top-w: 240px;
+    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, var(--dk-vw, 100vw) * 0.45 - 248px), max(240px, var(--dk-vw, 100vw) - 248px - 440px - 720px));
 }
 
 /* the account bar stays under the sidebar, so mute and deafen never move when a column opens */
@@ -184,8 +184,8 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 .dk-sb-label-toggle {
-    /* the caret hangs in the gutter so the label text lines up with the rows' icons */
-    margin-left: -10px;
+    position: relative;
+    overflow: visible !important;
 }
 
 .dk-sb-label-toggle:hover {
@@ -193,10 +193,13 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 .dk-sb-caret {
-    flex: none;
-    width: 8px;
-    margin-right: -2px;
-    font-size: 9px;
+    /* in the label's 12px gutter, so the label text lines up with the rows' icons */
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    display: grid;
+    width: 12px;
+    transform: translateY(-50%);
     opacity: 0;
     transition: opacity 80ms linear;
 }
@@ -376,15 +379,9 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     background: var(--hl-bg-hover, var(--background-mod-normal));
 }
 
-.dk-sb-server {
-    width: 20px;
-    height: 20px;
-    margin: 0 2px;
-}
-
 .dk-sb-small {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
 }
 
 .dk-sb-glyph {
@@ -409,6 +406,37 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     color: var(--dk-text-2);
 }
 
+/* line icons in the avatar slot (channel kinds, Home, search, back, requests): 18px, dim; they
+   brighten with the row when it's unread or selected, like its text */
+.dk-icon {
+    flex: none;
+    display: block;
+}
+
+.dk-sb-glyphicon {
+    color: var(--dk-text-2);
+}
+
+:is(.dk-sb-row, .dk-pal-row):is(.dk-unread, .dk-selected) .dk-sb-glyphicon {
+    color: inherit;
+}
+
+/* icon buttons in a section's label (mark read, add a server) */
+.dk-sb .dk-sb-iconlink {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-right: -6px;
+    color: var(--dk-text-2);
+}
+
+.dk-sb .dk-sb-iconlink:hover {
+    color: var(--dk-accent);
+    background: var(--dk-hover);
+}
+
 .dk-sb-status {
     position: absolute;
     right: -2px;
@@ -424,9 +452,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 .dk-sb-status.dk-streaming { background: var(--dk-accent); }
 
 .dk-sb-foldericon {
-    font-size: 9px;
     color: var(--dk-text-2);
-    background: var(--hl-bg, var(--background-base-lowest));
 }
 
 .dk-sb-folder[data-open] > .dk-sb-row:not(:first-child) {
@@ -498,9 +524,9 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 .dk-col-caret {
+    display: inline-grid;
     margin-left: 6px;
-    font-size: 12px;
-    font-weight: 400;
+    vertical-align: -2px;
     color: var(--dk-text-2);
 }
 
@@ -530,25 +556,24 @@ button.dk-sb-quiet:hover {
 .dk-sb-actions {
     position: absolute;
     top: 2px;
-    right: 2px;
+    right: 6px;
     bottom: 2px;
     display: flex;
     align-items: center;
     gap: 2px;
-    padding: 0 8px 0 24px;
-    background: linear-gradient(to right, transparent, var(--dk-row-under, var(--dk-bg)) 20px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 80ms linear;
 }
 
-/* the hovered row's own colour, so the actions sit on it rather than on a patch */
-.dk-sb-rowwrap:hover {
-    --dk-row-under: color-mix(in srgb, var(--dk-bg) 94%, rgb(166 172 205));
+/* the row makes room for its actions: its right-hand slot steps aside and the text truncates
+   sooner, so the actions sit on the row itself, not on a patch over it */
+.dk-sb-rowwrap:has(.dk-sb-actions):is(:hover, :has(:focus-visible)) > .dk-sb-row {
+    padding-right: 72px !important;
 }
 
-.dk-sb-rowwrap:has(.dk-selected) {
-    --dk-row-under: color-mix(in srgb, var(--dk-bg) 85%, var(--dk-accent));
+.dk-sb-rowwrap:has(.dk-sb-actions):is(:hover, :has(:focus-visible)) > .dk-sb-row .dk-sb-trail {
+    visibility: hidden;
 }
 
 /* keyboard focus keeps them up; a mouse click's leftover focus doesn't */
@@ -558,9 +583,11 @@ button.dk-sb-quiet:hover {
 }
 
 .dk-sb .dk-sb-action {
-    height: 22px;
-    padding: 0 6px !important;
-    font-size: 11px;
+    display: grid !important;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0 !important;
     color: var(--dk-text-2) !important;
 }
 
@@ -599,8 +626,8 @@ div.dk-home-member:hover {
 .dk-vc-live,
 .dk-vc-flag {
     flex: none;
-    font-size: 11px;
-    font-weight: 400;
+    display: grid;
+    place-items: center;
 }
 
 .dk-vc-live {
@@ -695,8 +722,8 @@ div.dk-home-member:hover {
 .dk-star {
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     padding: 0;
     border: 0;
     background: none;
@@ -753,8 +780,8 @@ div.dk-home-member:hover {
     height: 48px;
     padding: 0 32px;
 
-    /* the links end where the column ends (32 + 720), the same right edge as Join and the counts */
-    padding-right: max(32px, calc(100% - 752px));
+    /* the links end where the content ends (32 + 1400 at most), the same right edge as Join and the counts */
+    padding-right: max(32px, calc(100% - 1432px));
     box-shadow: inset 0 -1px 0 var(--dk-border);
 }
 
@@ -767,7 +794,18 @@ div.dk-home-member:hover {
 
 .dk-home-links {
     display: flex;
-    gap: 20px;
+    gap: 4px;
+}
+
+.dk-home-links button {
+    display: grid !important;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+}
+
+.dk-home-links button:hover {
+    background: var(--dk-hover) !important;
 }
 
 .dk-home-links button,
@@ -800,12 +838,20 @@ div.dk-home-member:hover {
     flex: 1;
     overflow: hidden auto;
     padding: 16px 32px 48px;
-    max-width: 720px;
     animation: dk-settle 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-.dk-home-body section + section {
-    margin-top: 24px;
+/* sections flow into as many 420px columns as fit (up to three): one on a laptop, three full
+   screen on a wide monitor, top to bottom then across, so In voice and Requests stay first */
+.dk-home-flow {
+    max-width: 1400px;
+    columns: 420px 3;
+    column-gap: 56px;
+}
+
+.dk-home-flow section {
+    break-inside: avoid;
+    margin-bottom: 24px;
 }
 
 .dk-home-body h2 {
@@ -900,17 +946,19 @@ div.dk-home-member:hover {
 
 .dk-home-join {
     flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
     padding: 0;
     border: 0;
     background: none;
-    font: inherit;
-    font-size: 13px;
     color: var(--dk-teal);
     cursor: pointer;
 }
 
 .dk-home-join:hover {
-    text-decoration: underline;
+    background: rgb(93 228 199 / 12%);
 }
 
 .dk-home-here {
@@ -1056,8 +1104,8 @@ div.dk-home-member:hover {
 }
 
 .dk-pal-fav {
-    font-size: 11px;
-    font-weight: 400;
+    display: grid;
+    place-items: center;
     color: var(--dk-text-2);
 }
 
