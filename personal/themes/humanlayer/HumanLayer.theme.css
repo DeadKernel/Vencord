@@ -228,6 +228,158 @@
 	--radius-xl: 0px;
 	--radius-xxl: 0px;
 	--custom-app-top-bar-item-radius: 0px;
+	--button-border-radius: 0px;
+	--button-border-radius-lg: 0px;
+}
+
+/* Feedback, voice, status and syntax colours (Discord's newer semantic variables) */
+.theme-dark,
+.theme-darker,
+.theme-midnight,
+.theme-light {
+	--background-brand: var(--hl-accent);
+	--badge-background-brand: var(--hl-accent);
+	--badge-text-brand: var(--hl-bg);
+	--interactive-accent-background-default: transparent;
+	--interactive-accent-background-hover: var(--hl-accent-08);
+	--interactive-accent-background-active: var(--hl-accent-15);
+	--interactive-accent-background-selected: var(--hl-accent-15);
+
+	/* notification counts, "new mentions" pills */
+	--background-feedback-notification: var(--hl-pink);
+	--icon-feedback-notification: var(--hl-pink);
+
+	/* info / success / warning / error surfaces: a light wash in the token colour */
+	--background-feedback-info: var(--hl-accent-08);
+	--background-feedback-positive: rgb(93 228 199 / 0.08);
+	--background-feedback-warning: rgb(255 250 194 / 0.08);
+	--background-feedback-critical: rgb(208 103 157 / 0.1);
+	--border-feedback-info: var(--hl-accent);
+	--border-feedback-positive: var(--hl-teal);
+	--border-feedback-warning: var(--hl-yellow);
+	--border-feedback-critical: var(--hl-pink);
+	--icon-feedback-info: var(--hl-accent);
+	--icon-feedback-positive: var(--hl-teal);
+	--icon-feedback-warning: var(--hl-yellow);
+	--icon-feedback-critical: var(--hl-pink);
+	--notice-background-info: var(--hl-bg-raised);
+	--notice-background-positive: var(--hl-bg-raised);
+	--notice-background-warning: var(--hl-bg-raised);
+	--notice-background-critical: var(--hl-bg-raised);
+	--notice-text-info: var(--hl-accent);
+	--notice-text-positive: var(--hl-teal);
+	--notice-text-warning: var(--hl-yellow);
+	--notice-text-critical: var(--hl-pink);
+	--status-positive-background: var(--hl-teal);
+	--status-positive-text: var(--hl-bg);
+	--status-warning-background: var(--hl-yellow);
+	--status-warning-text: var(--hl-bg);
+	--input-border-error-default: var(--hl-pink);
+	--input-background-error-default: rgb(208 103 157 / 0.06);
+	--input-icon-default: var(--hl-text-2);
+	--message-automod-background-default: rgb(208 103 157 / 0.06);
+	--message-automod-background-hover: rgb(208 103 157 / 0.1);
+
+	/* destructive buttons: pink outline on a pink wash, same shape as primary */
+	--control-critical-primary-background-default: rgb(208 103 157 / 0.15);
+	--control-critical-primary-background-hover: rgb(208 103 157 / 0.22);
+	--control-critical-primary-background-active: rgb(208 103 157 / 0.28);
+	--control-critical-primary-border-default: var(--hl-pink);
+	--control-critical-primary-border-hover: var(--hl-pink);
+	--control-critical-primary-border-active: var(--hl-pink);
+	--control-critical-primary-text-default: var(--hl-pink-bright);
+	--control-critical-primary-text-hover: var(--hl-text-strong);
+	--control-critical-primary-text-active: var(--hl-text-strong);
+	--control-critical-primary-icon-default: var(--hl-pink-bright);
+	--control-critical-primary-icon-hover: var(--hl-text-strong);
+	--control-critical-primary-icon-active: var(--hl-text-strong);
+	--control-critical-secondary-text-default: var(--hl-pink-bright);
+	--control-critical-secondary-text-hover: var(--hl-pink-bright);
+	--control-critical-secondary-text-active: var(--hl-pink-bright);
+	--control-critical-secondary-icon-default: var(--hl-pink-bright);
+	--control-critical-secondary-icon-hover: var(--hl-pink-bright);
+	--control-critical-secondary-icon-active: var(--hl-pink-bright);
+	--button-danger-background-disabled: rgb(208 103 157 / 0.15);
+
+	/* "connected" (voice) buttons in teal */
+	--control-connected-background-default: rgb(93 228 199 / 0.15);
+	--control-connected-background-hover: rgb(93 228 199 / 0.22);
+	--control-connected-background-active: rgb(93 228 199 / 0.28);
+	--control-connected-border-default: var(--hl-teal);
+	--control-connected-border-hover: var(--hl-teal);
+	--control-connected-border-active: var(--hl-teal);
+	--control-connected-text-default: var(--hl-teal);
+	--control-connected-text-hover: var(--hl-text-strong);
+	--control-connected-text-active: var(--hl-text-strong);
+	--control-connected-icon-default: var(--hl-teal);
+	--control-connected-icon-hover: var(--hl-text-strong);
+	--control-connected-icon-active: var(--hl-text-strong);
+	--control-secondary-icon-default: var(--hl-text);
+	--control-secondary-icon-hover: var(--hl-text-strong);
+	--control-secondary-icon-active: var(--hl-text-strong);
+	--control-icon-only-icon-default: var(--hl-text-2);
+	--control-icon-only-icon-hover: var(--hl-text-strong);
+	--control-icon-only-icon-active: var(--hl-accent);
+	--control-icon-only-background-hover: var(--hl-hover);
+	--control-icon-only-background-active: rgb(166 172 205 / 0.1);
+
+	/* voice + presence */
+	--background-voice-muted: rgb(208 103 157 / 0.15);
+	--border-voice-muted: rgb(208 103 157 / 0.15);
+	--icon-voice-muted: var(--hl-pink);
+	--icon-voice-connected: var(--hl-teal);
+	--icon-voice-speaking: var(--hl-teal);
+	--icon-voice-disconnected: var(--hl-pink);
+	--text-voice-connected: var(--hl-teal);
+	--text-voice-speaking: var(--hl-teal);
+	--text-voice-disconnected: var(--hl-pink);
+	--icon-status-online: var(--hl-teal);
+	--icon-status-idle: var(--hl-yellow);
+	--icon-status-dnd: var(--hl-pink);
+	--icon-status-offline: var(--hl-text-muted);
+	--text-status-online: var(--hl-teal);
+	--text-status-idle: var(--hl-yellow);
+	--text-status-dnd: var(--hl-pink);
+	--text-status-offline: var(--hl-text-muted);
+
+	/* profiles, spoilers */
+	--user-profile-border: var(--hl-border);
+	--user-profile-toolbar-background: var(--hl-bg-raised);
+	--user-profile-toolbar-border: var(--hl-border);
+	--user-profile-overlay-background: var(--hl-bg-raised);
+	--user-profile-overlay-background-hover: var(--hl-bg-hover);
+	--user-profile-background-hover: var(--hl-hover);
+	--user-profile-activity-toolbar-background: var(--hl-bg-raised);
+	--user-profile-note-background-focus: var(--hl-bg);
+	--spoiler-hidden-background: var(--hl-bg-active);
+	--spoiler-hidden-background-hover: var(--hl-bg-hover);
+	--spoiler-revealed-background: var(--hl-bg-raised);
+
+	/* code highlighting in the Poimandres palette */
+	--text-code-keyword: var(--hl-blue);
+	--text-code-builtin: var(--hl-blue);
+	--text-code-operator: var(--hl-text-2);
+	--text-code-string: var(--hl-teal);
+	--text-code-regexp: var(--hl-teal);
+	--text-code-number: var(--hl-teal);
+	--text-code-comment: var(--hl-text-muted);
+	--text-code-title: var(--hl-accent);
+	--text-code-section: var(--hl-accent);
+	--text-code-type: var(--hl-accent);
+	--text-code-property: var(--hl-text-2);
+	--text-code-attribute: var(--hl-text-2);
+	--text-code-variable: var(--hl-text);
+	--text-code-tag: var(--hl-pink-bright);
+	--text-code-decorator: var(--hl-yellow);
+	--text-code-escape: var(--hl-yellow);
+	--text-code-namespace: var(--hl-text-2);
+	--text-code-link: var(--hl-accent);
+	--text-code-bullet: var(--hl-text-muted);
+	--text-code-addition: var(--hl-teal);
+	--text-code-deletion: var(--hl-pink);
+	--text-code-error: var(--hl-pink);
+	--background-code-addition: rgb(93 228 199 / 0.08);
+	--background-code-deletion: rgb(208 103 157 / 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -287,6 +439,7 @@ select {
 }
 
 /* Channel header bar */
+[class*="subtitleContainer_"] > section[class*="title_"],
 [class*="chat_"] > section[class*="title_"] {
 	background: var(--hl-bg);
 	border-bottom: 1px solid var(--hl-border);
@@ -463,6 +616,12 @@ select {
 	border-radius: 0;
 }
 
+/* "New unreads" bar over the channel list, "new mentions" pill in the server rail */
+[class*="containerPadding_"] > [class*="bar_"],
+[class*="unreadMentionsBar_"] {
+	border-radius: 0 !important;
+}
+
 /* Code */
 [class*="markup_"] code {
 	font-family: var(--hl-font);
@@ -530,6 +689,12 @@ select {
 
 [class*="reactionMe_"] [class*="reactionCount_"] {
 	color: var(--hl-accent) !important;
+}
+
+[class*="reactionBtn_"] {
+	border-radius: 0 !important;
+	background: transparent !important;
+	border: 1px solid var(--hl-border) !important;
 }
 
 /* Hover toolbar on messages */
@@ -627,6 +792,11 @@ textarea[class*="input_"],
 	border: 1px solid var(--hl-border) !important;
 }
 
+/* Discord sizes menus for its proportional font; mono labels need more room */
+[role="menu"][class*="fixed_"] {
+	width: 272px !important;
+}
+
 [role="menu"] [role="menuitem"],
 [role="menu"] [role="menuitemcheckbox"],
 [role="menu"] [role="menuitemradio"] {
@@ -642,6 +812,7 @@ textarea[class*="input_"],
 	border: 1px solid var(--hl-border);
 }
 
+[class*="tooltipLayer_"] > [class*="tooltip_"],
 [class*="tooltip_"][class*="tooltipPrimary_"] {
 	background: var(--hl-bg-raised) !important;
 	color: var(--hl-text) !important;

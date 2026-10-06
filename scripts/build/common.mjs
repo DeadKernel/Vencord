@@ -145,7 +145,8 @@ export const globPlugins = kind => ({
         });
 
         build.onLoad({ filter, namespace: "import-plugins" }, async () => {
-            const pluginDirs = ["plugins/_api", "plugins/_core", "plugins", "userplugins"];
+            // "deadkernel": Aditya's fork's own plugins, kept apart from upstream's
+            const pluginDirs = ["plugins/_api", "plugins/_core", "plugins", "deadkernel", "userplugins"];
             let code = "";
             let pluginsCode = "\n";
             let metaCode = "\n";
