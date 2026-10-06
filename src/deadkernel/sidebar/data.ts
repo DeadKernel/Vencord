@@ -16,7 +16,7 @@ import {
     GuildStore,
     MessageRequestStore, NavigationRouter,
     PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, UserGuildSettingsStore,
-    UserStore, VoiceStateStore
+    UserStore, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 
 export interface Favorite {
@@ -62,11 +62,6 @@ export const settings = definePluginSettings({
     palette: {
         type: OptionType.BOOLEAN,
         description: "Ctrl K: a quieter switcher that knows your favorites and where you've been, with > for actions",
-        default: true
-    },
-    peek: {
-        type: OptionType.BOOLEAN,
-        description: "Inside a server, resting the pointer on the slim strip unfolds the full sidebar",
         default: true
     },
     /** channelId → when he last opened it (written only on navigation he does) */
@@ -163,6 +158,14 @@ function setFavorites(list: Favorite[]) {
 }
 
 export const isFavorite = (id: string) => getFavorites().some(f => f.id === id);
+
+/** Re-renders when the favourites change, and once Discord knows who's logged in: favourites are
+ * kept per account, and right after a reload the sidebar can render before the current user is set. */
+export function useFavorites(): Favorite[] {
+    settings.use(["favorites"]);
+    useStateFromStores([UserStore], () => UserStore.getCurrentUser()?.id);
+    return getFavorites();
+}
 
 export function addFavorite(id: string) {
     if (isFavorite(id)) return;
@@ -285,7 +288,7 @@ export function userPresence(userId: string): Presence {
 /** "in voice", "streaming", or "voice · N" for a group call; nothing for playing a game. */
 export function presenceWord(channel: Channel): { text: string; live: boolean; } | null {
     const inCall = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id) ?? {}).length;
-    if (inCall) return { text: channel.type === 3 ? `voice · ${inCall}` : "in call", live: true };
+    if (inCall) return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true };
     if (channel.type !== 1) return null;
     const uid = channel.recipients[0];
     if (ApplicationStreamingStore.getAnyStreamForUser(uid)) return { text: "streaming", live: true };

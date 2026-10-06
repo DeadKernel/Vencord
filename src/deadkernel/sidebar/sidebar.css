@@ -25,7 +25,7 @@ html[data-dk-sidebar] {
     /* motion: one family. Enter decelerates, leave accelerates; colour is linear. */
     --dk-enter: cubic-bezier(0.2, 0, 0, 1);
     --dk-leave: cubic-bezier(0.3, 0, 0.8, 0.15);
-    --dk-strip: 48px;
+    --dk-col-w: 248px;
 
     position: relative;
     height: 100%;
@@ -52,8 +52,23 @@ html[data-dk-sidebar] {
     outline-offset: -2px;
 }
 
-/* ── Layers: the top level, the strip and the server column share one width, so the chat never
-   reflows. Every transition is transform and opacity. ── */
+/* ── Layers: the sidebar is always there. Inside a server, Discord's sidebar widens by the
+   column and the column slides out from behind the sidebar's right edge. Transform and opacity
+   for the layers; the container's width animates only while the column opens or closes
+   (html[data-dk-sb-anim]), so the resize handle stays instant. ── */
+html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
+    width: calc(var(--custom-guild-sidebar-width) + var(--dk-col-w, 248px)) !important;
+}
+
+html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) [class*="sidebarList__"] {
+    width: calc(var(--custom-guild-sidebar-width) + var(--dk-col-w, 248px) - var(--custom-guild-list-width) - 1px) !important;
+}
+
+html[data-dk-sb-anim] [class*="sidebar__"],
+html[data-dk-sb-anim] [class*="sidebarList__"] {
+    transition: width 240ms cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
 .dk-layer {
     position: absolute;
     top: 0;
@@ -62,60 +77,33 @@ html[data-dk-sidebar] {
     flex-direction: column;
     min-height: 0;
     background: var(--dk-bg);
-    will-change: transform, opacity;
 }
 
 .dk-layer-top {
     left: 0;
     right: 0;
     z-index: 2;
-    transition: opacity 200ms var(--dk-enter), transform 200ms var(--dk-enter);
 }
 
-.dk-layer-strip {
-    left: 0;
-    width: var(--dk-strip);
-    z-index: 1;
+.dk-sb[data-mode="server"] .dk-layer-top {
+    right: var(--dk-col-w);
     box-shadow: inset -1px 0 0 var(--dk-border);
-    transition: opacity 200ms var(--dk-enter), transform 200ms var(--dk-enter);
 }
 
 .dk-layer-column {
-    left: var(--dk-strip);
     right: 0;
+    width: var(--dk-col-w);
     z-index: 1;
-    transition: opacity 220ms var(--dk-enter) 60ms, transform 220ms var(--dk-enter) 60ms;
+    will-change: transform, opacity;
+    transition: opacity 240ms var(--dk-enter), transform 240ms var(--dk-enter);
 }
 
-/* top level: strip and column wait just off to the left */
-.dk-sb[data-mode="top"] .dk-layer-strip {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
-}
-
+/* closed: the column waits behind the sidebar's right edge */
 .dk-sb[data-mode="top"] .dk-layer-column {
     opacity: 0;
-    transform: translateX(-24px);
-    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
-}
-
-/* fold: inside a server the top level slides out to the left */
-.dk-sb[data-mode="server"] .dk-layer-top {
-    opacity: 0;
-    transform: translateX(-24px);
+    transform: translateX(-48px);
     pointer-events: none;
-    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
-}
-
-/* peek: the whole sidebar unfolds over strip and column, without pushing anything */
-.dk-sb[data-peek] .dk-layer-top {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-    z-index: 3;
-    box-shadow: inset -1px 0 0 var(--dk-border);
-    transition: opacity 160ms var(--dk-enter), transform 160ms var(--dk-enter);
+    transition: opacity 160ms var(--dk-leave), transform 160ms var(--dk-leave);
 }
 
 /* switch: a new server's column settles in from just below */
@@ -175,7 +163,8 @@ html[data-dk-sidebar] {
 }
 
 .dk-sb-label-toggle {
-    margin-left: -14px;
+    /* the caret hangs in the gutter so the label text lines up with the rows' icons */
+    margin-left: -10px;
 }
 
 .dk-sb-label-toggle:hover {
@@ -184,7 +173,8 @@ html[data-dk-sidebar] {
 
 .dk-sb-caret {
     flex: none;
-    width: 10px;
+    width: 8px;
+    margin-right: -2px;
     font-size: 9px;
     opacity: 0;
     transition: opacity 80ms linear;
@@ -443,94 +433,6 @@ html[data-dk-sidebar] {
     color: var(--dk-text-2);
 }
 
-/* ── The strip (48px) ── */
-.dk-strip {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-    height: 100%;
-    padding: 8px 0 calc(var(--custom-app-panels-height, 58px) + 8px);
-    overflow: hidden auto;
-    scrollbar-width: none;
-}
-
-.dk-strip hr {
-    flex: none;
-    width: 32px;
-    margin: 8px auto;
-    border: 0;
-    border-top: 1px solid var(--dk-border);
-}
-
-.dk-strip-item {
-    position: relative;
-    flex: none;
-    display: grid !important;
-    place-items: center;
-    width: 100%;
-    height: 36px;
-    transition: background-color 80ms linear;
-}
-
-.dk-strip-item:hover {
-    background: var(--dk-hover) !important;
-}
-
-.dk-strip-item.dk-current {
-    box-shadow: inset 2px 0 0 var(--dk-accent);
-    background: var(--dk-accent-15) !important;
-}
-
-.dk-strip-jump,
-.dk-strip-foldericon {
-    font-size: 14px !important;
-    color: var(--dk-text-2) !important;
-}
-
-.dk-strip-guild .dk-sb-icon :is(img, .dk-sb-glyph) {
-    filter: grayscale(1);
-    opacity: 0.45;
-    transition: filter 120ms linear, opacity 120ms linear;
-}
-
-.dk-strip-guild:is(:hover, .dk-unread, .dk-current) .dk-sb-icon :is(img, .dk-sb-glyph) {
-    filter: none;
-    opacity: 1;
-}
-
-.dk-strip-chip {
-    position: absolute;
-    right: 6px;
-    bottom: 2px;
-    min-width: 14px;
-    height: 14px;
-    padding: 0 3px;
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 14px;
-    text-align: center;
-    color: var(--hl-bg, #1b1e28);
-    background: var(--dk-pink);
-}
-
-.dk-strip-dot {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    width: 6px;
-    height: 6px;
-}
-
-.dk-strip-dot.dk-pink { background: var(--dk-pink); }
-.dk-strip-dot.dk-teal { background: var(--dk-teal); }
-
-.dk-strip-more {
-    align-self: center;
-    font-size: 11px;
-    color: var(--dk-text-2);
-}
-
 /* ── The server column ── */
 .dk-col-header {
     flex: none;
@@ -538,12 +440,13 @@ html[data-dk-sidebar] {
     align-items: center;
     gap: 6px;
     height: 44px;
-    padding: 0 12px 0 8px;
+    padding: 0 6px 0 16px;
     box-shadow: inset 0 -1px 0 var(--dk-border);
 }
 
 .dk-col-back {
     flex: none;
+    margin-left: auto;
     display: grid !important;
     place-items: center;
     width: 28px;
@@ -583,12 +486,69 @@ button.dk-sb-quiet:hover {
     padding-left: 32px !important;
 }
 
+/* ── People in a call (column, Favorites, Home): one 28px line each, friends in the normal text
+   colour, everyone else dim; "live" in teal (teal is voice), cam and muted as dim words ── */
 .dk-col-member {
     height: 28px;
     padding-left: 36px !important;
     font-size: 12px;
     color: var(--dk-text-2) !important;
+}
+
+div.dk-col-member,
+div.dk-home-member {
     cursor: default;
+}
+
+div.dk-col-member:hover,
+div.dk-home-member:hover {
+    background: none !important;
+}
+
+.dk-vc-friend {
+    color: var(--dk-text);
+}
+
+.dk-vc-live,
+.dk-vc-flag {
+    flex: none;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.dk-vc-live {
+    color: var(--dk-teal);
+}
+
+.dk-vc-flag {
+    color: var(--dk-text-2);
+}
+
+.dk-vc-off {
+    opacity: 0.7;
+}
+
+.dk-vc-more {
+    font-size: 11px;
+}
+
+.dk-sb-row.dk-home-member {
+    box-sizing: border-box;
+    width: calc(100% + 20px);
+    height: 28px;
+    margin: 0 -10px;
+    padding: 0 10px 0 44px !important;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 12px;
+    color: var(--dk-text-2) !important;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dk-home-callblock + .dk-home-callblock {
+    margin-top: 8px;
 }
 
 .dk-col-mode {
@@ -680,6 +640,7 @@ button.dk-sb-quiet:hover {
     --dk-teal: var(--hl-teal, var(--status-positive));
     --dk-pink: var(--hl-pink, var(--status-danger));
     --dk-yellow: var(--hl-yellow, var(--status-warning));
+    --dk-hover: var(--hl-hover, var(--background-mod-subtle));
 
     display: flex;
     flex-direction: column;
@@ -1033,6 +994,8 @@ html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*=
 }
 
 @media (prefers-reduced-motion: reduce) {
+    html[data-dk-sb-anim] [class*="sidebar__"],
+    html[data-dk-sb-anim] [class*="sidebarList__"],
     .dk-sb *,
     .dk-sb,
     .dk-home,

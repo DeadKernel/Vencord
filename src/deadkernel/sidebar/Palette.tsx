@@ -19,8 +19,8 @@ import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 import {
     addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openChannel, openFriends, openRequests,
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
-    suppressBroadcastsIn, toggleMute, userPresence
-} from "./data";
+    suppressBroadcastsIn, toggleMute, useFavorites,
+userPresence } from "./data";
 import { channelIcon, guildIcon, Square } from "./Sidebar";
 
 const ModalRoot = ModalRootUntyped as ComponentType<any>;
@@ -223,7 +223,7 @@ function Row({ entry, selected, armed, onHover, onRun }: { entry: Entry; selecte
 
 export function Palette({ Original, ...modal }: { Original: ComponentType<any>; transitionState: any; onClose(): void; }) {
     // settings.use hands back a fresh proxy each render; the ids are what the list depends on
-    settings.use(["favorites"]);
+    useFavorites();
     const favKey = getFavorites().map(f => f.id).join(",");
     const [text, setText] = useState("");
     const switcher: SwitcherProps = useStateFromStores([QuickSwitcherStore], () => QuickSwitcherStore.getProps(), [],

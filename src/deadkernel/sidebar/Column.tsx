@@ -20,6 +20,7 @@ import {
     snowflakeTime, toggleCategory
 } from "./data";
 import { ContextItem, openMenu } from "./menu";
+import { occupants, VoiceMembers } from "./voice";
 
 const DAY = 864e5;
 const RECENT_MESSAGE = 30 * DAY;
@@ -29,7 +30,6 @@ interface CategoryView { id: string; name: string | null; collapsed: boolean; li
 interface ColumnView { favorites: string[]; voice: string[]; categories: CategoryView[]; quiet: number; ok: boolean; }
 
 const isVoice = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
-const occupants = (id: string) => Object.keys(VoiceStateStore.getVoiceStatesForChannel(id) ?? {});
 
 /** Everything the column shows, as ids. Returned as JSON so React only re-renders on real change. */
 function selectColumn(guildId: string): string {
@@ -129,21 +129,9 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     {mentions > 0 ? <span className="dk-sb-count">@{mentions > 99 ? "99+" : mentions}</span> : null}
                 </span>
             </button>
-            {voice && users.map(uid => <VoiceMember key={uid} userId={uid} />)}
+            {voice && users.length > 0 && <VoiceMembers channelId={id} />}
             {threadIds && threadIds.split(",").map(t => <ChannelRow key={t} id={t} threads={false} />)}
         </>
-    );
-}
-
-function VoiceMember({ userId }: { userId: string; }) {
-    const user = useStateFromStores([UserStore], () => UserStore.getUser(userId), [userId]);
-    if (!user) return null;
-    const name = RelationshipStore.getNickname(userId) || (user as any).globalName || user.username;
-    return (
-        <div className="dk-sb-row dk-col-member" title={name}>
-            <span className="dk-sb-icon dk-sb-small"><img src={user.getAvatarURL(undefined, 40)} alt="" draggable={false} /></span>
-            <span className="dk-sb-name">{name}</span>
-        </div>
     );
 }
 
@@ -187,7 +175,7 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     const guild = useStateFromStores([GuildStore], () => GuildStore.getGuild(guildId), [guildId]);
     const { showAll } = settings.use(["showAll", "opened", "favorites"]);
     const json = useStateFromStores(
-        [ChannelListStore, ReadStateStore, SelectedChannelStore, VoiceStateStore, RelationshipStore],
+        [ChannelListStore, ReadStateStore, SelectedChannelStore, VoiceStateStore, RelationshipStore, UserStore],
         () => selectColumn(guildId), [guildId]
     );
     const view: ColumnView = JSON.parse(json);
@@ -199,8 +187,8 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     return (
         <div className="dk-col" key={guildId}>
             <div className="dk-col-header">
-                <button className="dk-col-back" onClick={onBack} title="Back to everything (keeps this conversation open)" data-dk-nav aria-label="Back">←</button>
                 <span className="dk-col-title" title={guild?.name}>{guild?.name}</span>
+                <button className="dk-col-back" onClick={onBack} title="Close this column (the conversation stays open)" data-dk-nav aria-label="Close">×</button>
             </div>
             {all ? (
                 <>

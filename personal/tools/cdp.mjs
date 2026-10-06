@@ -4,11 +4,15 @@
 //   node personal/tools/cdp.mjs clip out.png "<css selector>" [padding]
 //   node personal/tools/cdp.mjs hover|click|rclick x y     node personal/tools/cdp.mjs key Escape|Shift+Enter|Ctrl+k
 //   node personal/tools/cdp.mjs type "some text"   (into whatever has focus)
+//   node personal/tools/cdp.mjs reset   (clears a viewport size a timed-out shot left behind)
+//   node personal/tools/cdp.mjs console [filter]   (errors and warnings Chrome still holds, incl. earlier ones)
 //   node personal/tools/cdp.mjs css theme.css   (hot-swap a theme without rebuilding)
 // CDP_PORT=9223 targets our Vesktop instead (see vesktop-dev.ps1).
 import { readFileSync, writeFileSync } from "node:fs";
 
 const [cmd, arg, w, h] = process.argv.slice(2);
+// a capture can wait forever for a frame (minimised or occluded window): fail instead of hanging
+setTimeout(() => { console.error(`cdp ${cmd}: timed out`); process.exit(2); }, 20_000).unref();
 const port = process.env.CDP_PORT || "9222";
 const targets = await (await fetch(`http://localhost:${port}/json/list`)).json();
 const page = targets.find((t) => t.type === "page" && t.url.includes("discord.com"));
@@ -30,7 +34,23 @@ const send = (method, params = {}) =>
 		ws.send(JSON.stringify({ id: msgId, method, params }));
 	});
 
-if (cmd === "eval") {
+if (cmd === "reset") {
+	// undo a size override left behind by an interrupted shot
+	await send("Emulation.clearDeviceMetricsOverride");
+	console.log("reset");
+} else if (cmd === "console") {
+	// Runtime.enable replays the console messages Chrome has buffered, so earlier errors show up too
+	const seen = [];
+	ws.addEventListener("message", (ev) => {
+		const m = JSON.parse(ev.data);
+		if (m.method !== "Runtime.consoleAPICalled" || !["error", "warning"].includes(m.params.type)) return;
+		const text = m.params.args.map((a) => a.value ?? a.description ?? a.type).join(" ");
+		if (!arg || text.includes(arg)) seen.push(`[${m.params.type}] ${text}`);
+	});
+	await send("Runtime.enable");
+	await new Promise((r) => setTimeout(r, 1000));
+	console.log(seen.slice(-20).join("\n\n") || "nothing");
+} else if (cmd === "eval") {
 	const r = await send("Runtime.evaluate", { expression: arg, awaitPromise: true, returnByValue: true });
 	if (r.exceptionDetails) console.error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
 	else console.log(typeof r.result.value === "string" ? r.result.value : JSON.stringify(r.result.value, null, 1));

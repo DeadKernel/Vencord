@@ -18,9 +18,10 @@ import {
     addFavorite, backOut, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite,
     navState, noteRoute, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, presenceWord, PrivateChannelReadStateStore,
     removeFavorite, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
-    suppressBroadcasts, userPresence
-} from "./data";
+    suppressBroadcasts, useFavorites,
+userPresence } from "./data";
 import { ContextItem, openMenu } from "./menu";
+import { occupants, VoiceMembers } from "./voice";
 
 export interface ChannelAreaProps {
     guildId?: string | null;
@@ -32,9 +33,6 @@ export interface ChannelAreaProps {
 
 const DIRECT_MAX = 5;
 const MESSAGES_MAX = 8;
-const STRIP_DMS = 4;
-const PEEK_DWELL = 300;
-const PEEK_CLOSE = 200;
 
 // Stores that change a row's presence word or a server's signal. Functions, because Vencord's
 // common stores resolve lazily and must not be read at module load.
@@ -284,13 +282,31 @@ function DirectSection() {
     );
 }
 
+const isVoiceChannel = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
+
 function FavoritesSection() {
-    settings.use(["favorites"]);
+    useFavorites();
     const list = getFavorites();
+    const key = list.map(f => f.id).join(",");
+    // A favourite voice channel lists who's in it; a favourite person already listed there doesn't
+    // get a second row until they leave (one person, one place).
+    const inCalls = useStateFromStores([VoiceStateStore, ChannelStore], () => list
+        .filter(f => isVoiceChannel(ChannelStore.getChannel(f.id)))
+        .flatMap(f => occupants(f.id)).sort().join(","), [key]);
+    const listed = new Set(inCalls ? inCalls.split(",") : []);
     return (
         <Section id="favorites" label="Favorites">
             {list.length
-                ? list.map(f => <ConversationRow key={f.id} id={f.id} fallback={f.label} inFavorites />)
+                ? list.map(f => {
+                    const c = ChannelStore.getChannel(f.id);
+                    if (c?.type === 1 && listed.has(c.recipients[0])) return null;
+                    return (
+                        <React.Fragment key={f.id}>
+                            <ConversationRow id={f.id} fallback={f.label} inFavorites />
+                            {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
+                        </React.Fragment>
+                    );
+                })
                 : <p className="dk-sb-empty">Right-click any person, group or channel › Add to Favorites</p>}
         </Section>
     );
@@ -304,7 +320,7 @@ function MessagesSection() {
         (a, b) => sameList(a.recent, b.recent) && sameList(a.quiet, b.quiet)
     );
     const requests = useStateFromStores([MessageRequestStore], selectRequestCount);
-    settings.use(["favorites"]);
+    useFavorites();
     const fav = new Set(getFavorites().map(f => f.id));
     const recentShown = recent.filter(id => !fav.has(id));
     const quietShown = quiet.filter(id => !fav.has(id));
@@ -383,84 +399,6 @@ function JumpRow() {
     );
 }
 
-// ── The strip: who and where, at 48 px, while you're inside a server ─────────
-
-function StripDm({ id }: { id: string; }) {
-    const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
-    const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
-    const unread = useStateFromStores([ReadStateStore], () => ReadStateStore.hasUnread(id), [id]);
-    const presence = useStateFromStores(liveStores(), () => channel?.type === 1 ? userPresence(channel.recipients[0]) : undefined, [channel]);
-    const inVoice = useStateFromStores(liveStores(), () => !!channel && !!presenceWord(channel)?.live, [channel]);
-    if (!channel) return null;
-    return (
-        <button className={classes("dk-strip-item", unread && "dk-unread")} onClick={() => openChannel(id)}
-            title={inVoice ? `${labelFor(channel)} · in voice` : labelFor(channel)} onContextMenu={e => openMenu(e, conversationMenu(id, isFavorite(id)))}>
-            <Square src={avatarSrc(channel)} text={labelFor(channel)[0]} presence={presence} />
-            {mentions > 0 && <span className="dk-strip-chip">{mentions > 9 ? "9+" : mentions}</span>}
-            {/* the same teal dot a server gets for friends in voice; outlines mean "you are here" only */}
-            {!mentions && inVoice && <i className="dk-strip-dot dk-teal" />}
-        </button>
-    );
-}
-
-function StripGuild({ guildId, current }: { guildId: string; current: boolean; }) {
-    const guild = useStateFromStores([GuildStore], () => GuildStore.getGuild(guildId), [guildId]);
-    const signal = useStateFromStores(guildStores(), () => JSON.stringify(guildSignal(guildId)), [guildId]);
-    if (!guild) return null;
-    const s = JSON.parse(signal);
-    if (s.muted && !s.mentions && !current) return null;
-    return (
-        <button className={classes("dk-strip-item", "dk-strip-guild", (s.unread && !s.muted) && "dk-unread", current && "dk-current")}
-            onClick={() => openGuild(guildId)} title={guild.name}>
-            <Square src={guildIcon(guildId)} text={(guild as any).acronym ?? guild.name[0]} size="server" />
-            {s.mentions > 0 && <i className="dk-strip-dot dk-pink" />}
-            {!s.mentions && s.voice > 0 && <i className="dk-strip-dot dk-teal" />}
-        </button>
-    );
-}
-
-function Strip({ guildId }: { guildId: string; }) {
-    const dms = useStateFromStores([PrivateChannelReadStateStore, ChannelStore, ReadStateStore], () =>
-        [...(PrivateChannelReadStateStore.getUnreadPrivateChannelIds?.() ?? [])].filter((id: string) => ChannelStore.getChannel(id)), [], sameList);
-    settings.use(["favorites", "openFolders"]);
-    const people = getFavorites().map(f => f.id).filter(id => {
-        const c = ChannelStore.getChannel(id);
-        return c && (c.type === 1 || c.type === 3) && !dms.includes(id);
-    });
-    const folders = useFolders();
-    const { openFolders } = settings.store;
-
-    // keep the current server in view when you arrive
-    const ref = useRef<HTMLDivElement>(null);
-    useEffect(() => ref.current?.querySelector(".dk-current")?.scrollIntoView({ block: "nearest" }), [guildId]);
-
-    return (
-        <div className="dk-strip" ref={ref}>
-            <button className="dk-strip-item dk-strip-jump" onClick={openQuickSwitcher} title="Jump to… (Ctrl K)" aria-label="Jump to">⌕</button>
-            {dms.length > 0 && <hr />}
-            {dms.slice(0, STRIP_DMS).map(id => <StripDm key={id} id={id} />)}
-            {dms.length > STRIP_DMS && <span className="dk-strip-more">+{dms.length - STRIP_DMS}</span>}
-            {people.length > 0 && <hr />}
-            {people.map(id => <StripDm key={id} id={id} />)}
-            <hr />
-            {folders.map(folder => {
-                if (!folder.folderId) return <StripGuild key={folder.guildIds[0]} guildId={folder.guildIds[0]} current={folder.guildIds[0] === guildId} />;
-                const key = String(folder.folderId);
-                const open = !!openFolders[key] || folder.guildIds.includes(guildId);
-                return (
-                    <div key={key} className="dk-strip-folder" data-open={open || undefined}>
-                        <button className="dk-strip-item dk-strip-foldericon" title={folder.folderName || "Folder"}
-                            onClick={() => settings.store.openFolders = { ...settings.store.openFolders, [key]: !openFolders[key] }}>
-                            {open ? "▾" : "▸"}
-                        </button>
-                        {open && folder.guildIds.map(id => <StripGuild key={id} guildId={id} current={id === guildId} />)}
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
 // ── Keyboard: ↑/↓ walk the rows, Home/End jump; focus never opens or marks anything read ──
 
 function onNavKey(e: KeyboardEvent<HTMLElement>) {
@@ -485,56 +423,43 @@ function useInert(ref: React.RefObject<HTMLElement | null>, inert: boolean) {
     }, [inert]);
 }
 
-// ── The sidebar: three layers, one width. personal/SCREENS.md "Motion". ──────
+// ── The sidebar: everything, always; inside a server its channel column opens beside it.
+// personal/SCREENS.md "Inside a server". ──
+
+/** The sidebar widens by the column; only while it opens or closes does the width animate, so
+ * dragging Discord's resize handle stays instant. */
+function useWidthTransition(drilled: string | null) {
+    const first = useRef(true);
+    useEffect(() => {
+        if (first.current) { first.current = false; return; }
+        const root = document.documentElement;
+        root.dataset.dkSbAnim = "";
+        const t = window.setTimeout(() => { delete root.dataset.dkSbAnim; }, 320);
+        return () => { clearTimeout(t); delete root.dataset.dkSbAnim; };
+    }, [!!drilled]);
+}
 
 export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar }: ChannelAreaProps) {
     const drilled = useDrilled(routeGuildId);
-    const { peek: peekEnabled } = settings.use(["peek"]);
-    const [peek, setPeek] = useState(false);
     const [columnGuild, setColumnGuild] = useState<string | null>(drilled);
-    const timers = useRef<{ open?: number; close?: number; }>({});
     const scroller = useRef<HTMLDivElement>(null);
-    const topRef = useRef<HTMLDivElement>(null);
-    const stripRef = useRef<HTMLDivElement>(null);
     const columnRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => noteRoute(routeGuildId, selectedChannelId), [routeGuildId, selectedChannelId]);
-    // the column keeps its last server while it fades out
-    useEffect(() => { if (drilled) setColumnGuild(drilled); setPeek(false); }, [drilled]);
+    useEffect(() => { noteRoute(routeGuildId, selectedChannelId); }, [routeGuildId, selectedChannelId]);
+    // the column keeps its last server while it closes
+    useEffect(() => { if (drilled) setColumnGuild(drilled); }, [drilled]);
     useEffect(() => {
         const el = scroller.current;
         if (!el) return;
         el.scrollTop = savedScroll;
         return () => void (savedScroll = el.scrollTop);
     }, []);
-
-    const clear = () => { clearTimeout(timers.current.open); clearTimeout(timers.current.close); };
-    const onStripEnter = () => {
-        if (!peekEnabled || peek) return;
-        clear();
-        timers.current.open = window.setTimeout(() => setPeek(true), PEEK_DWELL);
-    };
-    const onStripLeave = () => { if (!peek) clearTimeout(timers.current.open); };
-    const onNavLeave = () => {
-        clearTimeout(timers.current.open);
-        if (peek) timers.current.close = window.setTimeout(() => setPeek(false), PEEK_CLOSE);
-    };
-    const onNavEnter = () => clearTimeout(timers.current.close);
-    useEffect(() => clear, []);
-
-    const mode = drilled ? "server" : "top";
-    useInert(topRef, !!drilled && !peek);
-    useInert(stripRef, !drilled);
+    useWidthTransition(drilled);
     useInert(columnRef, !drilled);
 
     return (
-        <nav
-            className="dk-sb" aria-label="Sidebar" data-mode={mode} data-peek={peek || undefined}
-            onMouseLeave={onNavLeave} onMouseEnter={onNavEnter}
-            onKeyDown={e => { if (e.key === "Escape" && peek) { setPeek(false); e.stopPropagation(); } else onNavKey(e); }}
-        >
-            <div className="dk-layer dk-layer-top" ref={topRef}
-                onClickCapture={() => peek && window.setTimeout(() => setPeek(false), 0)}>
+        <nav className="dk-sb" aria-label="Sidebar" data-mode={drilled ? "server" : "top"} onKeyDown={onNavKey}>
+            <div className="dk-layer dk-layer-top">
                 <div className="dk-sb-scroll" ref={scroller}>
                     <JumpRow />
                     <ReturnRow routeGuildId={routeGuildId} />
@@ -543,9 +468,6 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                     <MessagesSection />
                     <ServersSection />
                 </div>
-            </div>
-            <div className="dk-layer dk-layer-strip" ref={stripRef} onMouseEnter={onStripEnter} onMouseLeave={onStripLeave}>
-                {columnGuild && <Strip guildId={drilled ?? columnGuild} />}
             </div>
             <div className="dk-layer dk-layer-column" ref={columnRef}>
                 {columnGuild && (

@@ -10,20 +10,16 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ApplicationStreamingStore, ChannelActionCreators, ChannelStore, GuildStore, MessageRequestStore, NavigationRouter, PresenceStore,
-    PrivateChannelSortStore, ReadStateStore, RelationshipStore, useMemo, UserStore, useState, useStateFromStores, VoiceStateStore
+    ApplicationStreamingStore, ChannelStore, GuildStore, MessageRequestStore, NavigationRouter, PresenceStore,
+    PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, useMemo, UserStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType } from "react";
 
-import { joinVoice, labelFor, openChannel, snowflakeTime } from "./data";
+import { getFavorites, joinVoice, labelFor, openChannel, snowflakeTime } from "./data";
+import { nameOf, occupants, openDm, voiceFlags, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
 const RECENT_DAYS = 30;
-
-const nameOf = (uid: string) => {
-    const u = UserStore.getUser(uid);
-    return RelationshipStore.getNickname(uid) || (u as any)?.globalName || u?.username || "Someone";
-};
 
 function ago(ms: number) {
     const m = Math.round((Date.now() - ms) / 60000);
@@ -56,16 +52,11 @@ function Avatar({ uid, size = 24, status }: { uid: string; size?: number; status
     );
 }
 
-const openDm = (uid: string) => {
-    const dm = ChannelStore.getDMFromUserId(uid);
-    if (dm) openChannel(dm);
-    else ChannelActionCreators.openPrivateChannel(uid);
-};
-
-// ── In voice: one row per call your friends are in ──────────────────────────
+// ── In voice: one block per call your friends are in. The call's row says where and how many;
+// under it, everyone in it, friends first, with who's live or on camera. ──
 
 function useCalls() {
-    return useStateFromStores([VoiceStateStore, RelationshipStore], () => {
+    return useStateFromStores([VoiceStateStore, RelationshipStore, SelectedChannelStore], () => {
         const calls = new Map<string, string[]>();
         for (const uid of RelationshipStore.getFriendIDs()) {
             const cid = VoiceStateStore.getVoiceStateForUser(uid)?.channelId;
@@ -73,28 +64,38 @@ function useCalls() {
             if (!calls.has(cid)) calls.set(cid, []);
             calls.get(cid)!.push(uid);
         }
-        return JSON.stringify([...calls].sort((a, b) => b[1].length - a[1].length));
+        // yours first, then calls in channels or with people you've favourited, then the biggest
+        const fav = new Set(getFavorites().map(f => f.id));
+        const favPeople = new Set(getFavorites().map(f => ChannelStore.getChannel(f.id)).filter(c => c?.type === 1).map(c => c!.recipients[0]));
+        const score = ([cid, friends]: [string, string[]]) =>
+            (VoiceStateStore.isInChannel(cid) ? 1000 : 0) + (fav.has(cid) || friends.some(u => favPeople.has(u)) ? 100 : 0) + friends.length;
+        return JSON.stringify([...calls].sort((a, b) => score(b) - score(a)));
     });
 }
 
-function CallRow({ channelId, friends }: { channelId: string; friends: string[]; }) {
+function CallBlock({ channelId, friends }: { channelId: string; friends: string[]; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(channelId), [channelId]);
-    const everyone = useStateFromStores([VoiceStateStore], () => Object.keys(VoiceStateStore.getVoiceStatesForChannel(channelId) ?? {}).length, [channelId]);
+    const everyone = useStateFromStores([VoiceStateStore], () => occupants(channelId).length, [channelId]);
+    const live = useStateFromStores([VoiceStateStore, ApplicationStreamingStore], () => occupants(channelId).filter(u => voiceFlags(u).live).length, [channelId]);
     const mine = useStateFromStores([VoiceStateStore], () => VoiceStateStore.isInChannel(channelId), [channelId]);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
-    const where = guild ? `${channel.name} · ${guild.name}` : labelFor(channel);
-    const names = friends.slice(0, 3).map(nameOf).join(", ") + (everyone > 3 ? ` +${everyone - 3}` : "");
+    const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
     return (
-        <div className="dk-home-row dk-home-call">
-            <button className="dk-home-main" onClick={() => openChannel(channel.id)} title={`Open ${where}`}>
-                <span className="dk-home-stack">{friends.slice(0, 4).map(uid => <Avatar key={uid} uid={uid} size={20} />)}</span>
-                <span className="dk-home-name">{names}</span>
-                <span className="dk-home-dim">♪ {where}</span>
-            </button>
-            {mine
-                ? <span className="dk-home-here">you're here</span>
-                : <button className="dk-home-join" onClick={() => joinVoice(channel as Channel)}>Join</button>}
+        <div className="dk-home-callblock">
+            <div className="dk-home-row dk-home-call">
+                <button className="dk-home-main" onClick={() => openChannel(channel.id)} title={`Open ${labelFor(channel)}`}>
+                    <span className="dk-sb-icon dk-sb-hash" aria-hidden>♪</span>
+                    <span className="dk-home-name">{guild ? channel.name : labelFor(channel)}</span>
+                    <span className="dk-home-dim">{guild ? guild.name : "call"}</span>
+                    {live > 0 && <span className="dk-vc-live">{live > 1 ? `${live} live` : "live"}</span>}
+                    <span className="dk-home-dim dk-home-time">{count}</span>
+                </button>
+                {mine
+                    ? <span className="dk-home-here">you're here</span>
+                    : <button className="dk-home-join" onClick={() => joinVoice(channel as Channel)}>Join</button>}
+            </div>
+            <VoiceMembers channelId={channelId} max={8} className="dk-home-member" />
         </div>
     );
 }
@@ -183,7 +184,7 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
                 {calls.length > 0 && (
                     <section>
                         <h2>In voice</h2>
-                        {calls.map(([cid, friends]) => <CallRow key={cid} channelId={cid} friends={friends} />)}
+                        {calls.map(([cid, friends]) => <CallBlock key={cid} channelId={cid} friends={friends} />)}
                     </section>
                 )}
                 {(pending > 0 || requests > 0) && (

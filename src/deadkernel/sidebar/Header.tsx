@@ -13,10 +13,10 @@ import { Channel, Guild } from "@vencord/discord-types";
 import { React } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
-import { addFavorite, drillIn, isFavorite, navState, openGuild, removeFavorite, settings } from "./data";
+import { addFavorite, drillIn, isFavorite, navState, openGuild, removeFavorite, settings, useFavorites } from "./data";
 
 function Star({ channel }: { channel: Channel; }) {
-    settings.use(["favorites"]);
+    useFavorites();
     const fav = isFavorite(channel.id);
     return (
         <button
