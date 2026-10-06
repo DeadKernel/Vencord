@@ -60,7 +60,7 @@ html[data-dk-sidebar] {
 /* With the column open, the sidebar keeps the width he dragged it to, except on small windows:
    then both columns together take at most 45% of the window, the sidebar never under 240px */
 html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
-    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, var(--dk-vw, 100vw) * 0.45 - 248px));
+    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 100vw * 0.45 - 248px));
 
     width: calc(var(--dk-top-w) + 248px) !important;
 }
@@ -68,7 +68,7 @@ html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
 /* a thread, search results or the member list beside the chat: the sidebar gives up width only
    while the chat would otherwise drop under ~720px (room for a ~440px panel); full screen keeps it */
 html[data-dk-sidebar]:has([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"], [class*="membersWrap_"]) [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
-    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, var(--dk-vw, 100vw) * 0.45 - 248px), max(240px, var(--dk-vw, 100vw) - 248px - 440px - 720px));
+    --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 100vw * 0.45 - 248px), max(240px, 100vw - 248px - 440px - 720px));
 }
 
 /* the account bar stays under the sidebar, so mute and deafen never move when a column opens */

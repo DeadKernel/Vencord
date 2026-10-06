@@ -133,8 +133,9 @@ Fable §5.)*
 
 - **The app scales with the window.** QuietLayout zooms the whole app by window height: 100% at
   720px tall or less, rising to 130% from 1300px, in 5% steps, plus an "Overall size" slider
-  (80–150%). It's CSS `zoom` in a `<style>` of ours (Discord rewrites `<html style>`), which keeps
-  hit-testing, menus and popouts right. `--dk-vw` is the window's width in zoomed pixels.
+  (80–150%). It uses Electron's own zoom (what Ctrl + does, set from QuietLayout's native.ts). A
+  first try with CSS `zoom` on `<html>` put Discord's popouts zoom-times too far right and down (the
+  composer's + menu landed mid-chat); real zoom keeps every menu where it belongs.
 - **Room rules use real room.** A member list, thread or search results only shrink the sidebar
   when the chat would otherwise drop under ~720px; full screen keeps the width he dragged.
 - **Home uses the width:** its sections flow into as many 420px columns as fit, up to three.

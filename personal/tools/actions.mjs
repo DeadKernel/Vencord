@@ -231,6 +231,26 @@ try {
 		await until(`!document.querySelector('[role="menu"]')`, 1000);
 	}
 
+	// ── 7b. Popouts open where they belong (window scaling once put them zoom-times too far out) ──
+	const pos = await js(`
+		const b = document.querySelector('[aria-label="More message options"]'); if (!b) return null;
+		const r = b.getBoundingClientRect(); b.click(); await new Promise(r => setTimeout(r, 700));
+		const m = document.querySelector('[role="menu"]')?.getBoundingClientRect();
+		return m ? { dx: Math.abs(m.left - r.left), dy: r.top - m.bottom } : { missing: true };`);
+	check("the composer's + menu opens at the +", pos && !pos.missing && pos.dx < 24 && pos.dy > -4 && pos.dy < 40, JSON.stringify(pos));
+	await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+	await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+	await until(`!document.querySelector('[role="menu"]')`, 1000);
+	const at = await js(`
+		const row = [...document.querySelectorAll(".dk-layer-top .dk-sb-section .dk-sb-row")][1]; const r = row.getBoundingClientRect();
+		row.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: r.left + 40, clientY: r.top + 10 }));
+		await new Promise(r => setTimeout(r, 700)); const m = document.querySelector('[role="menu"]')?.getBoundingClientRect();
+		return m ? { dx: Math.abs(m.left - (r.left + 40)), dy: Math.abs(m.top - (r.top + 10)) } : { missing: true };`);
+	check("a right-click menu opens at the pointer", at && !at.missing && at.dx < 24 && at.dy < 24, JSON.stringify(at));
+	await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+	await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+	await until(`!document.querySelector('[role="menu"]')`, 1000);
+
 	// ── 8. Column: close, crumb, category, quiet ──
 	await block(false);
 	await go(`/channels/${t.guild}/${t.text}`);

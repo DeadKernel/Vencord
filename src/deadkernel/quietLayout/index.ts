@@ -5,7 +5,7 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import definePlugin, { OptionType } from "@utils/types";
+import definePlugin, { OptionType, PluginNative } from "@utils/types";
 
 import style from "./quietLayout.css?managed";
 
@@ -66,30 +66,26 @@ function apply() {
     document.documentElement.dataset.dkLayout = (Object.keys(Options) as Key[]).filter(k => settings.store[k]).join(" ");
 }
 
-// ── Scale: the whole app zooms with the window's height, in 5% steps. CSS zoom on <html> keeps
-// hit-testing, menus and popouts right (checked live at 130%). --dk-vw is the window's width in
-// zoomed pixels, for layout rules that need real room (the sidebar's column, personal/SCREENS.md). ──
+// ── Scale: the whole app zooms with the window's height, in 5% steps, through Electron's own
+// zoom (native.ts). CSS zoom on <html> broke Discord's popout placement (menus landed zoom-times
+// too far right and down). Heights are logical pixels: innerHeight × the zoom in effect. ──
+
+const Native = VencordNative.pluginHelpers.QuietLayout as PluginNative<typeof import("./native")>;
 
 const SCALE_FROM = 720, SCALE_TO = 1300, SCALE_MAX = 1.3;
+let current = 1;
 
 function zoomFor(height: number) {
     const t = Math.min(1, Math.max(0, (height - SCALE_FROM) / (SCALE_TO - SCALE_FROM)));
     return 1 + (SCALE_MAX - 1) * t;
 }
 
-// A <style> of our own, not <html style>: Discord rewrites the root element's style attribute.
-let scaleStyle: HTMLStyleElement | null = null;
-
-function applyScale() {
-    const auto = settings.store.scaleWithWindow ? zoomFor(window.innerHeight) : 1;
+async function applyScale() {
+    const auto = settings.store.scaleWithWindow ? zoomFor(window.innerHeight * current) : 1;
     const zoom = Math.round(auto * (settings.store.extraScale ?? 100) / 100 * 20) / 20;
-    const css = `html { ${zoom === 1 ? "" : `zoom: ${zoom} !important; `}--dk-vw: ${Math.round(window.innerWidth / zoom)}px; }`;
-    if (!scaleStyle) {
-        scaleStyle = document.createElement("style");
-        scaleStyle.id = "dk-scale";
-        document.head.append(scaleStyle);
-    }
-    if (scaleStyle.textContent !== css) scaleStyle.textContent = css;
+    if (zoom === current) return;
+    current = zoom;
+    await Native.setZoom(zoom);
 }
 
 let frame = 0;
@@ -106,16 +102,17 @@ export default definePlugin({
     settings,
     managedStyle: style,
 
-    start() {
+    async start() {
         apply();
-        applyScale();
+        current = await Native.getZoom().catch(() => 1);
+        await applyScale();
         window.addEventListener("resize", onResize);
     },
     stop() {
         window.removeEventListener("resize", onResize);
         cancelAnimationFrame(frame);
         delete document.documentElement.dataset.dkLayout;
-        scaleStyle?.remove();
-        scaleStyle = null;
+        current = 1;
+        Native.setZoom(1);
     }
 });
