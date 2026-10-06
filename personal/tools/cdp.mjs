@@ -1,12 +1,14 @@
 // Tiny Chrome DevTools Protocol client for a Discord started with --remote-debugging-port=9222.
 //   node personal/tools/cdp.mjs eval "<js expression>"
 //   node personal/tools/cdp.mjs shot out.png [width height]
+// CDP_PORT=9223 targets our Vesktop instead (see vesktop-dev.ps1).
 import { writeFileSync } from "node:fs";
 
 const [cmd, arg, w, h] = process.argv.slice(2);
-const targets = await (await fetch("http://localhost:9222/json/list")).json();
+const port = process.env.CDP_PORT || "9222";
+const targets = await (await fetch(`http://localhost:${port}/json/list`)).json();
 const page = targets.find((t) => t.type === "page" && t.url.includes("discord.com"));
-if (!page) throw new Error("no Discord page target on :9222");
+if (!page) throw new Error(`no Discord page target on :${port}`);
 
 const ws = new WebSocket(page.webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener("open", r, { once: true }));
