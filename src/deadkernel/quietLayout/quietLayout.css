@@ -484,10 +484,13 @@
     display: none !important;
 }
 
-/* Scrollbars only while hovering */
-[data-dk-layout~="quietScrollbars"] [class*="scroller"]:not(:hover) {
-    --scrollbar-auto-thumb: transparent;
-    --scrollbar-thin-thumb: transparent;
-
+/* Scrollbars only while hovering. Both states use the standard scrollbar-color, never Discord's
+   ::-webkit-scrollbar styling: switching between the two changed the bar's width, and the content
+   (the member list's activity cards) jumped 5px on hover. */
+[data-dk-layout~="quietScrollbars"] [class*="scroller"] {
     scrollbar-color: transparent transparent !important;
+}
+
+[data-dk-layout~="quietScrollbars"] [class*="scroller"]:hover {
+    scrollbar-color: var(--hl-bg-hover, var(--scrollbar-thin-thumb)) transparent !important;
 }

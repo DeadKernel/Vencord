@@ -49,6 +49,8 @@ Settings > Vencord > Plugins: "Sidebar" (the layout), "QuietLayout" (the chat), 
 (what's hidden), "HumanLayerTheme" (the look). Each can be switched off, and every option inside
 switches live. If part of the layout breaks, it falls back to Discord's own.
 Everything grows with the window; if it's too big or small for you, QuietLayout > Overall size.
+Colours and spacing: HumanLayerTheme > Palette (five, one light) and Density (compact to
+comfortable).
 
 FEEDBACK: DM Aditya (screenshots help; blur anything private)
 - The first 10 minutes: what confused you, what you went looking for and couldn't find.

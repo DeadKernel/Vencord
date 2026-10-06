@@ -83,7 +83,7 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
     const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
     return (
-        <div className="dk-home-callblock">
+        <div className="dk-home-callblock" data-dk-id={channelId}>
             <div className="dk-home-row dk-home-call">
                 <button className="dk-home-main" onClick={() => openVoiceChat(channel as Channel)} title={`Open ${labelFor(channel)}'s chat (Join joins)`}>
                     <IconSlot name="voice" />

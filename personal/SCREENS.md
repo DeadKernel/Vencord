@@ -147,3 +147,20 @@ Fable §5.)*
 - Hover actions take the row's right slot: the count steps aside and the text truncates sooner,
   so the actions sit on the row rather than on a patch over it.
 
+## 6. Palettes, density, and a calmer column (2026-10-06)
+
+- **Palettes** (HumanLayerTheme › Palette): HumanLayer (Poimandres blue-grey, default), Midnight
+  (true black for OLED, electric blue), Gruvbox (warm, retro), Nord (cool, quiet contrast), Paper
+  (light, warm off-white, ink blue). A palette sets ~15 base tokens; every tint in the theme is
+  `color-mix` of those tokens, so nothing is left in the old colours.
+- **Density** (HumanLayerTheme › Density): Compact / Default / Comfortable sets row height
+  (28/32/36px), the gap between message groups and the chat's line height.
+- **The column, again:** categories with nothing live no longer show at all; one "› N quiet
+  channels" row at the end unfolds every quiet channel in place under its category. A category
+  with live channels says "+N" after its name, in the label's own style.
+- Fixes: the member list's activity cards jumped 5px on hover (quiet scrollbars switched between
+  the standard and the webkit scrollbar, which differ in width; both states are standard now).
+  Vencord's NoTrack threw at startup about one load in five once window scaling changed the
+  timing (it ignored the dispatcher Discord passes and used Vencord's, sometimes not resolved yet),
+  and then no plugin started; it now uses Discord's.
+

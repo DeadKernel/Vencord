@@ -149,39 +149,35 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
     );
 }
 
-/** A category shows its live channels; its quiet ones unfold in place when you ask ("· N" after its
- * name, or "Show all quiet channels" at the end). A category with nothing live is one dim row.
- * Discord's own collapse state applies to the live rows. */
+/** A category shows its live channels, and "+N" after its name unfolds its quiet ones in place.
+ * A category with nothing live doesn't show at all until "N quiet channels" at the end unfolds
+ * everything (personal/SCREENS.md). Discord's own collapse state applies to the live rows. */
 function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean; }) {
     const [quietOpen, setQuietOpen] = useState(false);
     const open = quietOpen || allQuiet;
     const hasLive = cat.live.length > 0;
+    if (!hasLive && !allQuiet) return null;
     const toggleQuiet = () => { if (!open) track("quiet_unfold"); setQuietOpen(!open); };
     const showRows = !cat.collapsed || !hasLive;
+    const n = cat.quiet.length;
     return (
-        <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive ? cat.collapsed : !open) || undefined} data-quiet={!hasLive || undefined}>
+        <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive && cat.collapsed) || undefined} data-quiet={!hasLive || undefined}>
             {cat.name && (
                 <div className="dk-sb-label">
-                    <button className="dk-sb-label-toggle" data-dk-nav aria-expanded={hasLive ? !cat.collapsed : open}
-                        onClick={() => hasLive ? toggleCategory(cat.id, cat.collapsed) : toggleQuiet()}>
-                        <span className="dk-sb-caret" aria-hidden><Icon name={(hasLive ? cat.collapsed : !open) ? "chevronRight" : "chevronDown"} size={12} /></span>{cat.name}
+                    <button className="dk-sb-label-toggle" data-dk-nav aria-expanded={hasLive ? !cat.collapsed : true}
+                        onClick={() => hasLive && toggleCategory(cat.id, cat.collapsed)}>
+                        <span className="dk-sb-caret" aria-hidden><Icon name={hasLive && cat.collapsed ? "chevronRight" : "chevronDown"} size={12} /></span>{cat.name}
                     </button>
-                    {cat.quiet.length > 0 && (
+                    {hasLive && n > 0 && !allQuiet && (
                         <button className="dk-sb-quiet" onClick={toggleQuiet} data-dk-nav aria-expanded={open}
-                            title={open ? "Hide quiet channels" : `Show ${cat.quiet.length} quiet channel${cat.quiet.length === 1 ? "" : "s"}`}>
-                            · {cat.quiet.length}
+                            title={open ? "Hide quiet channels" : `${n} quiet channel${n === 1 ? "" : "s"}: show`}>
+                            {open ? "−" : `+${n}`}
                         </button>
                     )}
                 </div>
             )}
             {showRows && hasLive && <div className="dk-sb-rows">{cat.live.map(id => <ChannelRow key={id} id={id} />)}</div>}
             {open && <div className="dk-sb-rows dk-col-quiet">{cat.quiet.map(id => <ChannelRow key={id} id={id} />)}</div>}
-            {/* channels outside any category have no label to carry their "· N" */}
-            {!cat.name && cat.quiet.length > 0 && (
-                <button className="dk-sb-more dk-col-quiet-more" onClick={toggleQuiet} data-dk-nav aria-expanded={open}>
-                    {open ? "Hide quiet" : `· ${cat.quiet.length} quiet`}
-                </button>
-            )}
         </section>
     );
 }
@@ -239,8 +235,10 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
                     )}
                     {view.categories.map(cat => <CategoryBlock key={cat.id} cat={cat} allQuiet={allQuiet} />)}
                     {view.quiet > 0 && (
-                        <button className="dk-sb-more" onClick={() => { if (!allQuiet) track("quiet_unfold_all"); setAllQuiet(!allQuiet); }} data-dk-nav aria-expanded={allQuiet}>
-                            {allQuiet ? "Hide quiet channels" : `Show all ${view.quiet} quiet channel${view.quiet === 1 ? "" : "s"}`}
+                        <button className="dk-sb-row dk-col-allquiet" onClick={() => { if (!allQuiet) track("quiet_unfold_all"); setAllQuiet(!allQuiet); }}
+                            data-dk-nav data-dk-action="all-quiet" aria-expanded={allQuiet}>
+                            <IconSlot name={allQuiet ? "chevronDown" : "chevronRight"} />
+                            <span className="dk-sb-name">{allQuiet ? "Hide quiet channels" : `${view.quiet} quiet channel${view.quiet === 1 ? "" : "s"}`}</span>
                         </button>
                     )}
                 </div>

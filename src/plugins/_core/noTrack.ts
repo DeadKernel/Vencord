@@ -143,7 +143,10 @@ export default definePlugin({
         });
     },
 
-    analyticsTrackingStoreMaker() {
+    // DeadKernel fix: Discord passes its own dispatcher ({ dispatcher }). Vencord's common
+    // FluxDispatcher can still be unresolved this early in startup, and then the stub's
+    // constructor threw (this._dispatcher.register is not a function) and no plugin started.
+    analyticsTrackingStoreMaker(options?: { dispatcher?: typeof FluxDispatcher; }) {
         class AnalyticsTrackingStoreStub extends Flux.Store {
             static displayName = "AnalyticsTrackingStore";
 
@@ -172,6 +175,6 @@ export default definePlugin({
             }
         }
 
-        return new AnalyticsTrackingStoreStub(FluxDispatcher);
+        return new AnalyticsTrackingStoreStub(options?.dispatcher ?? FluxDispatcher);
     }
 });

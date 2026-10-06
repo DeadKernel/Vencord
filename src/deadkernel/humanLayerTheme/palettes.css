@@ -1,0 +1,104 @@
+/* Palettes and density for the HumanLayer theme. Each palette sets only the base tokens; every
+   tint and every Discord variable is derived from them in HumanLayer.theme.css. The plugin puts
+   data-dk-palette and data-dk-density on <html> (personal/SCREENS.md "Palettes and density"). */
+
+/* ── Midnight: true black for OLED, neutral greys, electric blue ── */
+html[data-dk-palette="midnight"] {
+    --hl-bg: #000;
+    --hl-bg-raised: #0c0c0f;
+    --hl-bg-hover: #18181d;
+    --hl-bg-active: #222228;
+    --hl-border: #1d1d23;
+    --hl-text: #c8c8d2;
+    --hl-text-2: #9b9ba8;
+    --hl-text-muted: #6e6e7b;
+    --hl-text-strong: #fff;
+    --hl-accent: #7aa2ff;
+    --hl-accent-hover: #2dd4bf;
+    --hl-teal: #2dd4bf;
+    --hl-yellow: #facc15;
+    --hl-pink: #f472b6;
+    --hl-pink-bright: #f9a8d4;
+    --hl-blue: #60a5fa;
+    --hl-shade: #000;
+}
+
+/* ── Gruvbox: warm, retro, low glare ── */
+html[data-dk-palette="gruvbox"] {
+    --hl-bg: #1d2021;
+    --hl-bg-raised: #282828;
+    --hl-bg-hover: #32302f;
+    --hl-bg-active: #3c3836;
+    --hl-border: #3c3836;
+    --hl-text: #d5c4a1;
+    --hl-text-2: #bdae93;
+    --hl-text-muted: #928374;
+    --hl-text-strong: #fbf1c7;
+    --hl-accent: #83a598;
+    --hl-accent-hover: #8ec07c;
+    --hl-teal: #8ec07c;
+    --hl-yellow: #fabd2f;
+    --hl-pink: #d3869b;
+    --hl-pink-bright: #e5a3b6;
+    --hl-blue: #83a598;
+    --hl-shade: #141617;
+}
+
+/* ── Nord: cool, quiet contrast ── */
+html[data-dk-palette="nord"] {
+    --hl-bg: #2e3440;
+    --hl-bg-raised: #3b4252;
+    --hl-bg-hover: #434c5e;
+    --hl-bg-active: #4c566a;
+    --hl-border: #434c5e;
+    --hl-text: #d8dee9;
+    --hl-text-2: #aeb7c6;
+    --hl-text-muted: #8590a2;
+    --hl-text-strong: #eceff4;
+    --hl-accent: #88c0d0;
+    --hl-accent-hover: #8fbcbb;
+    --hl-teal: #8fbcbb;
+    --hl-yellow: #ebcb8b;
+    --hl-pink: #b48ead;
+    --hl-pink-bright: #c9a8c3;
+    --hl-blue: #81a1c1;
+    --hl-shade: #1f232b;
+}
+
+/* ── Paper: light, warm off-white, ink blue ── */
+html[data-dk-palette="paper"] {
+    color-scheme: light;
+
+    --hl-bg: #f6f4ee;
+    --hl-bg-raised: #ecE9e1;
+    --hl-bg-hover: #e1ddd2;
+    --hl-bg-active: #d6d1c4;
+    --hl-border: #dcd7cb;
+    --hl-text: #3a3833;
+    --hl-text-2: #5d5a53;
+    --hl-text-muted: #858177;
+    --hl-text-strong: #14130f;
+    --hl-accent: #2457c5;
+    --hl-accent-hover: #0f7a62;
+    --hl-teal: #0f7a62;
+    --hl-yellow: #9a6400;
+    --hl-pink: #c2366f;
+    --hl-pink-bright: #d65a8b;
+    --hl-blue: #1f6fd1;
+    --hl-shade: #3a3833;
+}
+
+/* ── Density: row height, gap between message groups, chat line height ── */
+html[data-dk-density="compact"] {
+    --dk-row-h: 28px;
+    --hl-sidebar-row: 28px;
+    --hl-group-gap: 0.75rem;
+    --hl-chat-leading: 1.45;
+}
+
+html[data-dk-density="comfortable"] {
+    --dk-row-h: 36px;
+    --hl-sidebar-row: 36px;
+    --hl-group-gap: 2rem;
+    --hl-chat-leading: 1.7;
+}

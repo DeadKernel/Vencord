@@ -11,7 +11,7 @@
    Tweaks: the knobs you are most likely to want to turn
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-	--hl-font: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+	--hl-font: "IBM Plex Mono", ui-monospace, consolas, monospace;
 	--hl-chat-size: 0.9rem;        /* message text; ≈14.4px at 100% zoom, same as humanlayer.dev body copy */
 	--hl-chat-leading: 1.6;
 	--hl-group-gap: 1.5rem;        /* space between message groups (Discord default ≈1.06rem) */
@@ -28,23 +28,21 @@
 	--hl-bg-hover: #303340;
 	--hl-bg-active: #3a3d4a;
 	--hl-border: #303340;
-
 	--hl-text: #a6accd;
 	--hl-text-2: #8990b3;
 	--hl-text-muted: #6b7394;
 	--hl-text-strong: #e4f0fb;
-
 	--hl-accent: #add7ff;
 	--hl-accent-hover: #5de4c7;
-	--hl-accent-15: rgb(173 215 255 / 0.15);
-	--hl-accent-08: rgb(173 215 255 / 0.08);
+	--hl-accent-15: color-mix(in srgb, var(--hl-accent) 15%, transparent);
+	--hl-accent-08: color-mix(in srgb, var(--hl-accent) 8%, transparent);
 	--hl-teal: #5de4c7;
 	--hl-yellow: #fffac2;
 	--hl-pink: #d0679d;
 	--hl-pink-bright: #f087bd;
 	--hl-blue: #89ddff;
-
-	--hl-hover: rgb(166 172 205 / 0.06);
+	--hl-shade: #0d0f14;           /* overlays and scrims */
+	--hl-hover: color-mix(in srgb, var(--hl-text) 6%, transparent);
 	--hl-selected: var(--hl-accent-15);
 }
 
@@ -65,11 +63,11 @@
 	--background-surface-highest: var(--hl-bg-hover);
 	--background-accent: var(--hl-bg-active);
 	--background-code: var(--hl-bg-raised);
-	--background-mod-muted: rgb(166 172 205 / 0.04);
+	--background-mod-muted: color-mix(in srgb, var(--hl-text) 4%, transparent);
 	--background-mod-subtle: var(--hl-hover);
-	--background-mod-normal: rgb(166 172 205 / 0.1);
-	--background-mod-strong: rgb(166 172 205 / 0.14);
-	--background-scrim: rgb(13 15 20 / 0.8);
+	--background-mod-normal: color-mix(in srgb, var(--hl-text) 10%, transparent);
+	--background-mod-strong: color-mix(in srgb, var(--hl-text) 14%, transparent);
+	--background-scrim: color-mix(in srgb, var(--hl-shade) 80%, transparent);
 	--app-frame-background: var(--hl-bg);
 	--app-frame-border: var(--hl-border);
 	--chat-background: var(--hl-bg);
@@ -92,7 +90,7 @@
 	--background-tertiary: var(--hl-bg);
 	--background-floating: var(--hl-bg-raised);
 	--background-modifier-hover: var(--hl-hover);
-	--background-modifier-active: rgb(166 172 205 / 0.1);
+	--background-modifier-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
 	--background-modifier-selected: var(--hl-selected);
 	--background-modifier-accent: var(--hl-border);
 
@@ -138,7 +136,7 @@
 	--interactive-normal: var(--hl-text-2);
 	--interactive-hover: var(--hl-text);
 	--interactive-active: var(--hl-accent);
-	--interactive-muted: rgb(107 115 148 / 0.6);
+	--interactive-muted: color-mix(in srgb, var(--hl-text-muted) 60%, transparent);
 	--interactive-text-default: var(--hl-text-2);
 	--interactive-text-hover: var(--hl-text);
 	--interactive-text-active: var(--hl-accent);
@@ -159,8 +157,8 @@
 
 	/* buttons: HumanLayer primary = accent outline on a 15% accent wash */
 	--control-primary-background-default: var(--hl-accent-15);
-	--control-primary-background-hover: rgb(173 215 255 / 0.22);
-	--control-primary-background-active: rgb(173 215 255 / 0.28);
+	--control-primary-background-hover: color-mix(in srgb, var(--hl-accent) 22%, transparent);
+	--control-primary-background-active: color-mix(in srgb, var(--hl-accent) 28%, transparent);
 	--control-primary-border-default: var(--hl-accent);
 	--control-primary-border-hover: var(--hl-accent);
 	--control-primary-border-active: var(--hl-accent);
@@ -172,7 +170,7 @@
 	--control-primary-icon-active: var(--hl-text-strong);
 	--control-secondary-background-default: transparent;
 	--control-secondary-background-hover: var(--hl-hover);
-	--control-secondary-background-active: rgb(166 172 205 / 0.1);
+	--control-secondary-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
 	--control-secondary-border-default: var(--hl-border);
 	--control-secondary-border-hover: var(--hl-bg-active);
 	--control-secondary-border-active: var(--hl-bg-active);
@@ -185,11 +183,11 @@
 	--brand-560: var(--hl-accent);
 
 	/* messages */
-	--message-background-hover: rgb(166 172 205 / 0.03);
+	--message-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
 	--message-mentioned-background-default: transparent;
-	--message-mentioned-background-hover: rgb(166 172 205 / 0.03);
-	--message-highlight-background-default: rgb(93 228 199 / 0.07);
-	--message-highlight-background-hover: rgb(93 228 199 / 0.1);
+	--message-mentioned-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
+	--message-highlight-background-default: color-mix(in srgb, var(--hl-teal) 7%, transparent);
+	--message-highlight-background-hover: color-mix(in srgb, var(--hl-teal) 10%, transparent);
 	--mention-foreground: var(--hl-accent);
 	--mention-background: var(--hl-accent-15);
 
@@ -251,9 +249,9 @@
 
 	/* info / success / warning / error surfaces: a light wash in the token colour */
 	--background-feedback-info: var(--hl-accent-08);
-	--background-feedback-positive: rgb(93 228 199 / 0.08);
-	--background-feedback-warning: rgb(255 250 194 / 0.08);
-	--background-feedback-critical: rgb(208 103 157 / 0.1);
+	--background-feedback-positive: color-mix(in srgb, var(--hl-teal) 8%, transparent);
+	--background-feedback-warning: color-mix(in srgb, var(--hl-yellow) 8%, transparent);
+	--background-feedback-critical: color-mix(in srgb, var(--hl-pink) 10%, transparent);
 	--border-feedback-info: var(--hl-accent);
 	--border-feedback-positive: var(--hl-teal);
 	--border-feedback-warning: var(--hl-yellow);
@@ -275,15 +273,15 @@
 	--status-warning-background: var(--hl-yellow);
 	--status-warning-text: var(--hl-bg);
 	--input-border-error-default: var(--hl-pink);
-	--input-background-error-default: rgb(208 103 157 / 0.06);
+	--input-background-error-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
 	--input-icon-default: var(--hl-text-2);
-	--message-automod-background-default: rgb(208 103 157 / 0.06);
-	--message-automod-background-hover: rgb(208 103 157 / 0.1);
+	--message-automod-background-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
+	--message-automod-background-hover: color-mix(in srgb, var(--hl-pink) 10%, transparent);
 
 	/* destructive buttons: pink outline on a pink wash, same shape as primary */
-	--control-critical-primary-background-default: rgb(208 103 157 / 0.15);
-	--control-critical-primary-background-hover: rgb(208 103 157 / 0.22);
-	--control-critical-primary-background-active: rgb(208 103 157 / 0.28);
+	--control-critical-primary-background-default: color-mix(in srgb, var(--hl-pink) 15%, transparent);
+	--control-critical-primary-background-hover: color-mix(in srgb, var(--hl-pink) 22%, transparent);
+	--control-critical-primary-background-active: color-mix(in srgb, var(--hl-pink) 28%, transparent);
 	--control-critical-primary-border-default: var(--hl-pink);
 	--control-critical-primary-border-hover: var(--hl-pink);
 	--control-critical-primary-border-active: var(--hl-pink);
@@ -299,12 +297,12 @@
 	--control-critical-secondary-icon-default: var(--hl-pink-bright);
 	--control-critical-secondary-icon-hover: var(--hl-pink-bright);
 	--control-critical-secondary-icon-active: var(--hl-pink-bright);
-	--button-danger-background-disabled: rgb(208 103 157 / 0.15);
+	--button-danger-background-disabled: color-mix(in srgb, var(--hl-pink) 15%, transparent);
 
 	/* "connected" (voice) buttons in teal */
-	--control-connected-background-default: rgb(93 228 199 / 0.15);
-	--control-connected-background-hover: rgb(93 228 199 / 0.22);
-	--control-connected-background-active: rgb(93 228 199 / 0.28);
+	--control-connected-background-default: color-mix(in srgb, var(--hl-teal) 15%, transparent);
+	--control-connected-background-hover: color-mix(in srgb, var(--hl-teal) 22%, transparent);
+	--control-connected-background-active: color-mix(in srgb, var(--hl-teal) 28%, transparent);
 	--control-connected-border-default: var(--hl-teal);
 	--control-connected-border-hover: var(--hl-teal);
 	--control-connected-border-active: var(--hl-teal);
@@ -321,11 +319,11 @@
 	--control-icon-only-icon-hover: var(--hl-text-strong);
 	--control-icon-only-icon-active: var(--hl-accent);
 	--control-icon-only-background-hover: var(--hl-hover);
-	--control-icon-only-background-active: rgb(166 172 205 / 0.1);
+	--control-icon-only-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
 
 	/* voice + presence */
-	--background-voice-muted: rgb(208 103 157 / 0.15);
-	--border-voice-muted: rgb(208 103 157 / 0.15);
+	--background-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
+	--border-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
 	--icon-voice-muted: var(--hl-pink);
 	--icon-voice-connected: var(--hl-teal);
 	--icon-voice-speaking: var(--hl-teal);
@@ -378,8 +376,8 @@
 	--text-code-addition: var(--hl-teal);
 	--text-code-deletion: var(--hl-pink);
 	--text-code-error: var(--hl-pink);
-	--background-code-addition: rgb(93 228 199 / 0.08);
-	--background-code-deletion: rgb(208 103 157 / 0.1);
+	--background-code-addition: color-mix(in srgb, var(--hl-teal) 8%, transparent);
+	--background-code-deletion: color-mix(in srgb, var(--hl-pink) 10%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -402,7 +400,7 @@ select {
 }
 
 ::selection {
-	background: rgb(173 215 255 / 0.25);
+	background: color-mix(in srgb, var(--hl-accent) 25%, transparent);
 	color: var(--hl-text-strong);
 }
 
@@ -654,6 +652,7 @@ select {
 }
 
 /* Embeds and attachments */
+
 /* the brand stripe becomes a grey edge: a link preview shouldn't outshout the message */
 [class*="embedFull_"] {
 	background: var(--hl-bg-raised) !important;
@@ -766,7 +765,7 @@ button[class*="lookFilled_"][class*="colorBrand_"] {
 }
 
 button[class*="lookFilled_"][class*="colorBrand_"]:hover {
-	background: rgb(173 215 255 / 0.22) !important;
+	background: color-mix(in srgb, var(--hl-accent) 22%, transparent) !important;
 	color: var(--hl-text-strong) !important;
 }
 

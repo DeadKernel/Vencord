@@ -105,14 +105,14 @@ if (target) {
 	check("crumb reopens the column", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "server"`));
 
 	// quiet channels unfold and fold
-	const quiet = await js(`return !!document.querySelector(".dk-col .dk-sb-more")`);
+	const quiet = await js(`return !!document.querySelector('.dk-col [data-dk-action="all-quiet"]')`);
 	if (quiet) {
 		const before = await js(`return document.querySelectorAll(".dk-col .dk-sb-row").length`);
-		await js(`[...document.querySelectorAll(".dk-col .dk-sb-more")].pop().click()`);
+		await js(`document.querySelector('.dk-col [data-dk-action="all-quiet"]').click()`);
 		await sleep(200);
 		const after = await js(`return document.querySelectorAll(".dk-col .dk-sb-row").length`);
 		check("show all quiet channels unfolds rows", after > before, `${before} → ${after}`);
-		await js(`[...document.querySelectorAll(".dk-col .dk-sb-more")].pop().click()`);
+		await js(`document.querySelector('.dk-col [data-dk-action="all-quiet"]').click()`);
 	}
 
 	// right-click menu on a sidebar row

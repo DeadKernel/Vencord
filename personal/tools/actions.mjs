@@ -113,7 +113,9 @@ try {
 		const texts = Object.keys(opened).map(id => Ch.getChannel(id))
 			.filter(c => c?.guild_id && c.type === 0 && !R.hasUnread(c.id) && !R.getMentionCount(c.id) && G.getChannels(c.guild_id).VOCAL.length > 0)
 			.map(c => [c.id, c.guild_id]);
-		const dm = ${C}.PrivateChannelSortStore.getPrivateChannelIds().map(id => Ch.getChannel(id)).find(c => c?.type === 1 && !R.hasUnread(c.id));
+		// not someone in voice: a favourite person inside a favourite call is shown under the call instead
+		const dm = ${C}.PrivateChannelSortStore.getPrivateChannelIds().map(id => Ch.getChannel(id))
+			.find(c => c?.type === 1 && !R.hasUnread(c.id) && !${C}.VoiceStateStore.getVoiceStateForUser(c.recipients[0])?.channelId);
 		return { texts, dm: dm?.id };`);
 
 	// ── 1. Favourites: add/remove from Discord's channel menu updates at once and is saved ──
@@ -121,7 +123,7 @@ try {
 	for (const [text, guild] of t.texts) {
 		await go(`/channels/${guild}/${text}`);
 		await until(`document.querySelector(".dk-col")`);
-		if (!(await js(`return !!${voiceRowAny}`))) await js(`[...document.querySelectorAll(".dk-col .dk-sb-more")].find(b => b.textContent.startsWith("Show all"))?.click()`);
+		if (!(await js(`return !!${voiceRowAny}`))) await js(`document.querySelector('.dk-col [data-dk-action="all-quiet"]')?.click()`);
 		if (await until(voiceRowAny, 800)) { Object.assign(t, { text, guild }); break; }
 	}
 	Object.assign(t, await js(`const id = ${voiceRowAny}?.dataset.dkId; return { voice: id, voiceName: ${C}.ChannelStore.getChannel(id)?.name };`));
@@ -302,20 +304,21 @@ try {
 	await go("/channels/@me");
 	await until(`document.querySelector(".dk-home")`);
 	await js(`
-		const C = ${C}, friends = C.RelationshipStore.getFriendIDs();
+		// only friends who aren't in a call: never overwrite someone's real voice state, even locally
+		const C = ${C}, friends = C.RelationshipStore.getFriendIDs().filter(u => !C.VoiceStateStore.getVoiceStateForUser(u)?.channelId);
 		const vc = C.ChannelStore.getChannel(${JSON.stringify(t.voice)});
 		window.__dkVoice = { ids: friends.slice(0, 2), g: vc.guild_id, vc: vc.id };
 		C.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: window.__dkVoice.ids.map((u, i) => ({ userId: u, channelId: vc.id, guildId: vc.guild_id, sessionId: "dk-test-" + u, selfMute: i === 1, selfDeaf: false, selfVideo: false, selfStream: i === 0, mute: false, deaf: false, suppress: false })) });`);
-	check("Home lists the call", await until(`document.querySelector(".dk-home-callblock")`, 1500));
-	check("…with who's in it, and who's live or muted", await js(`const b = document.querySelector(".dk-home-callblock"); return b.querySelectorAll(".dk-home-member").length === 2 && !!b.querySelector(".dk-vc-live") && !!b.querySelector(".dk-vc-off")`));
+	check("Home lists the call", await until(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"]')`, 1500));
+	check("…with who's in it, and who's live or muted", await js(`const b = document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"]'); return b.querySelectorAll(".dk-home-member").length === 2 && !!b.querySelector(".dk-vc-live") && !!b.querySelector(".dk-vc-off")`));
 	await block(true);
 	await rec();
-	await js(`document.querySelector(".dk-home-callblock .dk-home-main").click()`);
+	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-main').click()`);
 	r = await rec();
 	check("call row opens its chat, doesn't join", recHas(r, "chatOpen") && recHas(r, "nav") && !recHas(r, "join"), JSON.stringify(r));
-	await js(`document.querySelector(".dk-home-callblock .dk-home-join")?.click()`);
+	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-join')?.click()`);
 	check("Join joins", recHas(await rec(), "join"));
-	await js(`document.querySelector(".dk-home-callblock button.dk-home-member")?.click()`);
+	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] button.dk-home-member')?.click()`);
 	r = await rec();
 	check("a friend in the call opens your DM with them", recHas(r, "nav", a => a[0].startsWith("/channels/@me/")) || recHas(r, "openDmNew"), JSON.stringify(r));
 	await js(`[...document.querySelectorAll(".dk-home-body section")].find(s => s.querySelector("h2")?.textContent.startsWith("Online"))?.querySelector("button.dk-home-row")?.click()`);
