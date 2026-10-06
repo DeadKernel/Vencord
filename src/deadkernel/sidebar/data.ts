@@ -10,7 +10,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
-import { filters, findStoreLazy, mapMangledModuleLazy } from "@webpack";
+import { filters, findByPropsLazy, findStoreLazy, mapMangledModuleLazy } from "@webpack";
 import {
     ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, FluxDispatcher, GuildChannelStore, GuildReadStateStore,
     MessageRequestStore, NavigationRouter,
@@ -52,6 +52,21 @@ export const settings = definePluginSettings({
     closedSections: {
         type: OptionType.CUSTOM,
         default: {} as Record<string, boolean>
+    },
+    peek: {
+        type: OptionType.BOOLEAN,
+        description: "Inside a server, resting the pointer on the slim strip unfolds the full sidebar",
+        default: true
+    },
+    /** channelId → when he last opened it (written only on navigation he does) */
+    opened: {
+        type: OptionType.CUSTOM,
+        default: {} as Record<string, number>
+    },
+    /** guildId → show every channel (Discord's own tree) instead of only the live ones */
+    showAll: {
+        type: OptionType.CUSTOM,
+        default: {} as Record<string, boolean>
     }
 });
 
@@ -65,7 +80,8 @@ export const SortedGuildStoreTyped = findStoreLazy("SortedGuildStore") as {
     getGuildFolders(): { folderId?: number | string; folderName?: string; folderColor?: number; guildIds: string[]; }[];
 };
 
-const QuickSwitcher = mapMangledModuleLazy("QUICKSWITCHER_OPENED", {
+// "QUICKSWITCHER_OPENED" is in three modules; this find is unique (personal research, screens-tech §4.3)
+const QuickSwitcher = mapMangledModuleLazy('type:"QUICKSWITCHER_SEARCH"', {
     show: filters.byCode('"KEYBIND"')
 });
 
@@ -113,6 +129,7 @@ export function noteRoute(guildId: string | null | undefined, channelId: string 
         lastPlace = { guildId, channelId };
         changed = true;
     }
+    if (channelId) noteOpened(channelId);
     if (changed) emit();
 }
 
@@ -296,3 +313,85 @@ export function openGuild(guildId: string) {
 
 export const openFriends = () => NavigationRouter.transitionTo("/channels/@me");
 export const openRequests = () => NavigationRouter.transitionTo("/message-requests");
+
+// ── "Opened by me": the one signal that separates the channels he uses from the ones he doesn't ──
+
+const OPENED_KEEP = 500;
+
+export function noteOpened(channelId: string) {
+    const { opened } = settings.store;
+    if (opened[channelId] && Date.now() - opened[channelId] < 60_000) return;
+    const next = { ...opened, [channelId]: Date.now() };
+    const ids = Object.keys(next);
+    if (ids.length > OPENED_KEEP) {
+        ids.sort((a, b) => next[a] - next[b]).slice(0, ids.length - OPENED_KEEP).forEach(id => delete next[id]);
+    }
+    settings.store.opened = next;
+}
+
+// ── DMs & mentions, grouped: one row per person, one row per server ──
+
+export type DirectItem = { kind: "dm"; id: string; } | { kind: "server"; guildId: string; channelIds: string[]; mentions: number; };
+
+export function selectDirectGrouped(): string {
+    const items: DirectItem[] = [];
+    const ids = selectDirect();
+    const byGuild = new Map<string, string[]>();
+    for (const id of ids) {
+        const c = ChannelStore.getChannel(id);
+        if (!c) continue;
+        if (c.type === 1 || c.type === 3) { items.push({ kind: "dm", id }); continue; }
+        const g = c.guild_id;
+        if (!byGuild.has(g)) {
+            byGuild.set(g, []);
+            items.push({ kind: "server", guildId: g, channelIds: byGuild.get(g)!, mentions: 0 });
+        }
+        byGuild.get(g)!.push(id);
+    }
+    for (const item of items)
+        if (item.kind === "server") item.mentions = item.channelIds.reduce((n, id) => n + ReadStateStore.getMentionCount(id), 0);
+    return JSON.stringify(items);
+}
+
+// ── Discord's own actions (each only ever called from a click) ──
+
+const NotificationActions = findByPropsLazy("updateGuildNotificationSettings");
+
+/** Discord's per-server "Suppress @everyone and @here" + "Suppress all role @mentions". */
+export function suppressBroadcasts(guildId: string) {
+    NotificationActions.updateGuildNotificationSettings(guildId, { suppress_everyone: true, suppress_roles: true });
+}
+
+export const VoiceActions = findByPropsLazy("handleVoiceConnect");
+
+export function joinVoice(channel: Channel) {
+    VoiceActions.handleVoiceConnect({
+        channel,
+        connected: VoiceStateStore.isInChannel(channel.id),
+        needSubscriptionToAccess: false,
+        locked: false
+    });
+}
+
+const ThreadActions = mapMangledModuleLazy("all threads must have parents", {
+    openThread: filters.byCode("hideThreadCallUI")
+});
+
+/** Threads open beside the chat (Discord's split view), or full page if that's off. */
+export function openThread(thread: Channel) {
+    try {
+        ThreadActions.openThread(thread, false);
+    } catch {
+        openChannel(thread.id);
+    }
+}
+
+const CategoryActions = mapMangledModuleLazy('type:"CATEGORY_COLLAPSE_ALL"', {
+    collapse: filters.byCode('"CATEGORY_COLLAPSE"'),
+    expand: filters.byCode('"CATEGORY_EXPAND"')
+});
+
+export const toggleCategory = (id: string, collapsed: boolean) =>
+    collapsed ? CategoryActions.expand(id) : CategoryActions.collapse(id);
+
+export const ChannelListStore = findStoreLazy("ChannelListStore");

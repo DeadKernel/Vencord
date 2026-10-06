@@ -8,25 +8,18 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin from "@utils/types";
 import { Channel, User } from "@vencord/discord-types";
-import { ChannelStore, Menu, SelectedGuildStore, useEffect, useStateFromStores } from "@webpack/common";
+import { ChannelStore, Menu } from "@webpack/common";
 import type { ReactNode } from "react";
 
 import { addFavorite, applyAttr, isFavorite, removeFavorite, settings } from "./data";
-import { ChannelAreaProps, Sidebar, useDrilled } from "./Sidebar";
+import { ChannelAreaProps, Sidebar } from "./Sidebar";
 import style from "./sidebar.css?managed";
 
-// Discord's server rail shows while you're inside a server (every server stays one glance away)
-// and disappears at the top level, where the sidebar lists servers itself. Live: re-renders on
-// the setting, on navigation and on "All servers".
+// Discord's server rail never shows while the sidebar is on: at the top level the sidebar lists
+// servers itself, and inside a server our strip does (personal/SCREENS.md). Live on the setting.
 function RailGate({ children }: { children: ReactNode; }) {
     const { enabled } = settings.use(["enabled"]);
-    const routeGuildId = useStateFromStores([SelectedGuildStore], () => SelectedGuildStore.getGuildId());
-    const drilled = useDrilled(routeGuildId);
-    useEffect(() => {
-        if (enabled && drilled) document.documentElement.dataset.dkDrilled = "";
-        else delete document.documentElement.dataset.dkDrilled;
-    }, [enabled, drilled]);
-    return enabled && !drilled ? null : <>{children}</>;
+    return enabled ? null : <>{children}</>;
 }
 
 // Where Discord chooses between a server's channel list and the DM list. On any crash, Discord's
@@ -94,6 +87,5 @@ export default definePlugin({
     start: applyAttr,
     stop() {
         delete document.documentElement.dataset.dkSidebar;
-        delete document.documentElement.dataset.dkDrilled;
     }
 });

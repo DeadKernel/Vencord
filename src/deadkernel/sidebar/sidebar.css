@@ -1,8 +1,11 @@
-/* Sidebar: personal/SIDEBAR.md "Visual spec". Colours are the theme's tokens with Discord fallbacks.
-   Contrast on #252836: text #a6accd ≈ 6.3:1, secondary #8990b3 ≈ 4.7:1 (the floor for 11–13px). */
+/* Sidebar: personal/SIDEBAR.md and personal/SCREENS.md. Colours are the theme's tokens with Discord
+   fallbacks. Contrast on #252836: text #a6accd ≈ 6.3:1, secondary #8990b3 ≈ 4.7:1 (the floor).
+   Rules style separate states (rows, strip, column) and don't compete, so order vs. specificity is free. */
 
-/* top level: no rail column; the sidebar takes the whole width. Inside a server the rail returns. */
-html[data-dk-sidebar]:not([data-dk-drilled]) {
+/* stylelint-disable no-descending-specificity */
+
+/* Discord's rail never shows: the sidebar (top level) or our strip (inside a server) takes its place */
+html[data-dk-sidebar] {
     --custom-guild-list-width: 0px;
 }
 
@@ -19,10 +22,15 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     --dk-teal: var(--hl-teal, var(--status-positive));
     --dk-yellow: var(--hl-yellow, var(--status-warning));
 
-    display: flex;
-    flex-direction: column;
+    /* motion: one family. Enter decelerates, leave accelerates; colour is linear. */
+    --dk-enter: cubic-bezier(0.2, 0, 0, 1);
+    --dk-leave: cubic-bezier(0.3, 0, 0.8, 0.15);
+    --dk-strip: 48px;
+
+    position: relative;
     height: 100%;
     min-height: 0;
+    overflow: hidden;
     background: var(--dk-bg);
     color: var(--dk-text);
     font-size: 13px;
@@ -44,32 +52,89 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     outline-offset: -2px;
 }
 
-/* Jump to… (Discord's quick switcher) */
-.dk-sb-jump {
-    flex: none;
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    margin: 12px 12px 4px;
-    height: 32px;
-    padding: 0 10px !important;
-    border: 1px solid var(--dk-border) !important;
-    background: var(--hl-bg, var(--background-base-lowest)) !important;
-    color: var(--dk-text-2) !important;
-    transition: border-color 80ms, color 80ms;
+/* ── Layers: the top level, the strip and the server column share one width, so the chat never
+   reflows. Every transition is transform and opacity. ── */
+.dk-layer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--dk-bg);
+    will-change: transform, opacity;
 }
 
-.dk-sb-jump:hover {
-    border-color: var(--hl-bg-active, var(--border-strong)) !important;
-    color: var(--dk-text) !important;
+.dk-layer-top {
+    left: 0;
+    right: 0;
+    z-index: 2;
+    transition: opacity 200ms var(--dk-enter), transform 200ms var(--dk-enter);
 }
 
-.dk-sb-jump kbd {
-    font: inherit;
-    font-size: 11px;
-    letter-spacing: 0.05em;
+.dk-layer-strip {
+    left: 0;
+    width: var(--dk-strip);
+    z-index: 1;
+    box-shadow: inset -1px 0 0 var(--dk-border);
+    transition: opacity 200ms var(--dk-enter), transform 200ms var(--dk-enter);
 }
 
+.dk-layer-column {
+    left: var(--dk-strip);
+    right: 0;
+    z-index: 1;
+    transition: opacity 220ms var(--dk-enter) 60ms, transform 220ms var(--dk-enter) 60ms;
+}
+
+/* top level: strip and column wait just off to the left */
+.dk-sb[data-mode="top"] .dk-layer-strip {
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
+}
+
+.dk-sb[data-mode="top"] .dk-layer-column {
+    opacity: 0;
+    transform: translateX(-24px);
+    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
+}
+
+/* fold: inside a server the top level slides out to the left */
+.dk-sb[data-mode="server"] .dk-layer-top {
+    opacity: 0;
+    transform: translateX(-24px);
+    pointer-events: none;
+    transition: opacity 140ms var(--dk-leave), transform 140ms var(--dk-leave);
+}
+
+/* peek: the whole sidebar unfolds over strip and column, without pushing anything */
+.dk-sb[data-peek] .dk-layer-top {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    z-index: 3;
+    box-shadow: inset -1px 0 0 var(--dk-border);
+    transition: opacity 160ms var(--dk-enter), transform 160ms var(--dk-enter);
+}
+
+/* switch: a new server's column settles in from just below */
+@keyframes dk-switch {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+}
+
+.dk-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    animation: dk-switch 180ms var(--dk-enter);
+}
+
+/* ── Shared scroll area and sections ── */
 .dk-sb-scroll {
     flex: 1;
     overflow: hidden auto;
@@ -84,14 +149,8 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     scrollbar-color: var(--hl-bg-hover, var(--scrollbar-thin-thumb)) transparent;
 }
 
-/* Sections: 28px label, 8px between sections */
-.dk-sb-section + .dk-sb-section,
-.dk-sb-return + .dk-sb-section {
+.dk-sb-section {
     margin-top: 8px;
-}
-
-.dk-sb-section:first-child {
-    margin-top: 4px;
 }
 
 .dk-sb-label {
@@ -102,11 +161,12 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     padding: 0 12px;
 }
 
-.dk-sb-label-toggle {
+.dk-sb-label-toggle,
+.dk-sb-label-text {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-left: -14px;
+    min-width: 0;
     font-size: 11px !important;
     font-weight: 600 !important;
     text-transform: uppercase;
@@ -114,20 +174,26 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     color: var(--dk-text-2) !important;
 }
 
+.dk-sb-label-toggle {
+    margin-left: -14px;
+}
+
 .dk-sb-label-toggle:hover {
     color: var(--dk-text) !important;
 }
 
 .dk-sb-caret {
+    flex: none;
     width: 10px;
     font-size: 9px;
     opacity: 0;
-    transition: opacity 80ms;
+    transition: opacity 80ms linear;
 }
 
 .dk-sb-label:hover .dk-sb-caret,
 .dk-sb-label-toggle:focus-visible .dk-sb-caret,
-.dk-sb-section[data-closed] .dk-sb-caret {
+.dk-sb-section[data-closed] .dk-sb-caret,
+.dk-col-category[data-collapsed] .dk-sb-caret {
     opacity: 1;
 }
 
@@ -142,7 +208,24 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     color: var(--dk-accent) !important;
 }
 
-/* Rows: 32px, whole row clickable; name, then where (muted), then a fixed trailing slot */
+.dk-sb-quiet {
+    font-size: 11px;
+    color: var(--dk-text-2);
+}
+
+/* settle: rows fade in when a section opens */
+@keyframes dk-settle {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+.dk-sb-rows {
+    animation: dk-settle 160ms var(--dk-enter);
+}
+
+/* ── Rows: 32px, whole row clickable; name, where (muted), fixed trailing slot ── */
 .dk-sb-row,
 .dk-sb-return {
     display: flex !important;
@@ -153,11 +236,10 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     padding: 0 10px 0 12px !important;
     white-space: nowrap;
     color: var(--dk-text) !important;
-    transition: background-color 80ms;
+    transition: background-color 80ms linear;
 }
 
 .dk-sb-return {
-    margin-top: 4px;
     color: var(--dk-accent) !important;
 }
 
@@ -180,6 +262,16 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     color: var(--dk-accent) !important;
     background: var(--dk-accent-15) !important;
     box-shadow: inset 2px 0 0 var(--dk-accent);
+}
+
+.dk-sb-jump {
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-jump kbd {
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.05em;
 }
 
 .dk-sb-name {
@@ -246,7 +338,7 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     background: var(--dk-accent);
 }
 
-/* Icons: people 24px squares with an 8px status square; servers 20px, in their own colours */
+/* ── Icons: people 24px squares with an 8px status square; servers 20px ── */
 .dk-sb-icon {
     position: relative;
     flex: none;
@@ -266,6 +358,11 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     width: 20px;
     height: 20px;
     margin: 0 2px;
+}
+
+.dk-sb-small {
+    width: 20px;
+    height: 20px;
 }
 
 .dk-sb-glyph {
@@ -314,7 +411,7 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     padding-left: 24px !important;
 }
 
-/* Quiet things */
+/* ── Quiet things ── */
 .dk-sb-more {
     display: block;
     width: 100%;
@@ -337,23 +434,162 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     color: var(--dk-text-2);
 }
 
-/* Inside a server: the rail is back; a slim "All servers" row above Discord's own channel tree */
-.dk-sb-back {
+/* ── The strip (48px) ── */
+.dk-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    height: 100%;
+    padding: 8px 0 calc(var(--custom-app-panels-height, 58px) + 8px);
+    overflow: hidden auto;
+    scrollbar-width: none;
+}
+
+.dk-strip hr {
     flex: none;
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    height: 28px;
-    padding: 0 12px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    width: 24px;
+    margin: 6px auto;
+    border: 0;
+    border-top: 1px solid var(--dk-border);
+}
+
+.dk-strip-item {
+    position: relative;
+    flex: none;
+    display: grid !important;
+    place-items: center;
+    width: 100%;
+    height: 36px;
+    transition: background-color 80ms linear;
+}
+
+.dk-strip-item:hover {
+    background: var(--dk-hover) !important;
+}
+
+.dk-strip-item.dk-current {
+    box-shadow: inset 2px 0 0 var(--dk-accent);
+    background: var(--dk-accent-15) !important;
+}
+
+.dk-strip-jump,
+.dk-strip-foldericon {
+    font-size: 14px !important;
     color: var(--dk-text-2) !important;
 }
 
-.dk-sb-back:hover {
+.dk-strip-guild .dk-sb-icon :is(img, .dk-sb-glyph) {
+    filter: grayscale(1);
+    opacity: 0.45;
+    transition: filter 120ms linear, opacity 120ms linear;
+}
+
+.dk-strip-guild:is(:hover, .dk-unread, .dk-current) .dk-sb-icon :is(img, .dk-sb-glyph) {
+    filter: none;
+    opacity: 1;
+}
+
+.dk-strip-item.dk-in-voice .dk-sb-icon {
+    outline: 2px solid var(--dk-teal);
+    outline-offset: 1px;
+}
+
+.dk-strip-chip {
+    position: absolute;
+    right: 6px;
+    bottom: 2px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    text-align: center;
+    color: var(--hl-bg, #1b1e28);
+    background: var(--dk-pink);
+}
+
+.dk-strip-dot {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    width: 6px;
+    height: 6px;
+}
+
+.dk-strip-dot.dk-pink { background: var(--dk-pink); }
+.dk-strip-dot.dk-teal { background: var(--dk-teal); }
+
+.dk-strip-more {
+    align-self: center;
+    font-size: 11px;
+    color: var(--dk-text-2);
+}
+
+/* ── The server column ── */
+.dk-col-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 12px 0 8px;
+    box-shadow: inset 0 -1px 0 var(--dk-border);
+}
+
+.dk-col-back {
+    flex: none;
+    display: grid !important;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-col-back:hover {
     color: var(--dk-accent) !important;
+    background: var(--dk-hover) !important;
+}
+
+.dk-col-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dk-strong);
+}
+
+.dk-col-category[data-quiet] .dk-sb-label-toggle {
+    color: var(--dk-text-2) !important;
+    font-weight: 400 !important;
+}
+
+.dk-col-quiet .dk-sb-row:not(.dk-selected) {
+    color: var(--dk-text-2) !important;
+}
+
+button.dk-sb-quiet:hover {
+    color: var(--dk-accent) !important;
+}
+
+.dk-col-row.dk-thread {
+    padding-left: 32px !important;
+}
+
+.dk-col-member {
+    height: 28px;
+    padding-left: 36px !important;
+    font-size: 12px;
+    color: var(--dk-text-2) !important;
+    cursor: default;
+}
+
+.dk-col-mode {
+    padding-left: 12px !important;
+    box-shadow: inset 0 -1px 0 var(--dk-border);
 }
 
 .dk-sb-guild-tree {
@@ -361,7 +597,6 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--dk-border);
 }
 
 .dk-sb-guild-tree > * {
@@ -370,7 +605,9 @@ html[data-dk-sidebar]:not([data-dk-drilled]) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .dk-sb * {
+    .dk-sb *,
+    .dk-sb {
         transition: none !important;
+        animation: none !important;
     }
 }
