@@ -2,7 +2,9 @@
 
 Walked live in Vesktop with our Vencord build on 2026-10-06 (Discord stable 629779). Marked by
 Claude on 2026-10-06 from `DESIGN.md` (HumanLayer material, Maeda's discipline, Slack's
-structure), at Aditya's request. Change any mark and the plugins follow.
+structure), at Aditya's request, then pushed further the same day after he asked for a more
+radical cut, with his two uses in mind: friends, and developer communities for work. Change any
+mark and the plugins follow.
 
 **Marks:**
 - **K** keep
@@ -19,8 +21,8 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 ## 1. Window and title bar (Vesktop)
 
-- [K] Back / forward arrows
-- [K] Window title: current server or DM name
+- [H] Back / forward arrows: done (mouse buttons and Alt+arrows still work)
+- [H] Window title: done (the sidebar and header already say where you are)
 - [K] Inbox button, see §10
 - [H] Help button (support.discord.com): done
 - [K] Tray icon, close-to-tray
@@ -34,9 +36,9 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 - [K] Home / DMs button and its count
 - [K] Unread DMs as avatars under Home
-- [C] Server icons: square, no squircle: done (QuietLayout › square rail)
+- [C] Server icons: square, grey until hovered or selected: done (QuietLayout › square rail, grey rail)
 - [K] Server folders
-- [C] Unread / selected indicator: a thin square edge, accent when selected: done
+- [C] Selected indicator: a thin accent edge. Unread pips gone; mention counts become a pink dot: done
 - [K] Speaker / live / event icons on server icons
 - [K] "NEW" mentions pill: pink, square
 - [H] Add a Server: done
@@ -56,14 +58,14 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
   - [K] Show All Channels, Hide Muted Channels, Notification Settings, Privacy Settings, Edit Per-server Profile, Leave, Copy ID
 - [H] Invite button next to the server name and on the selected channel: done
 - [H] Boost goal bar and "Server Boosts" row: done
-- [K] Events row (toggle exists, off)
+- [H] Events row: done
 - [H] "Channels & Roles" / server guide rows: done
 - [H] "Suggested" channels block: later (needs a server that shows it, checked without opening anything unread)
 - [H] Channels locked behind server subscriptions: later
 - [K] "Not on your channel list" banner
 - [K] "New unreads" bar
 - [K] Voice channel members
-- [C] Unread channels are bold only (no side pips), muted channels dimmed: done (QuietLayout › quiet sidebar)
+- [C] Unread channels are bold only (no side pips), muted channels dimmed, no forum post counts, voice user limits or stream previews, row and category buttons on hover: done (QuietLayout › quiet sidebar)
 - [K] Channel right-click menu
 
 ## 4. Home: DM list and Friends
@@ -74,6 +76,8 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 - [H] Nitro, Shop, Quests rows: done
 - [K] "+" to start a DM or group
 - [C] DM rows on one line, no activity or status line: done (QuietLayout › one line per row)
+- [H] DMs with bots: done
+- [H] DMs quiet for 30+ days (not unread, not open): done; search and Friends still reach them
 - [H] Server tag chips next to names: done
 - [K] Friends tabs: Online, All, Pending, Add Friend
 - [H] Active Now: done
@@ -83,11 +87,12 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 ![DM header buttons](audit/dm-header-buttons.png)
 
-- [K] Threads, Notification Settings, Pinned Messages, Member List toggle, Search
-- [K] Channel topic
+- [C] Threads, Notification Settings, Pinned Messages, Member List: shown when you hover the header: done
+- [K] Search
+- [H] Channel topic: done
 - [K] DM voice and video call
 - [H] Add to DM: done
-- [K] DM profile panel (it's already a toggle). Its banner and theme colours are neutral: done
+- [H] DM profile panel and its button: done (click a name for the profile)
 
 ## 6. Composer
 
@@ -104,10 +109,14 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 - [H] Apps launcher button: done
 - [K] Slowmode and permission notices
 - [C] Typing indicator: static, no animated dots: done (QuietLayout › nothing moves)
+- [C] Composer: a flat line with an accent edge on focus; its buttons faint until you use it: done
 
 ## 7. Messages
 
-- [C] Avatars: 32px square with a tighter gutter: done (QuietLayout › smaller avatars)
+- [C] Avatars: none in server chat; 32px square in DMs and group DMs: done (QuietLayout › avatars only in DMs)
+- [C] Timestamps on hover: done
+- [C] Messages wrap at about 100 characters: done
+- [C] Embeds max 480px, media max 360px, descriptions clipped to 3 lines, thread previews one line: done
 - [H] Display-name fonts and effects: done
 - [C] Names in one colour; no role colours, role icons or "new member" sprouts: done (QuietLayout › one colour for names)
 - [H] Server tags next to names: done
@@ -115,7 +124,8 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 - [K] Reply previews, embeds, link previews, attachments, stickers, reactions
 - [H] Super-reaction glow and burst animations: done (the reaction and count stay)
 - [K] Forwarded messages, polls, voice messages
-- [C] System messages: joins, boosts and purchase notices hidden; pins and threads stay: done
+- [H] Join, boost and purchase notices: done
+- [H] Thread-created and pin notices, plus the empty date dividers they leave: done
 - [H] Avatar decorations: done
 - [K] Date dividers, "NEW" divider, mention highlight
 
@@ -163,7 +173,8 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 ![User panel](audit/user-panel.png)
 
-- [K] Avatar / status menu, mute, deafen, device carets, settings
+- [K] Avatar menu, mute, deafen, settings
+- [H] Status line under your name, device carets: done (QuietLayout › slim user panel)
 - [K] In-call controls (camera, screen share, disconnect)
 - [H] In-call activities and soundboard: later (not checked live; I didn't join voice)
 
@@ -187,8 +198,8 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 - [H] Nitro / Shop / Quests rows, gift button, billing settings, boosts, server tags, apps and activities, Active Now, super-reaction effects, profile cosmetics, quest icons: all done
 - [H] Nitro-locked emoji and stickers shown in the pickers: later
 - [H] Server subscription upsells (locked channels with prices): later
-- No to FakeNitro. Using paid features without paying is the plugin most likely to get an account
-  flagged, and the plan's first rule is account safety. Revisit if you miss it.
+- [C] FakeNitro on, his call (accepts the account risk): emoji anywhere at 64px, Nitro-quality
+  screen share, stickers off, matching his YABDP4Nitro setup. Done (in his profile).
 
 ## 13. Settings
 
@@ -204,5 +215,5 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 1. Anything missing? Still yours to add.
 2. Server icons: square (QuietLayout toggle to go back).
-3. FakeNitro: no.
+3. FakeNitro: yes (his call).
 4. Name and icon: proposed in the hand-off message, not applied.

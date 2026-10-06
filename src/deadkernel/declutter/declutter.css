@@ -105,6 +105,11 @@
 }
 
 /* Home and DMs */
+[data-dk-hide~="botDms"] [class*="privateChannels_"] [data-dk-dm~="bot"],
+[data-dk-hide~="staleDms"] [class*="privateChannels_"] [data-dk-dm~="stale"] {
+    display: none !important;
+}
+
 [data-dk-hide~="blockedNotice"] [class*="blockedIgnoredSettingsNotice_"] {
     display: none !important;
 }
@@ -129,7 +134,17 @@
     display: none !important;
 }
 
-[data-dk-hide~="systemNoise"] li[data-dk-noise] {
+[data-dk-hide~="systemNoise"] li[data-dk-msg="noise"],
+[data-dk-hide~="threadNotices"] li[data-dk-msg="notice"] {
+    display: none !important;
+}
+
+/* a date divider whose day only had hidden notices */
+[data-dk-hide~="systemNoise"][data-dk-hide~="threadNotices"] [role="separator"][class*="divider_"]:is(
+    :has(+ li[data-dk-msg] + [role="separator"]),
+    :has(+ li[data-dk-msg] + li[data-dk-msg] + [role="separator"]),
+    :has(+ li[data-dk-msg] + li[data-dk-msg] + li[data-dk-msg] + [role="separator"])
+) {
     display: none !important;
 }
 

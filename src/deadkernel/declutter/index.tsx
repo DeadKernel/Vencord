@@ -10,7 +10,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import definePlugin, { defineDefault, OptionType } from "@utils/types";
-import { MessageStore } from "@webpack/common";
+import { ChannelStore, MessageStore, ReadStateStore, SelectedChannelStore, UserStore } from "@webpack/common";
 import type { ReactElement } from "react";
 
 import style from "./declutter.css?managed";
@@ -18,18 +18,19 @@ import { Groups, ItemKey, Items } from "./items";
 
 const defaults = Object.fromEntries(Items.map(i => [i.key, i.hidden])) as Record<ItemKey, boolean>;
 
+// Only the toggles he changed are stored, so a new or changed default in items.ts still reaches him.
 const settings = definePluginSettings({
-    hide: {
+    overrides: {
         type: OptionType.COMPONENT,
         component: ErrorBoundary.wrap(Toggles, { noop: true }),
-        default: defineDefault(defaults)
+        default: defineDefault<Partial<Record<ItemKey, boolean>>>({})
     }
 });
 
-const isHidden = (key: ItemKey) => settings.store.hide?.[key] ?? defaults[key];
+const isHidden = (key: ItemKey) => settings.store.overrides?.[key] ?? defaults[key];
 
 function Toggles() {
-    const { hide } = settings.use(["hide"]);
+    const { overrides } = settings.use(["overrides"]);
     return (
         <div className="dk-declutter-settings">
             {Groups.map(group => (
@@ -40,9 +41,12 @@ function Toggles() {
                             key={item.key}
                             title={`Hide ${item.title}`}
                             description={item.note}
-                            value={hide?.[item.key] ?? defaults[item.key]}
+                            value={overrides?.[item.key] ?? defaults[item.key]}
                             onChange={v => {
-                                settings.store.hide = { ...defaults, ...settings.store.hide, [item.key]: v };
+                                const next = { ...settings.store.overrides };
+                                if (v === defaults[item.key]) delete next[item.key];
+                                else next[item.key] = v;
+                                settings.store.overrides = next;
                                 applyHidden();
                             }}
                         />
@@ -90,20 +94,51 @@ const menuPatch: GlobalContextMenuPatchCallback = (navId, children) => {
     if (patterns.length) prune(navId, children, patterns);
 };
 
-// Join, boost and other promo system messages: tag each message row with its type so the
-// stylesheet can hide by type (CSS alone can't tell a join from a pin).
-const NoiseTypes = new Set([7, 8, 9, 10, 11, 22, 25, 26, 44]);
+// CSS can't see message types or who a DM is with, so rows get tagged and the stylesheet hides
+// by tag. Message rows: data-dk-msg = noise (joins, boosts, purchase notices) | notice (thread
+// created, pinned). DM rows: data-dk-dm = "bot stale" tokens, recomputed whenever the list changes.
+const MessageKinds: Record<number, string> = {
+    6: "notice", 18: "notice",
+    7: "noise", 8: "noise", 9: "noise", 10: "noise", 11: "noise", 22: "noise", 25: "noise", 26: "noise", 44: "noise"
+};
+const STALE_MS = 30 * 24 * 60 * 60 * 1000;
+const DISCORD_EPOCH = 1420070400000n;
 let observer: MutationObserver | null = null;
+let dmTagQueued = false;
 
 function tagMessage(li: Element) {
     const m = /^chat-messages-(\d+)-(\d+)$/.exec(li.id);
     if (!m) return;
-    const type = MessageStore.getMessage(m[1], m[2])?.type;
-    if (NoiseTypes.has(type)) li.setAttribute("data-dk-noise", "");
+    const kind = MessageKinds[MessageStore.getMessage(m[1], m[2])?.type];
+    if (kind) li.setAttribute("data-dk-msg", kind);
 }
 
-function tagAll(root: ParentNode) {
-    root.querySelectorAll?.('li[id^="chat-messages-"]:not([data-dk-noise])').forEach(tagMessage);
+function tagMessages(root: ParentNode) {
+    root.querySelectorAll?.('li[id^="chat-messages-"]:not([data-dk-msg])').forEach(tagMessage);
+}
+
+function tagDms() {
+    dmTagQueued = false;
+    const selected = SelectedChannelStore.getChannelId();
+    for (const a of document.querySelectorAll<HTMLAnchorElement>('[class*="privateChannels_"] a[href^="/channels/@me/"]')) {
+        const row = a.closest("li") ?? a;
+        const id = a.getAttribute("href")!.split("/")[3];
+        const channel = ChannelStore.getChannel(id);
+        if (!channel) continue;
+        const tags: string[] = [];
+        if (channel.type === 1 && UserStore.getUser(channel.recipients?.[0])?.bot) tags.push("bot");
+        const last = ReadStateStore.lastMessageId(id) ?? channel.lastMessageId;
+        const lastAt = last ? Number((BigInt(last) >> 22n) + DISCORD_EPOCH) : 0;
+        if (id !== selected && !ReadStateStore.hasUnread(id) && Date.now() - lastAt > STALE_MS) tags.push("stale");
+        const value = tags.join(" ");
+        if (row.getAttribute("data-dk-dm") !== value) row.setAttribute("data-dk-dm", value);
+    }
+}
+
+function queueDmTags() {
+    if (dmTagQueued) return;
+    dmTagQueued = true;
+    requestAnimationFrame(tagDms);
 }
 
 export default definePlugin({
@@ -117,15 +152,20 @@ export default definePlugin({
     start() {
         applyHidden();
         addGlobalContextMenuPatch(menuPatch);
-        tagAll(document);
+        tagMessages(document);
+        queueDmTags();
         observer = new MutationObserver(records => {
-            for (const r of records) for (const n of r.addedNodes) {
-                if (!(n instanceof Element)) continue;
-                if (n.matches('li[id^="chat-messages-"]')) tagMessage(n);
-                else if (n.firstElementChild) tagAll(n);
+            for (const r of records) {
+                if ((r.target as Element).closest?.('[class*="privateChannels_"]')) queueDmTags();
+                for (const n of r.addedNodes) {
+                    if (!(n instanceof Element)) continue;
+                    if (n.matches('li[id^="chat-messages-"]')) tagMessage(n);
+                    else if (n.firstElementChild) tagMessages(n);
+                    if (n.matches('[class*="privateChannels_"], [class*="privateChannels_"] *') || n.querySelector?.('[class*="privateChannels_"]')) queueDmTags();
+                }
             }
         });
-        observer.observe(document.body, { childList: true, subtree: true });
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
     },
 
     stop() {
@@ -133,6 +173,7 @@ export default definePlugin({
         removeGlobalContextMenuPatch(menuPatch);
         observer?.disconnect();
         observer = null;
-        document.querySelectorAll("[data-dk-noise]").forEach(e => e.removeAttribute("data-dk-noise"));
+        document.querySelectorAll("[data-dk-msg]").forEach(e => e.removeAttribute("data-dk-msg"));
+        document.querySelectorAll("[data-dk-dm]").forEach(e => e.removeAttribute("data-dk-dm"));
     }
 });

@@ -49,10 +49,12 @@ const ItemList = [
     { key: "banner", group: "server", title: "server banners", note: "The image above the channel list", hidden: true },
     { key: "invite", group: "server", title: "invite buttons", note: "Next to the server name and on the selected channel; Invite stays in the menus", hidden: true },
     { key: "guide", group: "server", title: "Channels & Roles", note: "The onboarding / server guide row", hidden: true },
-    { key: "events", group: "server", title: "the Events row", hidden: false },
+    { key: "events", group: "server", title: "the Events row", hidden: true },
     { key: "linkedRoles", group: "server", title: "Linked Roles", note: "In the server menu", hidden: true, menu: [/^guild-header-popout-.*linked-roles/] },
 
     // Home and DMs
+    { key: "botDms", group: "home", title: "DMs with bots", note: "MEE6, Carl-bot and friends. They still open from search", hidden: true },
+    { key: "staleDms", group: "home", title: "quiet DMs", note: "No messages for 30 days, not unread, not open. Search still finds them", hidden: true },
     { key: "blockedNotice", group: "home", title: "the blocked accounts notice", note: "\"Looking for accounts you've blocked or ignored?\" on the Friends page", hidden: true },
     { key: "addToDm", group: "home", title: "Add to DM", note: "The DM header button that turns a DM into a group", hidden: true },
 
@@ -62,7 +64,8 @@ const ItemList = [
     { key: "tts", group: "chat", title: "Speak Message", hidden: true, menu: [/^message-tts$/] },
     { key: "stickers", group: "chat", title: "the sticker button", hidden: true },
     { key: "polls", group: "chat", title: "Create Poll", note: "In the composer's + menu", hidden: true, menu: [/^channel-attach-poll$/] },
-    { key: "systemNoise", group: "chat", title: "join and boost messages", note: "\"X joined\", boosts, subscription purchases. Pins and threads stay", hidden: true },
+    { key: "systemNoise", group: "chat", title: "join and boost messages", note: "\"X joined\", boosts, subscription purchases", hidden: true },
+    { key: "threadNotices", group: "chat", title: "thread and pin notices", note: "\"X started a thread\", \"X pinned a message\". Threads and pins stay one click away", hidden: true },
 
     // Profiles
     { key: "profileThemes", group: "people", title: "profile banners and theme colours", note: "Popouts use the theme's colours instead", hidden: true },

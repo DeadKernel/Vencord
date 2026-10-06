@@ -74,7 +74,14 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   DOM id), not hidden with CSS, so keyboard navigation and separators stay right.
 - **Join/boost system messages:** a MutationObserver tags message rows with
   `data-dk-noise` from MessageStore types, and CSS hides them. CSS can't see message types.
-- **No FakeNitro** (account risk). The theme no longer hides anything; Declutter does.
+- **FakeNitro: on, his call** (he accepts the account risk). It's set in the dev profile to
+  match his YABDP4Nitro use (emoji at 64px, Nitro-quality streams, no stickers). It isn't a
+  build default, so a new machine needs it switched on once (or Vencord Cloud sync).
+- **Quiet v2, the same day:** he found v1 not radical enough. `DESIGN.md` now splits friends
+  (DMs keep avatars and colour) from developer communities (text only, reading width, no
+  notices). The rail is grey with pink mention dots. The title bar is empty, header buttons
+  appear on hover, the composer is flat, the DM list is recent and has no bots.
+- The theme no longer hides anything; Declutter does.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 

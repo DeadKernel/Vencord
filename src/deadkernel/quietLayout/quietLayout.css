@@ -1,10 +1,18 @@
 /* QuietLayout: structure only. Colours come from the theme's variables with Discord fallbacks,
-   so this also works with the theme switched off. Each block is gated by data-dk-layout. */
+   so this also works with the theme switched off. Each block is gated by data-dk-layout, and
+   blocks don't override each other, so source order vs. specificity doesn't matter. */
+
+/* stylelint-disable no-descending-specificity */
 
 /* Square server icons; the selected / unread indicator becomes a thin square edge */
-[data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] foreignObject[mask],
-[data-dk-layout~="squareRail"] [class*="folderGroup_"] foreignObject[mask] {
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"] foreignObject[mask],
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="folderGroup_"] foreignObject[mask] {
     mask: none !important;
+}
+
+/* voice / screen-share markers on server icons: square, in the panel colour */
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="upperBadge_"] > * {
+    border-radius: 0 !important;
 }
 
 [data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] :is(img, [class*="icon_"], [class*="childWrapper_"]),
@@ -88,4 +96,170 @@
 [data-dk-layout~="stillMotion"] [class*="avatarDecoration"] *,
 [data-dk-layout~="stillMotion"] [class*="shimmer"] {
     animation: none !important;
+}
+
+/* Grey rail: servers are grey until hovered or selected; a pink dot is the only mention signal.
+   Home and unread-DM avatars (wrapped one level deeper) keep their colour. */
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
+    filter: grayscale(1);
+    opacity: 0.4;
+    transition: filter 120ms, opacity 120ms;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]):is(:hover, :has([class*="selected_"])) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
+    filter: none;
+    opacity: 1;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:not(:has([data-list-item-id="guildsnav___home"])) [class*="lowerBadge_"] [class*="numberBadge_"] {
+    width: 8px !important;
+    min-width: 8px !important;
+    height: 8px !important;
+    min-height: 0 !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    margin: 0 2px 2px 0;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="overlay_"] > [class*="item_"]:not([class*="selected_"]) {
+    display: none !important;
+}
+
+/* Bare title bar */
+[data-dk-layout~="bareTitlebar"] [class*="bar_"] > [class*="title_"],
+[data-dk-layout~="bareTitlebar"] [class*="bar_"] [aria-label="Go back"],
+[data-dk-layout~="bareTitlebar"] [class*="bar_"] [aria-label="Go forward"] {
+    visibility: hidden;
+}
+
+/* Quiet header: name only; buttons on hover */
+[data-dk-layout~="quietHeader"] section[class*="title_"] :is([class*="topic_"], [class*="topicDivider_"], svg[class*="dot_"]) {
+    display: none !important;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] > :not([class*="search"]) {
+    opacity: 0;
+    transition: opacity 120ms;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"]:is(:hover, :focus-within) [class*="toolbar_"] > * {
+    opacity: 1;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search"] :is([class*="searchBar_"], [class*="search_"]) {
+    width: 180px;
+}
+
+/* Quiet channel list, continued */
+[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="wrapper_"]:has([class*="total_"]),
+[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="users_"],
+[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] > [class*="text-xs"],
+[data-dk-layout~="quietSidebar"] #channels [class*="mainContainer_"] > [class*="imageContainer_"],
+[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="numberBadge_"]:not([style*="--status-danger"], [style*="feedback-notification"]) {
+    display: none !important;
+}
+
+[data-dk-layout~="quietSidebar"] #channels [class*="containerDefault_"]:not(:hover, :focus-within) :is([class*="iconItem_"], [aria-label="Create Channel"]) {
+    opacity: 0 !important;
+}
+
+/* No profile panel beside DMs */
+[data-dk-layout~="noDmPanel"] aside:has(> .user-profile-sidebar, > * > .user-profile-sidebar),
+[data-dk-layout~="noDmPanel"] section[class*="title_"] :is([aria-label="Hide User Profile"], [aria-label="Show User Profile"]) {
+    display: none !important;
+}
+
+/* Avatars only in DMs: in servers the message is name + text */
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] img[class*="avatar_"],
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] [class*="avatarDecoration"],
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="isSystemMessage_"] [class*="iconContainer_"] {
+    display: none !important;
+}
+
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"][class*="cozy_"] {
+    padding-left: 24px !important;
+}
+
+/* the reply and thread connector lines were drawn for an avatar column that isn't there */
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"]:not([class*="groupStart_"]) [class*="contents_"] > [class*="timestamp_"],
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] [class*="spine_"],
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="repliedMessageClickableSpine_"] {
+    display: none !important;
+}
+
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
+:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="repliedMessage_"]::before {
+    content: none !important;
+}
+
+/* Timestamps on hover */
+[data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"] h3 [class*="timestamp_"] {
+    opacity: 0;
+    transition: opacity 80ms;
+}
+
+[data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"]:hover h3 [class*="timestamp_"] {
+    opacity: 1;
+}
+
+/* Reading width */
+[data-dk-layout~="readingWidth"] [class*="cozyMessage_"],
+[data-dk-layout~="readingWidth"] [class*="compact_"][class*="message_"] {
+    max-width: 960px;
+}
+
+/* Compact embeds and media */
+[data-dk-layout~="compactEmbeds"] [class*="embedFull_"] {
+    max-width: 480px !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [class*="embedDescription_"] {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+[data-dk-layout~="compactEmbeds"] [class*="embedFull_"] :is([class*="embedVideo_"], [class*="embedImage_"], [class*="imageContent_"]) {
+    max-width: 360px !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has([class*="topLine_"]) [class*="bottomLine_"] {
+    display: none !important;
+}
+
+/* Flat composer */
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="scrollableContainer_"] {
+    background: transparent !important;
+    border: 0 !important;
+    border-top: 1px solid var(--hl-border, var(--border-subtle)) !important;
+    box-shadow: none !important;
+}
+
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:focus-within [class*="scrollableContainer_"] {
+    border-top-color: var(--hl-accent, var(--border-focus)) !important;
+}
+
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] :is([class*="buttons_"], [class*="attachWrapper_"]) {
+    opacity: 0.35;
+    transition: opacity 120ms;
+}
+
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:is(:hover, :focus-within) :is([class*="buttons_"], [class*="attachWrapper_"]) {
+    opacity: 1;
+}
+
+/* Slim user panel */
+[data-dk-layout~="slimUserPanel"] [class*="panels_"] [class*="panelSubtextContainer_"],
+[data-dk-layout~="slimUserPanel"] [class*="panels_"] :is([aria-label="Input Options"], [aria-label="Output Options"]) {
+    display: none !important;
+}
+
+/* Scrollbars only while hovering */
+[data-dk-layout~="quietScrollbars"] [class*="scroller"]:not(:hover) {
+    --scrollbar-auto-thumb: transparent;
+    --scrollbar-thin-thumb: transparent;
+
+    scrollbar-color: transparent transparent !important;
 }

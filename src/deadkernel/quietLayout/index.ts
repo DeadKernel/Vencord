@@ -12,11 +12,22 @@ import style from "./quietLayout.css?managed";
 // Structure, not colour: the theme owns the look, Declutter owns what's hidden. Each option
 // toggles a token in data-dk-layout on <html>; quietLayout.css keys off those tokens.
 const Options = {
-    squareRail: "Square server icons and plain indicators in the server rail",
-    plainNames: "Names in one colour: no role colours in chat, replies or the member list",
+    squareRail: "Square server icons and thin square indicators",
+    monoRail: "Server icons in grey until hovered, selected or mentioning you; mention counts become dots; no unread pips",
+    bareTitlebar: "Empty title bar: no server name or back/forward arrows",
+    quietHeader: "Channel header without the topic; its buttons appear when you hover the header",
+    quietSidebar: "Channel list: bold is the unread signal, muted channels dimmed, no post counts, user limits or stream previews, row and category buttons on hover",
+    noDmPanel: "No profile panel beside DMs (click a name for the profile)",
     oneLineRows: "One line per row: no activity or custom-status line in the DM and member lists",
-    quietSidebar: "Quieter channel list: unread is bold only (no side pips), muted channels dimmed",
-    smallAvatars: "Smaller square avatars in chat",
+    plainNames: "Names in one colour: no role colours, role icons or new-member sprouts",
+    avatarsInDmsOnly: "Avatars only in DMs and group DMs; server chat is names and text",
+    smallAvatars: "Smaller square avatars where avatars show",
+    hoverTimestamps: "Timestamps appear when you hover a message",
+    readingWidth: "Messages wrap at a reading width (about 100 characters) instead of the full window",
+    compactEmbeds: "Smaller embeds and media, embed descriptions clipped to three lines, one-line thread previews",
+    flatComposer: "Composer as a flat line: no box or glow, its buttons faint until you use it",
+    slimUserPanel: "Slim user panel: no status line or device carets",
+    quietScrollbars: "Scrollbars show only while you hover",
     stillMotion: "Nothing moves by itself: no typing dots or looping effects",
 } as const;
 
@@ -37,7 +48,7 @@ function apply() {
 
 export default definePlugin({
     name: "QuietLayout",
-    description: "A quieter, Slack-shaped Discord: square rail, one-line rows, one colour for names, nothing animating.",
+    description: "A quiet, Slack-shaped Discord: grey rail, bare header, one-line rows, names and text without avatars in servers, nothing animating.",
     authors: [{ name: "Aditya Padwal", id: 0n }],
     enabledByDefault: true,
     settings,
