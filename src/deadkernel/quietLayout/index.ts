@@ -31,7 +31,7 @@ const Options = {
     flatComposer: "Composer as a flat line: no box or glow, emoji the only button on the right (GIFs and stickers are tabs in its picker), faint until you use it",
     slimUserPanel: "Account panel as a plain bar across the sidebar bottom: no status line, device carets or red wash when muted",
     quietScrollbars: "Scrollbars show only while you hover",
-    stillMotion: "Nothing moves by itself: no typing dots or looping effects",
+    stillMotion: "No typing dots or looping effects (animated avatars are HumanLayerTheme's own option)",
 } as const;
 
 type Key = keyof typeof Options;

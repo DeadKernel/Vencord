@@ -164,3 +164,20 @@ Fable §5.)*
   timing (it ignored the dispatcher Discord passes and used Vencord's, sometimes not resolved yet),
   and then no plugin started; it now uses Discord's.
 
+## 7. Some life: animated images and Now (2026-10-06)
+
+It's a social app; he asked for some pizzazz.
+
+- **Animated avatars and server icons always play** (HumanLayerTheme › Animated avatars, on;
+  off under reduced motion). Discord asks for the animated image only when a component passes
+  canAnimate, mostly on hover; `humanLayerTheme/animate.ts` wraps the URL helpers (the user
+  record's getAvatarURL and IconUtils' avatar and guild-icon helpers) to always ask for it, so
+  Discord's chat and member list animate too. Undone when switched off.
+- **Now** (top of the sidebar, only while it has something): a live card for each favourited
+  voice channel with people in it, from his mockup. The server's icon (animated if it is), the
+  channel and server, JOIN in the corner ("here" with a teal edge when he's in it), everyone's
+  face with a teal ring while they speak (Discord's SpeakingStore), and a line only when it's
+  true: "kai streaming", "kai and sam on camera". The card opens the call's chat; JOIN joins.
+  The yellow count chip is the only yellow in the sidebar. Favorites keeps the channel as one row
+  ("N in call") instead of listing members twice.
+

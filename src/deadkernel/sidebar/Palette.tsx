@@ -17,13 +17,13 @@ useState, useStateFromStores
 import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
+import { channelIcon, guildIcon, Square } from "./avatars";
 import {
     addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, joinVoice, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
     suppressBroadcastsIn, toggleMute, useFavorites,
 userPresence } from "./data";
 import { Icon, IconName, IconSlot } from "./icons";
-import { channelIcon, guildIcon, Square } from "./Sidebar";
 
 const ModalRoot = ModalRootUntyped as ComponentType<any>;
 

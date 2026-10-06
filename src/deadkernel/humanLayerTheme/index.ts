@@ -10,6 +10,7 @@ import definePlugin, { OptionType } from "@utils/types";
 
 // The theme itself lives in personal/ so the same file also works as a BetterDiscord / Vencord theme.
 import style from "../../../personal/themes/humanlayer/HumanLayer.theme.css?managed";
+import { startAnimatedImages, stopAnimatedImages } from "./animate";
 import palettes from "./palettes.css?managed";
 
 // Palettes set only the base colour tokens; density sets row height and message spacing. Both are
@@ -26,6 +27,12 @@ const settings = definePluginSettings({
             { label: "Paper: light, warm off-white, ink blue", value: "paper" }
         ],
         onChange: apply
+    },
+    animated: {
+        type: OptionType.BOOLEAN,
+        description: "Animated avatars and server icons always play, not only on hover (off when your system asks for reduced motion)",
+        default: true,
+        onChange: (on: boolean) => { stopAnimatedImages(); if (on) startAnimatedImages(); }
     },
     density: {
         type: OptionType.SELECT,
@@ -58,8 +65,10 @@ export default definePlugin({
     start() {
         enableStyle(palettes);
         apply();
+        if (settings.store.animated) startAnimatedImages();
     },
     stop() {
+        stopAnimatedImages();
         disableStyle(palettes);
         delete document.documentElement.dataset.dkPalette;
         delete document.documentElement.dataset.dkDensity;

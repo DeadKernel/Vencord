@@ -7,14 +7,15 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ApplicationStreamingStore, ChannelStore, GuildReadStateStore, GuildStore, IconUtils, MessageRequestStore, NavigationRouter,
+    ApplicationStreamingStore, ChannelStore, GuildReadStateStore, GuildStore, MessageRequestStore, NavigationRouter,
     PresenceStore, PrivateChannelSortStore, React, ReadStateStore, RelationshipStore, SelectedChannelStore, SelectedGuildStore,
-    useEffect, useRef, UserGuildSettingsStore, UserStore, useState, useStateFromStores, VoiceStateStore
+    useEffect, useRef, UserGuildSettingsStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
 import { actionsFor, RowActions } from "./actions";
+import { channelIcon, guildIcon, Square } from "./avatars";
 import { Column } from "./Column";
 import {
     addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
@@ -25,7 +26,8 @@ userPresence } from "./data";
 import { openGuildMenu } from "./discordMenus";
 import { Icon, IconSlot } from "./icons";
 import { ContextItem, openMenu } from "./menu";
-import { occupants, VoiceMembers } from "./voice";
+import { NowSection } from "./Now";
+import { occupants } from "./voice";
 
 export interface ChannelAreaProps {
     guildId?: string | null;
@@ -111,34 +113,8 @@ function Row(p: RowProps) {
     );
 }
 
-export function Square({ src, text, presence, size = "person" }: { src?: string | null; text?: string; presence?: string; size?: "person" | "server"; }) {
-    return (
-        <span className={`dk-sb-icon dk-sb-${size}`}>
-            {src ? <img src={src} alt="" loading="lazy" draggable={false} /> : <span className="dk-sb-glyph">{text}</span>}
-            {presence && presence !== "offline" && <i className={`dk-sb-status dk-${presence}`} title={presence} />}
-        </span>
-    );
-}
-
 const isVoiceChannel = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
 
-function avatarSrc(channel: Channel) {
-    if (channel.type === 1) return UserStore.getUser(channel.recipients[0])?.getAvatarURL(undefined, 48);
-    if (channel.type === 3 && channel.icon) return IconUtils.getChannelIconURL({ id: channel.id, icon: channel.icon, size: 48 } as any);
-    return null;
-}
-
-export const guildIcon = (guildId: string) => {
-    const g = GuildStore.getGuild(guildId);
-    return g?.icon ? IconUtils.getGuildIconURL({ id: g.id, icon: g.icon, size: 40 }) : null;
-};
-
-export function channelIcon(channel: Channel, presence?: string) {
-    if (channel.type === 1 || channel.type === 3)
-        return <Square src={avatarSrc(channel)} text={labelFor(channel)[0]} presence={presence} />;
-    return <IconSlot name={channel.isThread?.() ? "thread" : channel.type === 2 || channel.type === 13 ? "voice"
-        : channel.type === 15 || channel.type === 16 ? "forum" : channel.type === 5 ? "announce" : "hash"} />;
-}
 
 function conversationMenu(id: string, inFavorites: boolean): ContextItem[] {
     const list = getFavorites();
@@ -316,8 +292,8 @@ function FavoritesSection() {
     useFavorites();
     const list = getFavorites();
     const key = list.map(f => f.id).join(",");
-    // A favourite voice channel lists who's in it; a favourite person already listed there doesn't
-    // get a second row until they leave (one person, one place).
+    // A favourite voice channel with people in it is a card in Now; a favourite person in that call
+    // doesn't get a second row here until they leave (one person, one place).
     const inCalls = useStateFromStores([VoiceStateStore, ChannelStore], () => list
         .filter(f => isVoiceChannel(ChannelStore.getChannel(f.id)))
         .flatMap(f => occupants(f.id)).sort().join(","), [key]);
@@ -331,7 +307,6 @@ function FavoritesSection() {
                     return (
                         <React.Fragment key={f.id}>
                             <FavoriteRow id={f.id} label={f.label} />
-                            {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
                         </React.Fragment>
                     );
                 })
@@ -499,6 +474,7 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                     <JumpRow />
                     <HomeRow selected={!routeGuildId && !selectedChannelId} />
                     <ReturnRow routeGuildId={routeGuildId} />
+                    <NowSection />
                     <DirectSection />
                     <FavoritesSection />
                     <MessagesSection />
