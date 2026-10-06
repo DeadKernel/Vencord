@@ -29,7 +29,7 @@ Two modes, one client:
    buttons show when you hover it. Row and category buttons show on hover. Timestamps show
    on hover. The composer is a flat line whose buttons brighten when you use it. Scrollbars
    show while hovering.
-5. **Text first in servers.** No avatars or connector lines; lines wrap at about 100
+5. **Text first in servers.** Small square avatars (no avatars was tried and rejected); lines wrap at about 100
    characters. Embeds and media are capped; thread previews are one line.
 6. **Nothing moves by itself.** No typing dots, super-reaction bursts, animated decorations
    or stream previews in the channel list.

@@ -113,7 +113,7 @@ Screenshots are cropped and blurred (`personal/tools/redact.css`) because this r
 
 ## 7. Messages
 
-- [C] Avatars: none in server chat; 32px square in DMs and group DMs: done (QuietLayout › avatars only in DMs)
+- [K] Avatars everywhere, 32px square (he wants faces; "avatars only in DMs" is an off-by-default toggle)
 - [C] Timestamps on hover: done
 - [C] Messages wrap at about 100 characters: done
 - [C] Embeds max 480px, media max 360px, descriptions clipped to 3 lines, thread previews one line: done

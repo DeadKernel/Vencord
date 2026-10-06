@@ -33,13 +33,16 @@ const Options = {
 
 type Key = keyof typeof Options;
 
+// Off unless switched on. Avatars stay: he wants faces in chat (2026-10-06).
+const OffByDefault = new Set<Key>(["avatarsInDmsOnly"]);
+
 const settings = definePluginSettings(
     Object.fromEntries(Object.entries(Options).map(([key, description]) => [key, {
         type: OptionType.BOOLEAN,
         description,
-        default: true,
+        default: !OffByDefault.has(key as Key),
         onChange: apply
-    }])) as Record<Key, { type: OptionType.BOOLEAN; description: string; default: true; onChange(): void; }>
+    }])) as Record<Key, { type: OptionType.BOOLEAN; description: string; default: boolean; onChange(): void; }>
 );
 
 function apply() {
