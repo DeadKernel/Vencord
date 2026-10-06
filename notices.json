@@ -1,0 +1,11 @@
+{
+    "notices": [
+        {
+            "id": "2026-10-06-welcome",
+            "title": "Welcome to DeadKernel",
+            "body": "Thanks for trying it. Ctrl K jumps anywhere, and Home is at the top of the sidebar. DM Aditya with anything that confuses you.",
+            "url": "https://github.com/DeadKernel/Vencord/releases/latest",
+            "until": "2026-12-31"
+        }
+    ]
+}
