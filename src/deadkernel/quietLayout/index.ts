@@ -24,6 +24,7 @@ const Options = {
     smallAvatars: "Smaller square avatars where avatars show",
     hoverTimestamps: "Timestamps appear when you hover a message",
     readingWidth: "Messages wrap at a reading width (about 100 characters) instead of the full window",
+    quietMembers: "Member list: small avatars, body-size names, no animated nameplates behind names",
     quietReplies: "Replies as one dim line above the message (↩ name, first line), no curved connector",
     quietReactions: "Reactions as small hairline chips; the add-reaction button only on the message you point at",
     compactEmbeds: "Smaller embeds and media, embed descriptions clipped to three lines, thread previews as one dim line",

@@ -301,6 +301,43 @@
     opacity: 0 !important;
 }
 
+/* Member list: small square-ish avatars, names at body size, no animated nameplates, group headers
+   as 11px labels. Row heights stay Discord's: the list is virtualised on them, and shorter rows
+   leave blank space at the end. */
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"] [class*="childContainer_"] {
+    border-radius: 0 !important;
+    background: none !important;
+}
+
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"]:hover [class*="childContainer_"] {
+    background: var(--hl-hover, var(--background-mod-subtle)) !important;
+}
+
+/* nameplates: an animated video plus a coloured gradient behind the name */
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="nameplated_"] :is([class*="videoContainer_"], [class*="container_"][style*="gradient"]) {
+    display: none !important;
+}
+
+/* the row's 32px avatar slot drawn at 20px, centred on the name; the margin takes back the 12px */
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="memberInner_"] > [class*="avatar_"] {
+    transform: scale(0.625);
+    transform-origin: left center;
+    margin-right: -2px !important;
+}
+
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"] [class*="name_"] {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="membersGroup_"] {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--hl-text-2, var(--text-muted)) !important;
+}
+
 /* Timestamps on hover */
 [data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"] h3 [class*="timestamp_"] {
     opacity: 0;
