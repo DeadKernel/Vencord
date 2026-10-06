@@ -62,17 +62,31 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   image before committing it.
 - **Viewing channels marks them read**, and that syncs to his main Discord. When testing on his
   account, only open channels with no unreads that are on his channel list.
-- **Audit:** `personal/AUDIT.md`, waiting for his marks.
+- **Audit marked by Claude** from his notes (HumanLayer + Maeda per agent-review's
+  DESIGN-LANGUAGE.md, "no pill UI / single-line rows" from Sero feedback, Slack structure),
+  at his request. He can change any mark. The direction is written down in `personal/DESIGN.md`.
+- **Three plugins, three jobs:** `HumanLayerTheme` (look), `Declutter` (what's shown, 34 toggles,
+  milestone 4), `QuietLayout` (structure: square rail, one-line rows, plain names, quiet
+  sidebar, small avatars, no motion; the first part of milestone 5). All default on.
+- **Gate CSS on `data-*` attributes on `<html>`, never classes:** Discord rewrites
+  `<html>`'s className on focus and theme changes.
+- **Menu items are removed by id** through a global context-menu patch (`${navId}-${id}` is their
+  DOM id), not hidden with CSS, so keyboard navigation and separators stay right.
+- **Join/boost system messages:** a MutationObserver tags message rows with
+  `data-dk-noise` from MessageStore types, and CSS hides them. CSS can't see message types.
+- **No FakeNitro** (account risk). The theme no longer hides anything; Declutter does.
+- **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
+  subscription-locked channels, Nitro-locked emoji in pickers.
 
 ## Milestones
 
 1. **Build and run.** Build this Vencord and the Vesktop fork, point Vesktop at our Vencord,
    run it on the Windows PC next to his current Discord.
 2. **Theme in.** Ship the HumanLayer theme as the default; re-verify with cdp.mjs.
-3. **The audit (with Aditya).** Walk every Discord surface; he marks each keep / hide behind
-   a toggle / change. The result becomes `personal/AUDIT.md` and the spec for 4 to 6.
-4. **Declutter plugin.** One settings page of toggles, one per thing from the audit.
-5. **Slack-like layout.** Sidebar sections, a single unread inbox view, quieter defaults.
+3. **The audit.** Done 2026-10-06: `personal/AUDIT.md`, marked by Claude, open to his edits.
+4. **Declutter plugin.** Done 2026-10-06: `src/deadkernel/declutter/`, one toggle per audit item.
+5. **Slack-like layout.** Started: `src/deadkernel/quietLayout/`. Still to do: the single unread
+   inbox view in the sidebar.
 6. **Notification rules.** His filters and summaries instead of Discord's.
 7. **Builds he can daily-drive.** Windows and macOS, his own update channel (GitHub releases).
 8. **Upstream sync.** Automated merge of Vencord/Vesktop upstream with a build check, so

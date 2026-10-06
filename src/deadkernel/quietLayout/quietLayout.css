@@ -1,0 +1,91 @@
+/* QuietLayout: structure only. Colours come from the theme's variables with Discord fallbacks,
+   so this also works with the theme switched off. Each block is gated by data-dk-layout. */
+
+/* Square server icons; the selected / unread indicator becomes a thin square edge */
+[data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] foreignObject[mask],
+[data-dk-layout~="squareRail"] [class*="folderGroup_"] foreignObject[mask] {
+    mask: none !important;
+}
+
+[data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] :is(img, [class*="icon_"], [class*="childWrapper_"]),
+[data-dk-layout~="squareRail"] [class*="folderIconWrapper_"],
+[data-dk-layout~="squareRail"] [class*="expandedFolderBackground_"] {
+    border-radius: 0 !important;
+}
+
+[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"] {
+    width: 3px !important;
+    border-radius: 0 !important;
+    background: var(--hl-text-2, var(--interactive-normal)) !important;
+}
+
+[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"][class*="selected_"] {
+    background: var(--hl-accent, var(--text-brand)) !important;
+}
+
+/* One colour for names */
+[data-dk-layout~="plainNames"] :is([class*="cozyMessage_"], [class*="compact_"], [class*="repliedMessage_"], [class*="member_"], [class*="threadMessageAccessory"]) [class*="username_"],
+[data-dk-layout~="plainNames"] [class*="member_"] [class*="name_"] {
+    color: var(--hl-text-strong, var(--text-strong)) !important;
+    background: none !important;
+    -webkit-text-fill-color: currentcolor !important;
+}
+
+[data-dk-layout~="plainNames"] [class*="repliedMessage_"] [class*="username_"],
+[data-dk-layout~="plainNames"] [class*="threadMessageAccessory"] [class*="username_"] {
+    color: var(--hl-text-2, var(--text-subtle)) !important;
+}
+
+[data-dk-layout~="plainNames"] [class*="cozyMessage_"] [class*="roleIcon_"],
+[data-dk-layout~="plainNames"] [class*="member_"] [class*="roleIcon_"],
+[data-dk-layout~="plainNames"] [class*="newMemberBadge_"] {
+    display: none !important;
+}
+
+/* One line per row */
+[data-dk-layout~="oneLineRows"] [class*="privateChannels_"] [class*="subText_"],
+[data-dk-layout~="oneLineRows"] [class*="member_"] [class*="subText_"] {
+    display: none !important;
+}
+
+/* Quieter channel list: bold is the unread signal, muted rows recede */
+[data-dk-layout~="quietSidebar"] #channels [class*="wrapper_"] > [class*="unread_"] {
+    display: none !important;
+}
+
+[data-dk-layout~="quietSidebar"] #channels [class*="modeUnread"] [class*="name_"] {
+    font-weight: 600 !important;
+    color: var(--hl-text-strong, var(--text-strong)) !important;
+}
+
+[data-dk-layout~="quietSidebar"] #channels [class*="modeMuted_"] {
+    opacity: 0.45;
+}
+
+[data-dk-layout~="quietSidebar"] #channels [class*="modeMuted_"]:hover {
+    opacity: 0.8;
+}
+
+/* Smaller square avatars in chat */
+[data-dk-layout~="smallAvatars"] {
+    --chat-avatar-size: 32px;
+}
+
+[data-dk-layout~="smallAvatars"] [class*="cozyMessage_"] img[class*="avatar_"] {
+    width: 32px !important;
+    height: 32px !important;
+    margin-top: 2px;
+}
+
+[data-dk-layout~="smallAvatars"] [class*="cozyMessage_"][class*="cozy_"] {
+    padding-left: 64px !important;
+}
+
+/* Nothing moves by itself */
+[data-dk-layout~="stillMotion"] [class*="typing_"] :is(svg, svg *, [class*="dots_"], [class*="dot_"]),
+[data-dk-layout~="stillMotion"] [class*="typingDots_"] *,
+[data-dk-layout~="stillMotion"] [class*="reactions_"] *,
+[data-dk-layout~="stillMotion"] [class*="avatarDecoration"] *,
+[data-dk-layout~="stillMotion"] [class*="shimmer"] {
+    animation: none !important;
+}

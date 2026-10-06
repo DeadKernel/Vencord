@@ -2,7 +2,7 @@
  * @name HumanLayer
  * @author Aditya Padwal
  * @version 0.1.0
- * @description HumanLayer's design system for Discord: Poimandres palette, IBM Plex Mono, square corners, hairline borders, calmer spacing, fewer upsells.
+ * @description HumanLayer's design system for Discord: Poimandres palette, IBM Plex Mono, square corners, hairline borders, calmer spacing.
  */
 
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap");
@@ -850,52 +850,58 @@ textarea[class*="input_"],
 	font-weight: 600;
 }
 
+/* Presence dots in the token colours (Discord hard-codes the fills) */
+rect[mask*="svg-mask-status-online"] {
+	fill: var(--hl-teal);
+}
+
+rect[mask*="svg-mask-status-idle"] {
+	fill: var(--hl-yellow);
+}
+
+rect[mask*="svg-mask-status-dnd"] {
+	fill: var(--hl-pink);
+}
+
+rect[mask*="svg-mask-status-offline"] {
+	fill: var(--hl-text-muted);
+}
+
+rect[mask*="svg-mask-status-streaming"] {
+	fill: var(--hl-accent);
+}
+
+/* Switches: square track and knob (Vencord's and Discord's) */
+.vc-switch-container,
+.vc-switch-input,
+[class*="switch_"][class*="container_"],
+[class*="switch_"] [class*="container_"] {
+	border-radius: 0 !important;
+}
+
+.vc-switch-slider rect,
+[class*="switch_"] [class*="slider_"] rect {
+	rx: 0;
+	ry: 0;
+}
+
+/* Round buttons sitting on profile banners */
+[class*="bannerButton_"],
+[class*="overflowButtonContainer_"] button {
+	border-radius: 0 !important;
+}
+
+/* Server header: flat, no glass or glow over the (hidden) banner */
+[class*="headerEllipseBackdrop_"],
+[class*="headerEllipseForeground_"],
+[class*="headerGlass_"] {
+	display: none !important;
+}
+
 /* Thin, quiet scrollbars */
 ::-webkit-scrollbar-thumb {
 	border-radius: 0 !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   Declutter
-   Delete any block below to bring that thing back.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Nitro / Shop / Quests entries at the top of the DM list */
-[class*="privateChannels_"] li:has(a[href="/store"]),
-[class*="privateChannels_"] li:has(a[href="/shop"]),
-[class*="privateChannels_"] li:has(a[href="/quest-home"]),
-[class*="privateChannels_"] [class*="channel_"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]) {
-	display: none !important;
-}
-
-/* Gift button in the composer */
-[class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Send a gift"]) {
-	display: none !important;
-}
-
-/* Server boost goal bar and "Server Boosts" row at the top of the channel list */
-#channels [role="button"]:has([class*="boostCountText_"]),
-#channels li:has([id^="skill-trees-"]) {
-	display: none !important;
-}
-
-/* "Download apps" in the server rail */
-[data-list-item-id="guildsnav___app-download-button"] {
-	display: none !important;
-}
-
-/* Help button in the title bar */
-[class*="trailing_c38106"] a[href*="support.discord.com"] {
-	display: none !important;
-}
-
-/* "Active Now" column on the Friends page */
-[class*="nowPlayingColumn_"] {
-	display: none !important;
-}
-
-/* Animated avatar decorations and profile effects */
-img[class*="avatarDecoration_"],
-[class*="profileEffects_"] {
-	display: none !important;
-}
+/* What's shown (Nitro, Shop, gift button, boosts, decorations…) is the Declutter plugin's job:
+   src/deadkernel/declutter/. This file only sets the look. */

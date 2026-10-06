@@ -19,7 +19,7 @@ if ($Build) {
 }
 
 # First run only: skip the welcome tour, load our Vencord, and stay out of the real Discord's way
-# (no Rich Presence server competing for its RPC port).
+# (no Rich Presence server competing for its RPC port). No splash screen.
 New-Item -ItemType Directory -Force $data | Out-Null
 $state = Join-Path $data "state.json"
 if (-not (Test-Path $state)) {
@@ -27,7 +27,7 @@ if (-not (Test-Path $state)) {
 }
 $settings = Join-Path $data "settings.json"
 if (-not (Test-Path $settings)) {
-    @{ discordBranch = "stable"; arRPC = $false } | ConvertTo-Json | Out-File -Encoding ascii $settings
+    @{ discordBranch = "stable"; arRPC = $false; enableSplashScreen = $false } | ConvertTo-Json | Out-File -Encoding ascii $settings
 }
 
 $env:VENCORD_USER_DATA_DIR = $data

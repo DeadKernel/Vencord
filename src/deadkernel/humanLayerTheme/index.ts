@@ -11,7 +11,7 @@ import style from "../../../personal/themes/humanlayer/HumanLayer.theme.css?mana
 
 export default definePlugin({
     name: "HumanLayerTheme",
-    description: "HumanLayer's design system: Poimandres palette, IBM Plex Mono, square corners, hairline borders, fewer upsells.",
+    description: "HumanLayer's design system: Poimandres palette, IBM Plex Mono, square corners, hairline borders.",
     authors: [{ name: "Aditya Padwal", id: 0n }],
     enabledByDefault: true,
     managedStyle: style

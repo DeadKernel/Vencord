@@ -1,0 +1,199 @@
+/* Declutter: each block applies only while its toggle is on (data-dk-hide on <html>). Selectors prefer
+   stable hooks (aria-label, data-list-item-id, href) over hashed class names.
+   Every rule only hides, so source order vs. specificity never matters. */
+
+/* stylelint-disable no-descending-specificity */
+
+/* Promotions and paid features */
+[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] li:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]),
+[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] [class*="channel_"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]) {
+    display: none !important;
+}
+
+[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Send a gift"]),
+[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Send a gift"] {
+    display: none !important;
+}
+
+[data-dk-hide~="boosts"] #channels [role="button"]:has([class*="boostCountText_"]),
+[data-dk-hide~="boosts"] #channels li:has([id^="skill-trees-"]),
+[data-dk-hide~="boosts"] [class*="tooltipPremiumFooterContainer_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Apps"]),
+[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Apps"],
+[data-dk-hide~="apps"] [class*="channelAppLauncher_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="activeNow"] [class*="nowPlayingColumn_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="superReactions"] [class*="burstGlow_"],
+[data-dk-hide~="superReactions"] [class*="reactions_"] canvas,
+[data-dk-hide~="superReactions"] [class*="effectsWrapper_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="cosmetics"] [class*="avatarDecoration"],
+[data-dk-hide~="cosmetics"] [class*="profileEffects_"],
+[data-dk-hide~="cosmetics"] [class*="nameplated_"] [class*="videoContainer_"],
+[data-dk-hide~="cosmetics"] [class*="nameplated_"] [class*="nameplate"] {
+    display: none !important;
+}
+
+[data-dk-hide~="cosmetics"] [class*="dnsFont_"] {
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    background: none !important;
+    -webkit-text-fill-color: currentcolor !important;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+[data-dk-hide~="serverTags"] [class*="chipletContainerInline_"]:has([class*="clanTag"], [class*="guildTag_"]),
+[data-dk-hide~="serverTags"] [class*="clanTag"],
+[data-dk-hide~="serverTags"] [class*="guildTag_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="quests"] [class*="questsIcon_"] {
+    display: none !important;
+}
+
+/* Server rail and title bar */
+[data-dk-hide~="addServer"] [class*="listItem_"]:has([data-list-item-id="guildsnav___create-join-button"]),
+[data-dk-hide~="discover"] [class*="listItem_"]:has([data-list-item-id="guildsnav___guild-discover-button"]),
+[data-dk-hide~="downloadApps"] [class*="listItem_"]:has([data-list-item-id="guildsnav___app-download-button"]),
+[data-dk-hide~="downloadApps"] [data-list-item-id="guildsnav___app-download-button"] {
+    display: none !important;
+}
+
+[data-dk-hide~="help"] [class*="trailing_"] a[href*="support.discord.com"],
+[data-dk-hide~="help"] [class*="trailing_"] [aria-label="Help"] {
+    display: none !important;
+}
+
+/* Servers */
+[data-dk-hide~="banner"] nav[aria-label$="(server)"] [class*="animatedContainer_"],
+[data-dk-hide~="banner"] nav[aria-label$="(server)"] [class*="bannerImage_"],
+[data-dk-hide~="banner"] nav[aria-label$="(server)"] [class*="bannerImg_"] {
+    display: none !important;
+}
+
+/* the empty space the channel list keeps for the banner */
+[data-dk-hide~="banner"] nav[aria-label$="(server)"]:has([class*="hasBanner_"]) #channels > ul > div:first-child[style*="height"] {
+    display: none !important;
+}
+
+[data-dk-hide~="invite"] nav[aria-label$="(server)"] [class*="inviteButton_"],
+[data-dk-hide~="invite"] #channels [aria-label="Create Invite"],
+[data-dk-hide~="invite"] #channels [aria-label="Invite to Channel"] {
+    display: none !important;
+}
+
+[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___channels-"]),
+[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___guild-home"]),
+[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___server-guide"]) {
+    display: none !important;
+}
+
+[data-dk-hide~="events"] #channels li:has([data-list-item-id^="channels___upcoming-events-"]) {
+    display: none !important;
+}
+
+/* Home and DMs */
+[data-dk-hide~="blockedNotice"] [class*="blockedIgnoredSettingsNotice_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="addToDm"] section[class*="title_"] [aria-label="Add to DM"],
+[data-dk-hide~="addToDm"] section[class*="title_"] [aria-label="Add Friends to DM"] {
+    display: none !important;
+}
+
+/* Messages and composer */
+[data-dk-hide~="quickReactions"] [class*="buttonsInner_"] [aria-label^="Click to react with"],
+[data-dk-hide~="quickReactions"] [class*="buttonsInner_"] [aria-label^="Click to react with"] ~ [class*="separator_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="forward"] [class*="buttonsInner_"] [aria-label="Forward"] {
+    display: none !important;
+}
+
+[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Open sticker picker"]),
+[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Open sticker picker"] {
+    display: none !important;
+}
+
+[data-dk-hide~="systemNoise"] li[data-dk-noise] {
+    display: none !important;
+}
+
+/* Profiles */
+[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) {
+    --profile-gradient-primary-color: var(--hl-bg-raised, var(--background-base-low)) !important;
+    --profile-gradient-secondary-color: var(--hl-bg-raised, var(--background-base-low)) !important;
+    --profile-gradient-overlay-color: transparent !important;
+    --profile-avatar-border-color: var(--hl-bg-raised, var(--background-base-low)) !important;
+    --profile-body-background-color: var(--hl-bg-raised, var(--background-base-low)) !important;
+}
+
+[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) [class*="banner_"] {
+    background-image: none !important;
+    background-color: var(--hl-bg-hover, var(--background-base-lower)) !important;
+}
+
+[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) [class*="banner_"] :is(img, video) {
+    display: none !important;
+}
+
+[data-dk-hide~="badges"] [aria-label="User Badges"],
+[data-dk-hide~="badges"] .user-profile-popout [class*="badgeContainer_"],
+[data-dk-hide~="badges"] [class*="profileBadges_"] {
+    display: none !important;
+}
+
+[data-dk-hide~="statusReactions"] [aria-label="React to status"],
+[data-dk-hide~="statusReactions"] [aria-label="Reply to status"] {
+    display: none !important;
+}
+
+[data-dk-hide~="oldUsername"] [aria-label^="Originally known as"] {
+    display: none !important;
+}
+
+/* Settings */
+[data-dk-hide~="billingSettings"] li[class*="section_"]:has(> [class*="sectionList_"] [data-list-item-id="settings-sidebar___nitro_panel"]),
+[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___nitro_panel"]),
+[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___premium_guild_subscriptions_panel"]),
+[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___subscriptions_panel"]),
+[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___gift_panel"]),
+[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___billing_panel"]) {
+    display: none !important;
+}
+
+[data-dk-hide~="familyCenter"] [role="listitem"]:has(> [data-list-item-id="settings-sidebar___account_family_center_category"]) {
+    display: none !important;
+}
+
+[data-dk-hide~="patchHelper"] li:has(> [data-list-item-id="settings-sidebar___vencord_patch_helper_panel"]) {
+    display: none !important;
+}
+
+/* The toggles page itself */
+.dk-declutter-group {
+    margin: 24px 0 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.dk-declutter-settings section:first-child .dk-declutter-group {
+    margin-top: 0;
+}
