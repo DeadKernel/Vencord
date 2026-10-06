@@ -16,6 +16,7 @@ import { DefaultExtractAndLoadChunksRegex as L, extractAndLoadChunks, findModule
 import { ContextMenuApi, GuildStore } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
+import { track } from "../core/telemetry";
 import { ContextItem, renderMenu } from "./menu";
 
 type Loader = { find: string; pre: string; };
@@ -58,6 +59,7 @@ function open(e: MouseEvent, loader: Loader, props: object, fallback: ContextIte
 /** Discord's server menu (the one under the server name), at the pointer. */
 export function openGuildMenu(e: MouseEvent, guildId: string, fallback: ContextItem[]) {
     const guild = GuildStore.getGuild(guildId);
+    track("server_menu");
     if (guild) open(e, MENUS.guild, { guild }, fallback);
 }
 
@@ -68,5 +70,6 @@ export function openChannelMenu(e: MouseEvent, channel: Channel, fallback: Conte
         : channel.type === 4 ? MENUS.category
             : channel.type === 2 || channel.type === 13 ? MENUS.voice
                 : MENUS.text;
+    track("channel_menu");
     open(e, loader, { channel, guild }, fallback);
 }

@@ -19,6 +19,8 @@ import {
     UserStore, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 
+import { track } from "../core/telemetry";
+
 export interface Favorite {
     id: string;
     /** shown when the channel isn't loaded (archived thread, left server) */
@@ -121,6 +123,7 @@ export const navState = {
 };
 
 export function backOut(guildId: string) {
+    track("column_close");
     backedOutOf = guildId;
     emit();
 }
@@ -168,11 +171,13 @@ export function useFavorites(): Favorite[] {
 }
 
 export function addFavorite(id: string) {
+    track("favorite_add");
     if (isFavorite(id)) return;
     setFavorites([...getFavorites(), { id, label: labelFor(ChannelStore.getChannel(id)) }]);
 }
 
 export function removeFavorite(id: string) {
+    track("favorite_remove");
     setFavorites(getFavorites().filter(f => f.id !== id));
 }
 
@@ -325,6 +330,7 @@ export function openChannel(id: string) {
 }
 
 export function openGuild(guildId: string) {
+    track("server_open");
     drillIn();
     const last = SelectedChannelStore.getChannelId(guildId);
     if (last) NavigationRouter.transitionTo(`/channels/${guildId}/${last}`);
@@ -333,7 +339,10 @@ export function openGuild(guildId: string) {
 
 const GuildCreateActions = findByPropsLazy("openCreateGuildModal");
 /** Discord's "Add a Server" (create, or join with an invite): the rail's + button, which is gone */
-export const openAddServer = () => GuildCreateActions.openCreateGuildModal({ location: "Guild List" });
+export function openAddServer() {
+    track("add_server");
+    GuildCreateActions.openCreateGuildModal({ location: "Guild List" });
+}
 
 export const openFriends = () => NavigationRouter.transitionTo("/channels/@me");
 export const openRequests = () => NavigationRouter.transitionTo("/message-requests");
@@ -383,6 +392,7 @@ const NotificationActions = findByPropsLazy("updateGuildNotificationSettings");
 
 /** Discord's per-server "Suppress @everyone and @here" + "Suppress all role @mentions". */
 export function suppressBroadcasts(guildId: string) {
+    track("suppress_pings");
     NotificationActions.updateGuildNotificationSettings(guildId, { suppress_everyone: true, suppress_roles: true });
 }
 
@@ -400,18 +410,21 @@ export function broadcastServers(): string[] {
 /** The same setting as suppressBroadcasts, for many servers in one request: Discord's local update
  * per server, then one bulk save (what its own per-server call does, once instead of N times). */
 export function suppressBroadcastsIn(guildIds: string[]) {
+    track("suppress_pings_all");
     const change = { suppress_everyone: true, suppress_roles: true };
     for (const guildId of guildIds) FluxDispatcher.dispatch({ type: "USER_GUILD_SETTINGS_GUILD_UPDATE", guildId, settings: change });
     GuildSettingsSave.saveUserGuildSettingsBulk(Object.fromEntries(guildIds.map(id => [id, change])));
 }
 
 export function toggleMute(guildId: string) {
+    track("mute_toggle");
     NotificationActions.updateGuildNotificationSettings(guildId, { muted: !UserGuildSettingsStore.isMuted(guildId) });
 }
 
 export const VoiceActions = findByPropsLazy("handleVoiceConnect");
 
 export function joinVoice(channel: Channel) {
+    track("voice_join");
     VoiceActions.handleVoiceConnect({
         channel,
         connected: VoiceStateStore.isInChannel(channel.id),

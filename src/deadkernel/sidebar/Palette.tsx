@@ -16,6 +16,7 @@ useState, useStateFromStores
 } from "@webpack/common";
 import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
+import { track } from "../core/telemetry";
 import {
     addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
     QuickSwitcher, QuickSwitcherStore, removeFavorite, selectDirectGrouped, selectMentionChannels, settings, suppressBroadcasts,
@@ -251,8 +252,10 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
     };
     const [armed, setArmed] = useState<string | null>(null);
     useEffect(() => setArmed(null), [lines, current]);
+    useEffect(() => { track("palette_open"); }, []);
     const run = (e: Entry) => {
         if (e.confirm && armed !== e.key) return setArmed(e.key);
+        track(e.key.startsWith("a-") ? `palette_action:${e.key.slice(2)}` : text ? "palette_pick:search" : "palette_pick:empty_state");
         e.run();
         modal.onClose();
     };
@@ -268,7 +271,7 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
         } else if (e.key === "Enter" && entry) {
             e.preventDefault();
             if (!e.shiftKey) return run(entry);
-            if (entry.favId) isFavorite(entry.favId) ? removeFavorite(entry.favId) : addFavorite(entry.favId);
+            if (entry.favId) { track("palette_star"); isFavorite(entry.favId) ? removeFavorite(entry.favId) : addFavorite(entry.favId); }
         } else if (e.key === "Escape" && text) {
             // Esc clears first, then closes (Raycast)
             e.preventDefault();

@@ -11,6 +11,7 @@ import { Channel, Guild, User } from "@vencord/discord-types";
 import { ChannelStore, Menu, ReadStateStore } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
+import { trackError } from "../core/telemetry";
 import { addFavorite, applyAttr, guildChannelIds, isFavorite, markRead, removeFavorite, settings } from "./data";
 import { Breadcrumb, Toolbar } from "./Header";
 import { Home } from "./Home";
@@ -31,7 +32,8 @@ const ChannelArea = ErrorBoundary.wrap((props: ChannelAreaProps) => {
     const { enabled } = settings.use(["enabled"]);
     return enabled ? <Sidebar {...props} /> : <>{props.original()}</>;
 }, {
-    fallback: ({ wrappedProps }) => <>{wrappedProps.original()}</>
+    fallback: ({ wrappedProps }) => <>{wrappedProps.original()}</>,
+    onError: ({ error }) => trackError("Sidebar", error)
 });
 
 // Home, or Discord's Friends page (setting off, a deep link to a Friends tab, or a crash).
@@ -40,7 +42,8 @@ const HomeArea = ErrorBoundary.wrap((props: { Original: ComponentType<any>; init
     const { Original, ...rest } = props;
     return enabled && home ? <Home {...props} /> : <Original {...rest} />;
 }, {
-    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />
+    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />,
+    onError: ({ error }) => trackError("Home", error)
 });
 
 // Ctrl K: our palette in Discord's modal, or Discord's switcher (setting off, or a crash).
@@ -49,7 +52,8 @@ const PaletteArea = ErrorBoundary.wrap((props: { Original: ComponentType<any>; t
     const { Original, ...rest } = props;
     return enabled && palette ? <Palette {...props} /> : <Original {...rest} />;
 }, {
-    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />
+    fallback: ({ wrappedProps: { Original, ...rest } }) => <Original {...rest} />,
+    onError: ({ error }) => trackError("Palette", error)
 });
 
 function favoriteItem(id?: string) {

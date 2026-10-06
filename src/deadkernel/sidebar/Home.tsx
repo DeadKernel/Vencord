@@ -11,10 +11,11 @@ import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
     ApplicationStreamingStore, ChannelStore, GuildStore, MessageRequestStore, NavigationRouter, PresenceStore,
-    PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, useMemo, UserStore, useState, useStateFromStores, VoiceStateStore
+    PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, useEffect, useMemo, UserStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType } from "react";
 
+import { track } from "../core/telemetry";
 import { getFavorites, joinVoice, labelFor, openChannel, snowflakeTime } from "./data";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
@@ -159,6 +160,7 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
     const pending = useStateFromStores([RelationshipStore], () => RelationshipStore.getPendingCount?.() ?? 0);
     const requests = useStateFromStores([MessageRequestStore], () => MessageRequestStore.getMessageRequestsCount?.() ?? 0);
 
+    useEffect(() => { track("home_view"); }, []);
     if (initialSection) return <Original initialSection={initialSection} {...rest} />;
     if (discord) {
         return (
@@ -174,8 +176,8 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
             <header className="dk-home-header">
                 <h1>Home</h1>
                 <span className="dk-home-links">
-                    <button onClick={() => setDiscord("ALL")}>All friends</button>
-                    <button onClick={() => setDiscord("ADD_FRIEND")}>Add friend</button>
+                    <button onClick={() => { track("home_all_friends"); setDiscord("ALL"); }}>All friends</button>
+                    <button onClick={() => { track("home_add_friend"); setDiscord("ADD_FRIEND"); }}>Add friend</button>
                 </span>
             </header>
             <div className="dk-home-body">

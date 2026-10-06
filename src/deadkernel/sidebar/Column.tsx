@@ -15,6 +15,7 @@ import {
 } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
+import { track } from "../core/telemetry";
 import {
     addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
     snowflakeTime, suppressBroadcasts, toggleCategory
@@ -149,7 +150,7 @@ function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean
     const [quietOpen, setQuietOpen] = useState(false);
     const open = quietOpen || allQuiet;
     const hasLive = cat.live.length > 0;
-    const toggleQuiet = () => setQuietOpen(!open);
+    const toggleQuiet = () => { if (!open) track("quiet_unfold"); setQuietOpen(!open); };
     const showRows = !cat.collapsed || !hasLive;
     return (
         <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive ? cat.collapsed : !open) || undefined} data-quiet={!hasLive || undefined}>
@@ -229,7 +230,7 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
                     )}
                     {view.categories.map(cat => <CategoryBlock key={cat.id} cat={cat} allQuiet={allQuiet} />)}
                     {view.quiet > 0 && (
-                        <button className="dk-sb-more" onClick={() => setAllQuiet(!allQuiet)} data-dk-nav aria-expanded={allQuiet}>
+                        <button className="dk-sb-more" onClick={() => { if (!allQuiet) track("quiet_unfold_all"); setAllQuiet(!allQuiet); }} data-dk-nav aria-expanded={allQuiet}>
                             {allQuiet ? "Hide quiet channels" : `Show all ${view.quiet} quiet channel${view.quiet === 1 ? "" : "s"}`}
                         </button>
                     )}

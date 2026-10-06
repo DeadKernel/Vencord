@@ -30,6 +30,10 @@ import { serializeErrors, VENCORD_FILES } from "./common";
 
 const API_BASE = `https://api.github.com/repos/${gitRemote}`;
 let PendingUpdates = [] as [string, string][];
+// DeadKernel: compare against the latest release's tag, not the default branch. On a fork the
+// default branch is upstream's main, which never contains the fork's builds, so "changes" was
+// always empty and no update was ever offered.
+let latestTag: string | null = null;
 
 async function githubGet<T = any>(endpoint: string) {
     return fetchJson<T>(API_BASE + endpoint, {
@@ -46,7 +50,7 @@ async function calculateGitChanges() {
     const isOutdated = await fetchUpdates();
     if (!isOutdated) return [];
 
-    const data = await githubGet(`/compare/${gitHash}...HEAD`);
+    const data = await githubGet(`/compare/${gitHash}...${latestTag ?? "HEAD"}`);
 
     return data.commits.map((c: any) => ({
         // github api only sends the long sha
@@ -62,6 +66,9 @@ async function fetchUpdates() {
     const hash = data.name.slice(data.name.lastIndexOf(" ") + 1);
     if (hash === gitHash)
         return false;
+
+    latestTag = data.tag_name;
+    PendingUpdates = [];
 
     data.assets.forEach(({ name, browser_download_url }) => {
         if (VENCORD_FILES.some(s => name.startsWith(s))) {

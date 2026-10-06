@@ -1,0 +1,65 @@
+# DeadKernel releases (personal/RELEASING.md). Push a tag like dk-2026.10.07 and this builds the
+# standalone Vesktop files and publishes them as the latest release. Every DeadKernel client checks
+# that release (Vencord's own updater) and updates itself or offers to.
+#
+# The release name must end with the build's commit hash: that is what the updater compares.
+name: DeadKernel release
+on:
+    push:
+        tags:
+            - "dk-*"
+
+permissions:
+    contents: write
+
+env:
+    FORCE_COLOR: true
+
+jobs:
+    Release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: |
+                  HASH=$(git rev-parse --short=10 HEAD)
+                  echo "HASH=$HASH" >> "$GITHUB_ENV"
+                  VENCORD_HASH=$HASH VENCORD_REMOTE=${{ github.repository }} pnpm build --standalone
+
+            - name: Package
+              run: |
+                  mkdir -p out/DeadKernel
+                  cp dist/vencordDesktopMain.js dist/vencordDesktopPreload.js dist/vencordDesktopRenderer.js dist/vencordDesktopRenderer.css out/DeadKernel/
+                  cp dist/vencordDesktop*.LEGAL.txt out/DeadKernel/ 2>/dev/null || true
+                  echo '{}' > out/DeadKernel/package.json
+                  cp personal/FRIENDS.md out/DeadKernel/README.txt
+                  (cd out && zip -qr DeadKernel.zip DeadKernel)
+
+            - name: Publish
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  NOTES=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME")
+                  [ -n "$NOTES" ] || NOTES="DeadKernel build $HASH"
+                  gh release create "$GITHUB_REF_NAME" \
+                      --title "DeadKernel ${GITHUB_REF_NAME#dk-} $HASH" \
+                      --notes "$NOTES" \
+                      --latest \
+                      out/DeadKernel/vencordDesktopMain.js \
+                      out/DeadKernel/vencordDesktopPreload.js \
+                      out/DeadKernel/vencordDesktopRenderer.js \
+                      out/DeadKernel/vencordDesktopRenderer.css \
+                      out/DeadKernel.zip

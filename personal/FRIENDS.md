@@ -10,10 +10,20 @@ anything on your account by itself: every action is a click you make.
 
 INSTALL (about 2 minutes; tested on Windows, Mac untested)
 1. Install Vesktop from https://vesktop.dev and log in as usual.
-2. Unzip this folder somewhere it can stay (e.g. Documents\DeadKernel).
+2. Download DeadKernel.zip from https://github.com/DeadKernel/Vencord/releases/latest and unzip
+   it somewhere it can stay (e.g. Documents\DeadKernel).
 3. In Vesktop: Settings > Vesktop Settings > Developer Options > Vencord Location > Change,
-   pick the unzipped folder, and restart Vesktop.
+   pick the unzipped DeadKernel folder, and restart Vesktop.
 To undo: the same setting > Reset, and restart. The regular Discord app is never touched.
+
+UPDATES
+New builds install themselves: when one is out you'll see "updated, click to restart". Now and
+then a short announcement about a new build shows up as a notification.
+
+TELEMETRY (only if you say yes)
+Once, you'll be asked whether to share anonymous usage: which DeadKernel features you use, your
+DeadKernel settings, and errors. Never names, IDs, servers, channels or messages. Settings >
+Vencord > Plugins > DeadKernel shows exactly what would be sent, and switches it off.
 
 YOUR FIRST FIVE MINUTES
 - Home (top of the sidebar) is where you start: friends in voice, requests, who's online,

@@ -13,6 +13,7 @@ import {
 } from "@webpack/common";
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
+import { track } from "../core/telemetry";
 import { Column } from "./Column";
 import {
     addFavorite, backOut, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite,
@@ -269,7 +270,7 @@ function DirectSection() {
     return (
         <Section id="direct" label="DMs & mentions" aside={hasMentions && (
             <button className="dk-sb-link" data-dk-nav title="Mark channel mentions read (DMs stay until you open them)"
-                onClick={() => markRead(selectMentionChannels())}>Mark read</button>
+                onClick={() => { track("mark_mentions_read"); markRead(selectMentionChannels()); }}>Mark read</button>
         )}>
             {shown.map(item => item.kind === "dm"
                 ? <ConversationRow key={item.id} id={item.id} />
@@ -381,7 +382,7 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
     const guild = GuildStore.getGuild(place.guildId);
     return (
         <button className="dk-sb-return" data-dk-nav
-            onClick={() => { drillIn(); NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`); }}
+            onClick={() => { track("return_row"); drillIn(); NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`); }}
             title={`Return to ${labelFor(channel)}${guild ? ` · ${guild.name}` : ""}`}>
             <span className="dk-sb-icon dk-sb-hash" aria-hidden>↩</span>
             <span className="dk-sb-name">Return to {labelFor(channel)}</span>
@@ -393,7 +394,7 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
 /** The way back to Home from anywhere: who's in voice, who's around, recent DMs. */
 function HomeRow({ selected }: { selected: boolean; }) {
     return (
-        <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>⌂</span>} label="Home" selected={selected} onClick={openFriends} />
+        <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>⌂</span>} label="Home" selected={selected} onClick={() => { track("home_row"); openFriends(); }} />
     );
 }
 
