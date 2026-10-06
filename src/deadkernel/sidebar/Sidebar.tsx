@@ -14,7 +14,7 @@ import {
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import {
-    addFavorite, backOut, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite, navState, noteRoute,
+    addFavorite, backOut, drillIn, getFavorites, guildChannelIds, guildSignal, isFavorite, labelFor, markRead, moveFavorite, navState, noteRoute,
     openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, presenceWord, PrivateChannelReadStateStore, removeFavorite,
     sameList, selectDirect, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped, userPresence
 } from "./data";
@@ -335,7 +335,7 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
     const guild = GuildStore.getGuild(place.guildId);
     return (
         <button className="dk-sb-return" data-dk-nav
-            onClick={() => NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`)}
+            onClick={() => { drillIn(); NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`); }}
             title={`Return to ${labelFor(channel)}${guild ? ` · ${guild.name}` : ""}`}>
             <span className="dk-sb-icon dk-sb-hash" aria-hidden>↩</span>
             <span className="dk-sb-name">Return to {labelFor(channel)}</span>

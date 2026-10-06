@@ -898,6 +898,12 @@ rect[mask*="svg-mask-status-streaming"] {
 	display: none !important;
 }
 
+/* Keyboard focus rings: square, a 2px accent line instead of Discord's 4px blue glow */
+.focus-rings-ring {
+	border-radius: 0 !important;
+	box-shadow: 0 0 0 2px var(--hl-accent) !important;
+}
+
 /* Thin, quiet scrollbars */
 ::-webkit-scrollbar-thumb {
 	border-radius: 0 !important;

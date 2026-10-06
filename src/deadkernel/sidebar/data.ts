@@ -97,10 +97,18 @@ export function backOut(guildId: string) {
     emit();
 }
 
-/** Called on every route change: entering a server clears "backed out" for any other server. */
+/** Any click that opens a server drills back in, even if the route doesn't change. */
+export function drillIn() {
+    if (backedOutOf === null) return;
+    backedOutOf = null;
+    emit();
+}
+
+/** Called on every route change. "Backed out" only lasts until you go somewhere else. */
 export function noteRoute(guildId: string | null | undefined, channelId: string | null | undefined) {
     let changed = false;
-    if (guildId && backedOutOf && backedOutOf !== guildId) { backedOutOf = null; changed = true; }
+    const moved = lastPlace?.guildId !== guildId || lastPlace?.channelId !== channelId;
+    if (backedOutOf && moved) { backedOutOf = null; changed = true; }
     if (guildId && channelId && (lastPlace?.guildId !== guildId || lastPlace.channelId !== channelId)) {
         lastPlace = { guildId, channelId };
         changed = true;
@@ -280,6 +288,7 @@ export function openChannel(id: string) {
 }
 
 export function openGuild(guildId: string) {
+    drillIn();
     const last = SelectedChannelStore.getChannelId(guildId);
     if (last) NavigationRouter.transitionTo(`/channels/${guildId}/${last}`);
     else NavigationRouter.transitionToGuild(guildId);

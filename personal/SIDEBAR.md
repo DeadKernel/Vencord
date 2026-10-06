@@ -1,7 +1,8 @@
 # The sidebar: spec
 
-Status: v1, 2026-10-06. Replaces Discord's server rail and channel list with one sidebar.
-Inputs: `DESIGN.md`; Codex (gpt-6-astra) critique round 1; prior-art passes on Slack, Linear,
+Status: v1.1, 2026-10-06. Step 1 (the shell) is built: `src/deadkernel/sidebar/`. Replaces Discord's
+server rail and channel list with one sidebar.
+Inputs: `DESIGN.md`; Codex (gpt-6-astra) critique rounds 1 and 2; prior-art passes on Slack, Linear,
 Arc, Superhuman, Telegram, Element, Zulip, Discord 2023–2026 and third-party clients; a live
 technical survey of Discord's client. The decisions below cite which input drove them.
 
@@ -36,6 +37,26 @@ One glance answers three questions, in this order:
    pointer. *(Codex sort table; Arc pinned vs today.)*
 8. **Breakage falls back to stock Discord.** *(Third-party clients: Ripcord rotted; BetterFolders'
    regex fails today.)*
+
+## Changes from round 2 (Codex), all built
+- Inside a server, Discord's quiet server rail comes back next to the server's channel tree, so
+  every server stays one glance away while you work in one. The top level hides the rail and
+  lists servers itself. (Replaces the "needs you" strip.)
+- "Direct" is renamed **DMs & mentions** (a broadcast ping isn't something you owe a reply).
+  DMs sort first, then channel mentions; newest first in each. No aggregate count.
+- Sections are bounded so Servers never fall off-screen: DMs & mentions shows 5, Messages 8,
+  then "N more".
+- Muted servers stay in place, dimmed; tucking them away is an opt-in setting.
+- Server voice shows only friends: "2 friends in voice".
+- An explicit **Return to #channel · server** row after you hop out of a server.
+- Contrast: secondary text is `#8990b3` (4.7:1), never `#6b7394` (3.1:1). Rows are 32 px,
+  people 24 px, server icons 20 px in their own colours, counts an 18 px chip in a fixed slot.
+- "Older conversations" instead of "quiet". Keyboard: ↑/↓/Home/End move focus; focus never
+  opens or marks anything read.
+- Explicit read actions: "Mark mentions read" (channels only, never DMs) and right-click
+  "Mark as read" on rows and servers, through Discord's own bulk ack.
+
+The layout and visual tables below are the v1 plan; where they differ, the list above wins.
 
 ## Layout
 

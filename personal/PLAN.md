@@ -82,6 +82,15 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   notices). The rail is grey with pink mention dots. The title bar is empty, header buttons
   appear on hover, the composer is flat, the DM list is recent and has no bots.
 - The theme no longer hides anything; Declutter does.
+- **The sidebar (milestone 5's core), 2026-10-06.** He asked for a real layout change, designed
+  from first principles with research and an argument with OpenAI's best model. Research
+  (Slack, Linear, Arc, Superhuman, Telegram, Element, Zulip, Discord 2023–26, third-party
+  clients) and two Codex (gpt-6-astra, via `codex exec` on the box) rounds are summarised in
+  `personal/SIDEBAR.md`. Built as the `Sidebar` plugin: one webpack patch swaps Discord's rail
+  and channel list; Discord's own channel tree is reused inside a server; patch failure or a
+  crash falls back to stock Discord; a live toggle switches back.
+- **Lesson:** never touch Vencord's `React` (or other `@webpack/common` exports) at module
+  load. `React.memo` at top level threw before Vencord started and took every plugin down.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
