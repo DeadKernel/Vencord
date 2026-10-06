@@ -169,6 +169,12 @@ function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean
             )}
             {showRows && hasLive && <div className="dk-sb-rows">{cat.live.map(id => <ChannelRow key={id} id={id} />)}</div>}
             {open && <div className="dk-sb-rows dk-col-quiet">{cat.quiet.map(id => <ChannelRow key={id} id={id} />)}</div>}
+            {/* channels outside any category have no label to carry their "· N" */}
+            {!cat.name && cat.quiet.length > 0 && (
+                <button className="dk-sb-more dk-col-quiet-more" onClick={toggleQuiet} data-dk-nav aria-expanded={open}>
+                    {open ? "Hide quiet" : `· ${cat.quiet.length} quiet`}
+                </button>
+            )}
         </section>
     );
 }

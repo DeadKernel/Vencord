@@ -65,10 +65,16 @@ html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
     width: calc(var(--dk-top-w) + 248px) !important;
 }
 
-/* a thread or search results open beside the chat: the sidebar takes its minimum, so the
-   conversation in the middle keeps a readable width */
-html[data-dk-sidebar]:has([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"]) [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
+/* a thread, search results or the member list beside the chat: the sidebar takes its minimum, so
+   the conversation in the middle keeps a readable width */
+html[data-dk-sidebar]:has([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"], [class*="membersWrap_"]) [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
     --dk-top-w: 240px;
+}
+
+/* the account bar stays under the sidebar, so mute and deafen never move when a column opens */
+html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) > [class*="panels_"] {
+    right: auto !important;
+    width: calc(var(--dk-top-w) - 1px) !important;
 }
 
 html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) [class*="sidebarList__"] {

@@ -448,10 +448,6 @@
     display: none !important;
 }
 
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:focus-within [class*="scrollableContainer_"] {
-    border-top-color: var(--hl-accent, var(--border-focus)) !important;
-}
-
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] :is([class*="buttons_"], [class*="attachWrapper_"]) {
     opacity: 0.35;
     transition: opacity 120ms;

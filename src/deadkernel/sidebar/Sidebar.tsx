@@ -328,7 +328,7 @@ function MessagesSection() {
     const shown = more ? [...recentShown, ...quietShown] : recentShown.slice(0, MESSAGES_MAX);
     const hidden = recentShown.length - Math.min(recentShown.length, MESSAGES_MAX) + quietShown.length;
     return (
-        <Section id="messages" label="Messages" aside={<button className="dk-sb-link" onClick={openFriends} data-dk-nav>Friends</button>}>
+        <Section id="messages" label="Messages">
             {shown.map(id => <ConversationRow key={id} id={id} />)}
             {hidden > 0 && !more && <button className="dk-sb-more" onClick={() => setMore(true)} data-dk-nav>Older conversations · {hidden}</button>}
             {more && <button className="dk-sb-more" onClick={() => setMore(false)} data-dk-nav>Show fewer</button>}
@@ -387,6 +387,13 @@ function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
             <span className="dk-sb-name">Return to {labelFor(channel)}</span>
             {guild && <span className="dk-sb-where">{guild.name}</span>}
         </button>
+    );
+}
+
+/** The way back to Home from anywhere: who's in voice, who's around, recent DMs. */
+function HomeRow({ selected }: { selected: boolean; }) {
+    return (
+        <Row icon={<span className="dk-sb-icon dk-sb-hash" aria-hidden>⌂</span>} label="Home" selected={selected} onClick={openFriends} />
     );
 }
 
@@ -463,6 +470,7 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
             <div className="dk-layer dk-layer-top">
                 <div className="dk-sb-scroll" ref={scroller}>
                     <JumpRow />
+                    <HomeRow selected={!routeGuildId && !selectedChannelId} />
                     <ReturnRow routeGuildId={routeGuildId} />
                     <DirectSection />
                     <FavoritesSection />

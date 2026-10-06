@@ -52,7 +52,8 @@ if (cmd === "reset") {
 	console.log(seen.slice(-20).join("\n\n") || "nothing");
 } else if (cmd === "eval") {
 	const r = await send("Runtime.evaluate", { expression: arg, awaitPromise: true, returnByValue: true });
-	if (r.exceptionDetails) console.error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
+	// a failed eval must fail the command, so `cdp eval … && next` never runs `next` after an error
+	if (r.exceptionDetails) { console.error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text); process.exit(1); }
 	else console.log(typeof r.result.value === "string" ? r.result.value : JSON.stringify(r.result.value, null, 1));
 } else if (cmd === "shot") {
 	if (w) await send("Emulation.setDeviceMetricsOverride", { width: +w, height: +h, deviceScaleFactor: 1, mobile: false });

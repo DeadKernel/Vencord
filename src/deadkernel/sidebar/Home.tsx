@@ -16,7 +16,7 @@ import {
 import type { ComponentType } from "react";
 
 import { getFavorites, joinVoice, labelFor, openChannel, snowflakeTime } from "./data";
-import { nameOf, occupants, openDm, voiceFlags, VoiceMembers } from "./voice";
+import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
 const RECENT_DAYS = 30;
@@ -76,7 +76,6 @@ function useCalls() {
 function CallBlock({ channelId, friends }: { channelId: string; friends: string[]; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(channelId), [channelId]);
     const everyone = useStateFromStores([VoiceStateStore], () => occupants(channelId).length, [channelId]);
-    const live = useStateFromStores([VoiceStateStore, ApplicationStreamingStore], () => occupants(channelId).filter(u => voiceFlags(u).live).length, [channelId]);
     const mine = useStateFromStores([VoiceStateStore], () => VoiceStateStore.isInChannel(channelId), [channelId]);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
@@ -88,7 +87,6 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
                     <span className="dk-sb-icon dk-sb-hash" aria-hidden>♪</span>
                     <span className="dk-home-name">{guild ? channel.name : labelFor(channel)}</span>
                     <span className="dk-home-dim">{guild ? guild.name : "call"}</span>
-                    {live > 0 && <span className="dk-vc-live">{live > 1 ? `${live} live` : "live"}</span>}
                     <span className="dk-home-dim dk-home-time">{count}</span>
                 </button>
                 {mine
