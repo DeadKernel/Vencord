@@ -1,0 +1,376 @@
+/* Sidebar: personal/SIDEBAR.md "Visual spec". Colours are the theme's tokens with Discord fallbacks.
+   Contrast on #252836: text #a6accd ≈ 6.3:1, secondary #8990b3 ≈ 4.7:1 (the floor for 11–13px). */
+
+/* top level: no rail column; the sidebar takes the whole width. Inside a server the rail returns. */
+html[data-dk-sidebar]:not([data-dk-drilled]) {
+    --custom-guild-list-width: 0px;
+}
+
+.dk-sb {
+    --dk-bg: var(--hl-bg-raised, var(--background-base-lower));
+    --dk-hover: var(--hl-hover, var(--background-mod-subtle));
+    --dk-border: var(--hl-border, var(--border-subtle));
+    --dk-text: var(--hl-text, var(--text-default));
+    --dk-text-2: var(--hl-text-2, var(--text-muted));
+    --dk-strong: var(--hl-text-strong, var(--text-strong));
+    --dk-accent: var(--hl-accent, var(--text-brand));
+    --dk-accent-15: var(--hl-accent-15, var(--background-modifier-selected));
+    --dk-pink: var(--hl-pink, var(--status-danger));
+    --dk-teal: var(--hl-teal, var(--status-positive));
+    --dk-yellow: var(--hl-yellow, var(--status-warning));
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: var(--dk-bg);
+    color: var(--dk-text);
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.dk-sb button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dk-sb button:focus-visible {
+    outline: 2px solid var(--dk-accent);
+    outline-offset: -2px;
+}
+
+/* Jump to… (Discord's quick switcher) */
+.dk-sb-jump {
+    flex: none;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    margin: 12px 12px 4px;
+    height: 32px;
+    padding: 0 10px !important;
+    border: 1px solid var(--dk-border) !important;
+    background: var(--hl-bg, var(--background-base-lowest)) !important;
+    color: var(--dk-text-2) !important;
+    transition: border-color 80ms, color 80ms;
+}
+
+.dk-sb-jump:hover {
+    border-color: var(--hl-bg-active, var(--border-strong)) !important;
+    color: var(--dk-text) !important;
+}
+
+.dk-sb-jump kbd {
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+}
+
+.dk-sb-scroll {
+    flex: 1;
+    overflow: hidden auto;
+
+    /* Discord's account and call panels float over the bottom of the sidebar */
+    padding-bottom: calc(var(--custom-app-panels-height, 58px) + 12px);
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.dk-sb-scroll:hover {
+    scrollbar-color: var(--hl-bg-hover, var(--scrollbar-thin-thumb)) transparent;
+}
+
+/* Sections: 28px label, 8px between sections */
+.dk-sb-section + .dk-sb-section,
+.dk-sb-return + .dk-sb-section {
+    margin-top: 8px;
+}
+
+.dk-sb-section:first-child {
+    margin-top: 4px;
+}
+
+.dk-sb-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    padding: 0 12px;
+}
+
+.dk-sb-label-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: -14px;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-label-toggle:hover {
+    color: var(--dk-text) !important;
+}
+
+.dk-sb-caret {
+    width: 10px;
+    font-size: 9px;
+    opacity: 0;
+    transition: opacity 80ms;
+}
+
+.dk-sb-label:hover .dk-sb-caret,
+.dk-sb-label-toggle:focus-visible .dk-sb-caret,
+.dk-sb-section[data-closed] .dk-sb-caret {
+    opacity: 1;
+}
+
+.dk-sb-link {
+    font-size: 11px !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-link:hover {
+    color: var(--dk-accent) !important;
+}
+
+/* Rows: 32px, whole row clickable; name, then where (muted), then a fixed trailing slot */
+.dk-sb-row,
+.dk-sb-return {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 32px;
+    padding: 0 10px 0 12px !important;
+    white-space: nowrap;
+    color: var(--dk-text) !important;
+    transition: background-color 80ms;
+}
+
+.dk-sb-return {
+    margin-top: 4px;
+    color: var(--dk-accent) !important;
+}
+
+.dk-sb-row:hover,
+.dk-sb-return:hover {
+    background: var(--dk-hover) !important;
+}
+
+.dk-sb-row.dk-unread {
+    color: var(--dk-strong) !important;
+    font-weight: 600;
+}
+
+.dk-sb-row.dk-muted,
+.dk-sb-row.dk-unavailable {
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-row.dk-selected {
+    color: var(--dk-accent) !important;
+    background: var(--dk-accent-15) !important;
+    box-shadow: inset 2px 0 0 var(--dk-accent);
+}
+
+.dk-sb-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dk-sb-row.dk-unavailable .dk-sb-name {
+    font-style: italic;
+}
+
+.dk-sb-where {
+    flex: 0 100 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--dk-text-2);
+}
+
+.dk-sb-trail {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 36px;
+    margin-left: auto;
+}
+
+.dk-sb-meta {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--dk-text-2);
+}
+
+.dk-sb-meta.dk-live {
+    color: var(--dk-teal);
+}
+
+.dk-sb-count {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+    color: var(--hl-bg, #1b1e28);
+    background: var(--dk-pink);
+}
+
+.dk-sb-dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    background: var(--dk-strong);
+}
+
+.dk-sb-row.dk-selected .dk-sb-dot {
+    background: var(--dk-accent);
+}
+
+/* Icons: people 24px squares with an 8px status square; servers 20px, in their own colours */
+.dk-sb-icon {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+}
+
+.dk-sb-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dk-sb-server {
+    width: 20px;
+    height: 20px;
+    margin: 0 2px;
+}
+
+.dk-sb-glyph {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--dk-text);
+    background: var(--hl-bg-hover, var(--background-mod-normal));
+}
+
+.dk-sb-server .dk-sb-glyph {
+    font-size: 9px;
+}
+
+.dk-sb-hash {
+    font-weight: 400;
+    color: var(--dk-text-2);
+}
+
+.dk-sb-status {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 0 1px var(--dk-bg);
+}
+
+.dk-sb-status.dk-online { background: var(--dk-teal); }
+.dk-sb-status.dk-idle { background: var(--dk-yellow); }
+.dk-sb-status.dk-dnd { background: var(--dk-pink); }
+.dk-sb-status.dk-streaming { background: var(--dk-accent); }
+
+.dk-sb-foldericon {
+    font-size: 9px;
+    color: var(--dk-text-2);
+    background: var(--hl-bg, var(--background-base-lowest));
+}
+
+.dk-sb-folder[data-open] > .dk-sb-row:not(:first-child) {
+    padding-left: 24px !important;
+}
+
+/* Quiet things */
+.dk-sb-more {
+    display: block;
+    width: 100%;
+    height: 28px;
+    padding: 0 12px 0 44px !important;
+    font-size: 11px !important;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-more:hover {
+    color: var(--dk-text) !important;
+    background: var(--dk-hover) !important;
+}
+
+.dk-sb-empty {
+    margin: 0;
+    padding: 4px 12px 4px 44px;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--dk-text-2);
+}
+
+/* Inside a server: the rail is back; a slim "All servers" row above Discord's own channel tree */
+.dk-sb-back {
+    flex: none;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--dk-text-2) !important;
+}
+
+.dk-sb-back:hover {
+    color: var(--dk-accent) !important;
+}
+
+.dk-sb-guild-tree {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--dk-border);
+}
+
+.dk-sb-guild-tree > * {
+    flex: 1;
+    min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dk-sb * {
+        transition: none !important;
+    }
+}

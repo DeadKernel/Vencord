@@ -155,7 +155,7 @@
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="wrapper_"]:has([class*="total_"]),
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="users_"],
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] > [class*="text-xs"],
-[data-dk-layout~="quietSidebar"] #channels [class*="mainContainer_"] > [class*="imageContainer_"],
+[data-dk-layout~="quietSidebar"] #channels [class*="mainContainer_"]:has(> [class*="imageContainer_"]),
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="numberBadge_"]:not([style*="--status-danger"], [style*="feedback-notification"]) {
     display: none !important;
 }
