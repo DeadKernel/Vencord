@@ -11,12 +11,13 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ChannelStore, GuildStore, IconUtils, React, ReadStateStore, RelationshipStore, SelectedChannelStore, UserStore, useState, useStateFromStores, VoiceStateStore
+    ChannelStore, GuildStore, IconUtils, React, ReadStateStore, RelationshipStore, SelectedChannelStore, useEffect, UserStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
 import { track } from "../core/telemetry";
 import { actionsFor, RowActions } from "./actions";
+import { callStart, CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
 import {
     addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
     snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites
@@ -111,6 +112,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
     const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
     const selected = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getChannelId() === id, [id]);
     const people = useStateFromStores([VoiceStateStore], () => occupants(id).join(","), [id]);
+    const since = useStateFromStores(voiceStartStore() ? [voiceStartStore()] : [], () => channel ? callStart(channel) : undefined, [channel]);
     const threadIds = useStateFromStores([ChannelListStore, ReadStateStore], () => {
         if (!threads || !channel) return "";
         const row = ChannelListStore.getGuildWithoutChangingGuildActionRows(channel.guild_id)?.guildChannels?.getChannel?.(id);
@@ -137,7 +139,9 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     <IconSlot name={glyph(channel)} />
                     <span className="dk-sb-name">{channel.name}</span>
                     <span className="dk-sb-trail">
-                        {voice && users.length > 0 && <span className="dk-sb-meta dk-live">· {users.length}</span>}
+                        {voice && users.length > 0 && (since
+                            ? <CallTimer since={since} className="dk-sb-meta dk-live" title={`${users.length} in call · going for`} />
+                            : <span className="dk-sb-meta dk-live">· {users.length}</span>)}
                         {mentions > 0 ? <span className="dk-sb-count">@{mentions > 99 ? "99+" : mentions}</span> : null}
                     </span>
                 </button>
@@ -189,6 +193,8 @@ export function Column({ guildId, selectedChannelId, GuildSidebar, onBack }: {
     onBack(): void;
 }) {
     const guild = useStateFromStores([GuildStore], () => GuildStore.getGuild(guildId), [guildId]);
+    // voice calls' running time: Discord asks for a server's start times when its channel list shows; so do we
+    useEffect(() => { requestStartTimes([guildId]); }, [guildId]);
     const { showAll } = settings.use(["showAll", "opened"]);
     // the model reads favourites and the opened log, which aren't Discord stores: recompute on them too
     const favKey = useFavorites().map(f => f.id).join(",");

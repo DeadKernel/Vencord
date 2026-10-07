@@ -16,9 +16,10 @@ import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react"
 import { track } from "../core/telemetry";
 import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
+import { CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
 import { Column } from "./Column";
 import {
-    addFavorite, backOut, callChannel, DirectItem, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
+    addFavorite, backOut, callChannel, DirectItem, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, Meta, moveFavorite,
 moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, PrivateChannelReadStateStore,
     removeFavorite, rowMeta, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
@@ -42,7 +43,7 @@ const MESSAGES_MAX = 8;
 
 // Stores that change a row's presence word or a server's signal. Functions, because Vencord's
 // common stores resolve lazily and must not be read at module load.
-const liveStores = () => [PresenceStore, VoiceStateStore, ApplicationStreamingStore];
+const liveStores = () => [PresenceStore, VoiceStateStore, ApplicationStreamingStore, ...(voiceStartStore() ? [voiceStartStore()] : [])];
 const guildStores = () => [GuildReadStateStore, UserGuildSettingsStore, RelationshipStore, VoiceStateStore];
 
 /** The server the sidebar is showing, or null for the top level. */
@@ -74,7 +75,7 @@ interface RowProps {
     icon?: ReactNode;
     label: string;
     where?: string;
-    meta?: { text: string; live: boolean; } | null;
+    meta?: Meta | null;
     count?: number;
     mention?: boolean;
     dot?: boolean;
@@ -109,7 +110,9 @@ function Row(p: RowProps) {
             {p.where && <span className="dk-sb-where">{p.where}</span>}
             <span className="dk-sb-trail">
                 {p.draft && <span className="dk-sb-draft" title="Unsent draft"><Icon name="pencil" size={14} /></span>}
-                {p.meta && <span className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={p.meta.text}>{p.meta.text}</span>}
+                {p.meta && (p.meta.since
+                    ? <CallTimer since={p.meta.since} className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={`${p.meta.text} · going for`} />
+                    : <span className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={p.meta.text}>{p.meta.text}</span>)}
                 {countText ? <span className="dk-sb-count">{countText}</span> : p.dot ? <span className="dk-sb-dot" /> : null}
             </span>
         </button>
@@ -311,6 +314,10 @@ function FavoritesSection() {
         .flatMap(f => occupants(f.id)).sort().join(","), [key]);
     const listed = new Set(inCalls ? inCalls.split(",") : []);
     const drag = useDragReorder("favorite", dropFavorite);
+    // how long each favourite voice channel's call has been going: Discord's per-server request, once
+    useEffect(() => {
+        requestStartTimes(list.map(f => ChannelStore.getChannel(f.id)).filter(c => isVoiceChannel(c) && c?.guild_id).map(c => c!.guild_id));
+    }, [key]);
     return (
         <Section id="favorites" label="Favorites">
             {list.length

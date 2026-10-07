@@ -20,6 +20,7 @@ UserStore, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 
 import { track } from "../core/telemetry";
+import { callStart } from "./calltimer";
 
 export interface Favorite {
     id: string;
@@ -321,10 +322,16 @@ export function userPresence(userId: string): Presence {
     return (PresenceStore.getStatus(userId) ?? "offline") as Presence;
 }
 
-/** "in voice", "streaming", or "voice · N" for a group call; nothing for playing a game. */
-export function presenceWord(channel: Channel): { text: string; live: boolean; } | null {
+export type Meta = { text: string; live: boolean; since?: number; };
+
+/** "in voice", "streaming", or "voice · N" for a group call; nothing for playing a game. A server
+ * voice channel's call shows how long it's been going (`since`) when Discord knows. */
+export function presenceWord(channel: Channel): Meta | null {
     const inCall = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id) ?? {}).length;
-    if (inCall) return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true };
+    if (inCall) {
+        const since = channel.guild_id ? callStart(channel) : undefined;
+        return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true, ...(since && { since }) };
+    }
     if (channel.type !== 1) return null;
     const uid = channel.recipients[0];
     if (ApplicationStreamingStore.getAnyStreamForUser(uid)) return { text: "streaming", live: true };
@@ -346,7 +353,7 @@ export function activityOf(uid: string): string | null {
 
 /** The dim words at a conversation row's right: someone typing to you first, then calls and
  * streams, then (people only) what they're doing. Static text, never animated. */
-export function rowMeta(channel: Channel): { text: string; live: boolean; } | null {
+export function rowMeta(channel: Channel): Meta | null {
     if (channel.type === 1 || channel.type === 3) {
         const me = UserStore.getCurrentUser()?.id;
         const typing = Object.keys(TypingStore.getTypingUsers(channel.id) ?? {}).filter(u => u !== me);

@@ -30,6 +30,21 @@ interface Notice { id: string; title: string; body: string; url?: string; until?
 
 const timers: number[] = [];
 
+/** Stock Vencord plugins this build switches on, once each: turned off later, they stay off.
+ * (Patches apply from the next start.) CallTimer: how long you've been in a call, in the
+ * Voice Connected panel. */
+const DEFAULT_ON = ["CallTimer"];
+
+function applyDefaults() {
+    const done = [...settings.store.defaultsOn];
+    for (const name of DEFAULT_ON) {
+        if (done.includes(name) || !VencordSettings.plugins[name]) continue;
+        VencordSettings.plugins[name].enabled = true;
+        done.push(name);
+    }
+    if (done.length !== settings.store.defaultsOn.length) settings.store.defaultsOn = done;
+}
+
 /** Asked once, ten seconds in, and only by builds that can actually send. */
 function askConsent() {
     if (settings.store.askedConsent || !canSend()) return;
@@ -93,6 +108,7 @@ export default definePlugin({
     taskbarClick,
 
     start() {
+        applyDefaults();
         startTelemetry();
         if (settings.store.taskbar) startTaskbar();
         timers.push(

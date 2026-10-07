@@ -89,6 +89,11 @@ Home answers "what are my people doing", in one column at reading width:
    **Join**. Under it, everyone in the call, one 28px line each: friends first (clicking one opens
    your DM), then streamers, then the rest, with "live", "cam" and "muted"/"deafened" as dim words.
    Calls he's in come first, then calls in favourited channels or with favourite people.
+   *(2026-10-07)* A server voice call shows how long it's been going ("12:04", "1:02:45"),
+   ticking, in place of "N in call" (the count moves to the tooltip). Here, on favourite voice
+   rows and in the column. It's Discord's own start time (VoiceChannelStartTimeStore), loaded by
+   Discord's once-per-server request (`sidebar/calltimer.tsx`). DM calls keep "in call". Vencord's
+   stock CallTimer (your own time in the Voice Connected panel) is switched on once by the build.
    In the sidebar, a favourited voice channel lists who's in it the same way, and a favourite
    person already listed there isn't shown twice.
 2. **Requests** (hidden when empty): friend requests (pink count; opens Discord's Pending tab in

@@ -35,5 +35,7 @@ export const settings = definePluginSettings({
     askedConsent: { type: OptionType.CUSTOM, default: false },
     /** random, not tied to the Discord account; reset from the preview */
     installId: { type: OptionType.CUSTOM, default: "" },
-    seenNotices: { type: OptionType.CUSTOM, default: [] as string[] }
+    seenNotices: { type: OptionType.CUSTOM, default: [] as string[] },
+    /** stock Vencord plugins this build has switched on once (index.tsx DEFAULT_ON) */
+    defaultsOn: { type: OptionType.CUSTOM, default: [] as string[] }
 });

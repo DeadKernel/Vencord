@@ -422,6 +422,16 @@ try {
 		C.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: window.__dkVoice.ids.map((u, i) => ({ userId: u, channelId: vc.id, guildId: vc.guild_id, sessionId: "dk-test-" + u, selfMute: i === 1, selfDeaf: false, selfVideo: false, selfStream: i === 0, mute: false, deaf: false, suppress: false })) });`);
 	check("Home lists the call", await until(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"]')`, 1500));
 	check("…with who's in it, and who's live or muted", await js(`const b = document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"]'); return b.querySelectorAll(".dk-home-member").length === 2 && !!b.querySelector(".dk-vc-live") && !!b.querySelector(".dk-vc-off")`));
+	// how long it's been going: Discord's start time for the channel, set locally here to 75s ago (restored at the end)
+	await js(`const S = Vencord.Webpack.find(Vencord.Webpack.filters.byStoreName("VoiceChannelStartTimeStore"), { isIndirect: true }); const vc = ${C}.ChannelStore.getChannel(${JSON.stringify(t.voice)});
+		window.__dkStart = { g: vc.guild_id, id: vc.id, was: S.getStartTime(vc) ?? null };
+		${C}.FluxDispatcher.dispatch({ type: "VOICE_CHANNEL_START_TIME_UPDATE", guildId: vc.guild_id, id: vc.id, voiceStartTime: Math.floor((Date.now() - 75000) / 1000) });`); // Discord sends seconds
+	const homeTimer = `document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] [data-dk-timer]')`;
+	check("the call shows how long it's been going, on Home and in the sidebar", await until(`/^1:1[0-9]$/.test(${homeTimer}?.textContent ?? "") && [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].every(r => r.querySelector("[data-dk-timer]"))`, 2500),
+		await js(`return (${homeTimer}?.textContent ?? "none") + " / " + ([...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].map(r => r.querySelector("[data-dk-timer]")?.textContent ?? "none").join(",") || "no row")`));
+	const before = await js(`return ${homeTimer}?.textContent`);
+	await sleep(1300);
+	check("…and it ticks", await js(`return ${homeTimer}?.textContent`) !== before);
 	await block(true);
 	await rec();
 	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-main').click()`);
@@ -489,6 +499,7 @@ try {
 	await block(false);
 
 } finally {
+	await js(`if (window.__dkStart) { const v = window.__dkStart; ${C}.FluxDispatcher.dispatch({ type: "VOICE_CHANNEL_START_TIME_UPDATE", guildId: v.g, id: v.id, voiceStartTime: v.was ? Math.floor(v.was / 1000) : undefined }); delete window.__dkStart; }`).catch(() => {});
 	await js(`if (window.__dkVoice) { const v = window.__dkVoice; ${C}.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: v.ids.map(u => ({ userId: u, channelId: null, guildId: v.g, sessionId: "dk-test-" + u })) }); delete window.__dkVoice; }`).catch(() => {});
 	// ── restore: recorders off, settings back, compare ──
 	await js(`window.__dk?.restore.forEach(f => f()); delete window.__dk;`).catch(() => {});

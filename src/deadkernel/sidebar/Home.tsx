@@ -16,6 +16,7 @@ import {
 import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
+import { callStart, CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
 import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
 import { digestDmIds, ForYou } from "./digest";
 import { Icon, IconSlot } from "./icons";
@@ -60,6 +61,7 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(channelId), [channelId]);
     const everyone = useStateFromStores([VoiceStateStore], () => occupants(channelId).length, [channelId]);
     const mine = useStateFromStores([VoiceStateStore], () => VoiceStateStore.isInChannel(channelId), [channelId]);
+    const since = useStateFromStores(voiceStartStore() ? [voiceStartStore()] : [], () => channel ? callStart(channel) : undefined, [channel]);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
     const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
@@ -70,7 +72,10 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
                     <IconSlot name="voice" />
                     <span className="dk-home-name">{guild ? channel.name : labelFor(channel)}</span>
                     <span className="dk-home-dim">{guild ? guild.name : "call"}</span>
-                    <span className="dk-home-dim dk-home-time">{count}</span>
+                    {/* how long it's been going (who's in it is listed right below); the count if Discord doesn't know */}
+                    {since
+                        ? <CallTimer since={since} className="dk-home-dim dk-home-time dk-home-timer" title={count} />
+                        : <span className="dk-home-dim dk-home-time">{count}</span>}
                 </button>
                 {mine
                     ? <span className="dk-home-here">you're here</span>
@@ -131,6 +136,8 @@ function RecentRow({ id }: { id: string; }) {
 export function Home({ Original, initialSection, ...rest }: { Original: ComponentType<any>; initialSection?: string; }) {
     const [discord, setDiscord] = useState<string | null>(null);
     const calls: [string, string[]][] = JSON.parse(useCalls());
+    const callGuilds = calls.map(([cid]) => ChannelStore.getChannel(cid)?.guild_id).filter(Boolean).join(",");
+    useEffect(() => { if (callGuilds) requestStartTimes(callGuilds.split(",")); }, [callGuilds]);
     const online = useOnline();
     const recent = useStateFromStores([PrivateChannelSortStore, ReadStateStore], () => {
         const cutoff = Date.now() - RECENT_DAYS * 864e5;
