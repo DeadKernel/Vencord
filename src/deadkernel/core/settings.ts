@@ -13,7 +13,7 @@ import { TelemetryPreview } from "./TelemetryPreview";
 export const settings = definePluginSettings({
     telemetry: {
         type: OptionType.BOOLEAN,
-        description: "Share anonymous usage with Aditya: which DeadKernel features you use, your DeadKernel settings, and errors. Never names, IDs, servers, channels or messages.",
+        description: "Share anonymous usage with Aditya: which of his changes you use, how you've set them, and errors. Never names, IDs, servers, channels or messages.",
         default: false
     },
     preview: {
@@ -28,7 +28,7 @@ export const settings = definePluginSettings({
     },
     notices: {
         type: OptionType.BOOLEAN,
-        description: "Show announcements about new DeadKernel builds",
+        description: "Show announcements about new builds",
         default: true
     },
     /** asked once, on the first start */

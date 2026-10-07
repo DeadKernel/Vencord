@@ -7,6 +7,8 @@
 // DeadKernel's link home: updates through GitHub releases, announcements, and opt-in telemetry.
 // personal/RELEASING.md. Everything here is read-only towards Discord: it never touches the
 // account, and its only network calls are in native.ts.
+// Soft branding: the app is called Accord only where Windows lists it (Start Menu, taskbar,
+// installer: the Vesktop fork's brand.json). Inside, it's Discord: no product name in any text here.
 
 import { showNotification } from "@api/Notifications";
 import { Settings as VencordSettings } from "@api/Settings";
@@ -32,8 +34,8 @@ const timers: number[] = [];
 function askConsent() {
     if (settings.store.askedConsent || !canSend()) return;
     Alerts.show({
-        title: "Help shape DeadKernel?",
-        body: "Share anonymous usage with Aditya: which DeadKernel features you use, your DeadKernel settings, and any errors. "
+        title: "Share anonymous usage with Aditya?",
+        body: "Which of his changes you use, how you've set them, and any errors. "
             + "Never names, IDs, servers, channels or messages. Settings > Vencord > Plugins > DeadKernel shows exactly what's sent, "
             + "and turns it off.",
         confirmText: "Share",
@@ -73,9 +75,9 @@ async function checkUpdate() {
         const what = changes?.[0]?.message ?? "A new build is ready";
         if (VencordSettings.autoUpdate) {
             await update();
-            showNotification({ title: "DeadKernel updated", body: `${what}. Click to restart.`, permanent: true, onClick: relaunch });
+            showNotification({ title: "Update installed", body: `${what}. Click to restart.`, permanent: true, onClick: relaunch });
         } else {
-            showNotification({ title: "A DeadKernel update is available", body: `${what}. Settings > Vencord > Updater.`, permanent: true });
+            showNotification({ title: "An update is available", body: `${what}. Settings > Vencord > Updater.`, permanent: true });
         }
     } catch { /* offline or rate-limited: try next time */ }
 }

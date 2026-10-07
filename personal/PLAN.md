@@ -122,6 +122,17 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   Vesktop's custom tray slot. Its own app id is `DeadKernel.Discord`, and a Start Menu shortcut
   "Discord (DeadKernel)" runs `vesktop-dev.ps1`. Windows takes notification names and pinned
   buttons from that shortcut. Friends on stock Vesktop keep Vesktop's icon.
+- **Accord, 2026-10-07.** He wanted it shipped as its own thing, with soft branding: tell it
+  apart from the regular Discord app, but inside it's only Discord. Name: Accord (the opposite of
+  discord). It's the Vesktop fork packaged as a per-user Windows installer under that name, the
+  recoloured Discord logo, and app id DeadKernel.Accord. It skips Vesktop's setup window, leaves
+  discord:// links to the real app, and loads this repo's releases. Daily `dk-sync.yml` in both
+  forks folds in upstream and ships it when the tests pass; `main` is now the shipping branch.
+  personal/RELEASING.md.
+- **Screen share picker, 2026-10-07.** It took 3.5s to open: Windows' capture API fails on hidden
+  helper windows (NVIDIA Broadcast, Razer) at about a second each, and the preview step captured
+  everything again. Now names and icons open it in ~0.3s and thumbnails fill in
+  (`personal/tools/picker-timing.mjs`).
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 

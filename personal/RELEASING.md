@@ -1,12 +1,33 @@
 # Releasing DeadKernel to friends
 
-Three channels, all one-way from us to their clients except telemetry, which is opt-in.
+Friends install **Accord** (`Accord-Setup.exe`): the Vesktop fork (DeadKernel/Vesktop) packaged
+under its own name and icon. Soft branding: "Accord" is only what Windows shows (Start Menu,
+taskbar, notification headers, installer); inside it's Discord, and no text in the app names it.
+Two layers, each updating itself from its own repo's releases:
+
+- the app shell (Electron, screen share, tray): **DeadKernel/Vesktop** releases `v<version>`,
+  via electron-updater. The name and app id live in that repo's `brand.json`.
+- the redesign (these plugins in a standalone Vencord build): **DeadKernel/Vencord** releases
+  `dk-<date>.<n>`, via Vencord's own updater. Accord downloads it on first run.
+
+**`main` is the shipping branch** in both forks: work happens there, and GitHub only schedules
+workflows from it. Each fork's `dk-sync.yml` runs daily: Vencord's merges upstream Vencord's main
+(where fixes for Discord's changes land) and Vesktop's merges upstream's latest release. Either
+ships only if the merge is clean and the tests pass, else the run fails, GitHub emails, and main
+is untouched. **Pull before you push**: the sync may have added a merge commit to main.
+
+App releases: `git tag -a v2026.1007.2 -m "..." && git push origin v2026.1007.2` in the Vesktop
+fork (year . month*100+day . n). `dk-app.yml` builds the installer on Windows and publishes it.
+The installer isn't code-signed, so Windows SmartScreen warns once (More info > Run anyway).
+
+Four channels, all one-way from us to their clients except telemetry, which is opt-in.
 
 ## 1. Releases (updates)
 
-Friends run stock Vesktop with **Vencord Location** pointed at the unzipped DeadKernel folder.
-Those files are a standalone Vencord build whose updater watches **DeadKernel/Vencord**'s latest
-GitHub release (Vencord's own HTTP updater, `src/main/updater/http.ts`).
+The redesign's files are a standalone Vencord build whose updater watches **DeadKernel/Vencord**'s
+latest GitHub release (Vencord's own HTTP updater, `src/main/updater/http.ts`). Accord loads them
+from its data folder; friends on the old route (stock Vesktop with **Vencord Location** pointed at
+the unzipped DeadKernel folder) get the same files and the same updates.
 
 To ship a build:
 

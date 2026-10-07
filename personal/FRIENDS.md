@@ -1,4 +1,4 @@
-DeadKernel: a quieter Discord (early build for a few friends; build date in the folder name)
+Accord: a quieter Discord (early build for a few friends)
 
 Aditya's redesign of the Discord desktop app, built on Vesktop and Vencord. It changes how
 Discord looks and is laid out. It doesn't send or store anything outside your machine.
@@ -8,21 +8,25 @@ This is a client mod. Mods are against Discord's terms of service. Bans for pure
 are rare, but you'd be running it on your real account, so decide for yourself. It doesn't do
 anything on your account by itself: every action is a click you make.
 
-INSTALL (about 2 minutes; tested on Windows, Mac untested)
-1. Install Vesktop from https://vesktop.dev and log in as usual.
-2. Download DeadKernel.zip from https://github.com/DeadKernel/Vencord/releases/latest and unzip
-   it somewhere it can stay (e.g. Documents\DeadKernel).
-3. In Vesktop: Settings > Vesktop Settings > Developer Options > Vencord Location > Change,
-   pick the unzipped DeadKernel folder, and restart Vesktop.
-To undo: the same setting > Reset, and restart. The regular Discord app is never touched.
+INSTALL (Windows, about a minute)
+1. Download Accord-Setup.exe from https://github.com/DeadKernel/Vesktop/releases/latest
+2. Run it. Windows will say "Windows protected your PC" because the app isn't signed (signing
+   costs money): More info > Run anyway.
+3. Log in to Discord as usual.
+It installs next to the regular Discord app without touching it, and discord:// links still open
+the regular app. In the Start Menu and on the taskbar it's "Accord", with Discord's logo in light
+blue, so you can tell the two apart. Inside, it's just Discord. To remove it: Windows Settings >
+Apps > Accord.
+Already running Vesktop with the DeadKernel folder (the old way)? That keeps working and updating.
 
 UPDATES
-New builds install themselves: when one is out you'll see "updated, click to restart". Now and
-then a short announcement about a new build shows up as a notification.
+Everything updates itself. The redesign: when a new build is out you'll see "Update installed,
+click to restart". The app itself: now and then it offers an update in a small window. Fixes for
+Discord's own changes usually arrive within a day, without you doing anything.
 
 TELEMETRY (only if you say yes)
-Once, you'll be asked whether to share anonymous usage: which DeadKernel features you use, your
-DeadKernel settings, and errors. Never names, IDs, servers, channels or messages. Settings >
+Once, you'll be asked whether to share anonymous usage: which of Aditya's changes you use, how
+you've set them, and errors. Never names, IDs, servers, channels or messages. Settings >
 Vencord > Plugins > DeadKernel shows exactly what would be sent, and switches it off.
 
 YOUR FIRST FIVE MINUTES
