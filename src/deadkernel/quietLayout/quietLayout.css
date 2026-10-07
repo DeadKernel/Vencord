@@ -317,6 +317,9 @@
     font-size: 12px !important;
     font-weight: 400 !important;
     color: var(--hl-text-2, var(--text-muted)) !important;
+
+    /* dimmed by colour already; Discord's opacity on top took it under 4.5:1 */
+    opacity: 1 !important;
 }
 
 [data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="username_"] {

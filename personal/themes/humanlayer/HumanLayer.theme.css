@@ -29,8 +29,8 @@
 	--hl-bg-active: #3a3d4a;
 	--hl-border: #303340;
 	--hl-text: #a6accd;
-	--hl-text-2: #8990b3;
-	--hl-text-muted: #6b7394;
+	--hl-text-2: #949aba;        /* WCAG AA (4.5:1) on page, panels and hovered rows; was #8990b3 */
+	--hl-text-muted: #878ea8;    /* AA on page and panels; was #6b7394 (3.1-3.6:1) */
 	--hl-text-strong: #e4f0fb;
 	--hl-accent: #add7ff;
 	--hl-accent-hover: #5de4c7;
@@ -38,7 +38,7 @@
 	--hl-accent-08: color-mix(in srgb, var(--hl-accent) 8%, transparent);
 	--hl-teal: #5de4c7;
 	--hl-yellow: #fffac2;
-	--hl-pink: #d0679d;
+	--hl-pink: #d26fa2;          /* AA as text on panels; was #d0679d */
 	--hl-pink-bright: #f087bd;
 	--hl-blue: #89ddff;
 	--hl-shade: #0d0f14;           /* overlays and scrims */
@@ -974,4 +974,24 @@ rect[mask*="svg-mask-status-streaming"] {
 	[class*="chatContent_"] {
 		animation: none;
 	}
+}
+
+/* Readable on fills: text on the accent or pink is the page colour. Discord's and Vesktop's white
+   or default text measured 1.5-3.4:1 there (the screen-share picker's selected option, badges) */
+.vcd-screen-picker-option-radio[data-checked="true"],
+.vcd-screen-picker-option-radio[data-checked="true"] *,
+[class*="textBadge_"],
+[class*="numberBadge_"] {
+	color: var(--hl-bg) !important;
+}
+
+/* Discord's red "NEW" badge: the theme's pink, with page-colour text (white on its red was 3.5:1) */
+[class*="newBadge_"] {
+	background: var(--hl-pink) !important;
+	color: var(--hl-bg) !important;
+}
+
+/* the profile popout's "What have you been …?" prompt is meant to be read: secondary, not muted */
+[class*="addStatusPrompt_"] {
+	color: var(--hl-text-2) !important;
 }

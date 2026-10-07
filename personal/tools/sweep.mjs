@@ -7,6 +7,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { auditExpr } from "./contrast-audit.mjs";
+
 const port = process.env.CDP_PORT || "9223";
 const out = process.argv[2] ?? join(process.env.USERPROFILE ?? ".", ".t3", "data", "shots", "sweep");
 mkdirSync(out, { recursive: true });
@@ -78,6 +80,24 @@ const inspect = (sel, scroll = true) => js(`
 	}
 	return { fits, box: [r.left, r.top, r.right, r.bottom].map(Math.round), view: [innerWidth, innerHeight], scrollers: scrollers.length, stuck };`);
 
+/** WCAG text contrast inside the surface (contrast-audit.mjs); disabled controls are exempt. */
+async function contrast(name, sel) {
+	const rows = await js(`return ${auditExpr(sel)}`);
+	const bad = rows.filter(r => r.ratio < r.need && !r.disabled);
+	check(`${name}: text contrast (${rows.length} styles)`, !bad.length,
+		bad.slice(0, 4).map(r => `${r.ratio}:1 ${r.fg} on ${r.bg} "${r.text}" ${r.where}`).join("; "));
+}
+
+/** A view that's always there (sidebar, chat...): contrast only. */
+async function view(name, sel) {
+	try {
+		if (!(await until(sel, 3000))) return check(`${name}: present`, false);
+		await contrast(name, sel);
+	} catch (e) {
+		check(`${name}: no errors while testing`, false, String(e).slice(0, 200));
+	}
+}
+
 async function surface(name, open, sel, close = esc, { scroll = true } = {}) {
 	try {
 		await open();
@@ -88,6 +108,7 @@ async function surface(name, open, sel, close = esc, { scroll = true } = {}) {
 		const i = await inspect(sel, scroll);
 		check(`${name}: fits the window, clear of the title bar`, i.fits && (i.box[1] >= 30 || i.box[3] - i.box[1] > innerH(i) - 8), JSON.stringify(i.box) + " in " + JSON.stringify(i.view));
 		if (scroll) check(`${name}: every scroll area reaches its end (${i.scrollers})`, !i.stuck.length, i.stuck.join("; "));
+		await contrast(name, sel);
 		await shot(name.replace(/\W+/g, "-").toLowerCase());
 		await close();
 		await sleep(200);
@@ -142,12 +163,30 @@ await surface("Screen share picker (12 sources)", () => js(`
 `[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Sweep window 0"))`,
 () => js(`[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Sweep window 0"))?.querySelector('[aria-label="Close"], button[class*="close"]')?.click()`));
 
+await surface("Screen share picker: stream settings", async () => {
+	await js(`const c = document.createElement("canvas"); c.width = 320; c.height = 180; c.getContext("2d").fillRect(0, 0, 320, 180);
+		window.__dkSweepPick = window.Vesktop?.Components?.ScreenShare?.openScreenSharePicker([{ id: "window:1:0", name: "Sweep stream", url: c.toDataURL() }], false).catch(() => "closed");`);
+	await until(`[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Sweep stream"))?.querySelector('input[type="radio"]')`, 3000);
+	await js(`[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Sweep stream")).querySelector('input[type="radio"]').click()`);
+}, `[...document.querySelectorAll('[role="dialog"]')].find(d => /Stream Settings/i.test(d.textContent))`,
+() => js(`[...document.querySelectorAll('[role="dialog"]')].find(d => /Stream Settings/i.test(d.textContent))?.querySelector('[aria-label="Close"], button[class*="close"]')?.click()`));
+
+// ── the main views, as they are ──
+await view("Sidebar", `document.querySelector(".dk-sb")`);
+await view("Server column", `document.querySelector(".dk-layer-column")`);
+await view("Chat", `document.querySelector('main[class*="chatContent"], [class*="chatContent_"]')`);
+await view("Header", `document.querySelector('section[class*="title_"]')`);
+await surface("Ctrl K palette", async () => { await key("k", "KeyK", 2, 75); }, `document.querySelector(".dk-pal")`);
+
 // ── settings ──
 await surface("User settings", () => js(`${C}.SettingsRouter.openUserSettings("my_account_panel")`), `[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Vencord Settings"))`);
 await surface("Vencord plugins", () => js(`${C}.SettingsRouter.openUserSettings("vencord_plugins_panel")`), `[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Vencord Settings"))`);
+for (const [label, panel] of [["Appearance settings", "appearance_panel"], ["Voice & Video settings", "voice_and_video_panel"], ["Notifications settings", "notifications_panel"]])
+	await surface(label, () => js(`${C}.SettingsRouter.openUserSettings(${JSON.stringify(panel)})`), `[...document.querySelectorAll('[role="dialog"]')].find(d => d.textContent.includes("Vencord Settings"))`);
 
 // ── Discord's own Friends page in place (Home › All friends) ──
 await go("/channels/@me");
+await view("Home", `document.querySelector(".dk-home")`);
 await surface("Friends page", () => js(`document.querySelector('[data-dk-action="all-friends"]')?.click()`), `document.querySelector(".dk-home-discord")`, () => js(`document.querySelector(".dk-home-back")?.click()`));
 
 await sleep(300);
