@@ -14,7 +14,7 @@ import { showNotification } from "@api/Notifications";
 import { Settings as VencordSettings } from "@api/Settings";
 import { relaunch } from "@utils/native";
 import definePlugin, { PluginNative } from "@utils/types";
-import { changes, checkForUpdates, update } from "@utils/updater";
+import { checkForUpdates, update } from "@utils/updater";
 import { Alerts } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -72,12 +72,12 @@ async function checkUpdate() {
     if (IS_UPDATER_DISABLED) return;
     try {
         if (!await checkForUpdates()) return;
-        const what = changes?.[0]?.message ?? "A new build is ready";
+        // no changelog: commit messages are written for the repo, not for the people using it
         if (VencordSettings.autoUpdate) {
             await update();
-            showNotification({ title: "Update installed", body: `${what}. Click to restart.`, permanent: true, onClick: relaunch });
+            showNotification({ title: "Update installed", body: "Click to restart.", permanent: true, onClick: relaunch });
         } else {
-            showNotification({ title: "An update is available", body: `${what}. Settings > Vencord > Updater.`, permanent: true });
+            showNotification({ title: "An update is available", body: "Settings > Vencord > Updater.", permanent: true });
         }
     } catch { /* offline or rate-limited: try next time */ }
 }
