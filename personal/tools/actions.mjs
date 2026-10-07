@@ -235,7 +235,8 @@ try {
 
 	// drag a server below the next one (Discord's move is recorded, not performed)
 	const dragged = await js(`
-		const rows = [...document.querySelectorAll(".dk-layer-top .dk-sb-drag")].filter(r => r.querySelector("[data-dk-id]"));
+		const servers = [...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => s.querySelector(".dk-sb-label-toggle")?.textContent === "Servers");
+		const rows = [...servers.querySelectorAll(".dk-sb-drag")].filter(r => r.querySelector("[data-dk-id]"));
 		const [a, b] = rows; const tick = () => new Promise(r => setTimeout(r, 50));
 		const dt = new DataTransfer();
 		a.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: dt })); await tick();
@@ -349,6 +350,28 @@ try {
 	check("…and never touches other notifications (calls, friend requests)", await allows({ notif_type: "INCOMING_CALL" }));
 	await js(`document.querySelector('.dk-sb-row[data-dk-id="focus"]').click()`);
 	check("clicking the Focus row ends it", await until(`!document.querySelector('.dk-sb-row[data-dk-id="focus"]')`, 1000));
+
+	// Drag to reorder favourites: the first lands below the second, then back (settings restored at the end anyway)
+	const order = await stored();
+	if (order.length >= 2) {
+		const dragFav = (from, onto, below) => js(`
+			const at = id => document.querySelector('.dk-layer-top .dk-sb-drag:has(> .dk-sb-rowwrap .dk-sb-row[data-dk-id="' + id + '"])');
+			const a = at(${JSON.stringify(from)}), b = at(${JSON.stringify(onto)}); if (!a || !b) return false;
+			const dt = new DataTransfer(), r = b.getBoundingClientRect(), y = ${below} ? r.bottom - 2 : r.top + 2;
+			const fire = (el, type, clientY = 0) => el.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt, clientY }));
+			fire(a, "dragstart"); await new Promise(r => setTimeout(r, 50));
+			fire(b, "dragover", y); await new Promise(r => setTimeout(r, 50));
+			const line = b.getAttribute("data-dk-drop");
+			fire(b, "drop", y); fire(a, "dragend");
+			return line;`);
+		const line = await dragFav(order[0], order[1], true);
+		check("dragging a favourite marks where it lands", line === "below", String(line));
+		check("…and drops it there, saved", JSON.stringify((await stored()).slice(0, 2)) === JSON.stringify([order[1], order[0]]), JSON.stringify(await stored()));
+		await dragFav(order[0], order[1], false);
+		check("…and drags back", JSON.stringify(await stored()) === JSON.stringify(order));
+		const sv = await js(`return document.querySelector('.dk-layer-top .dk-sb-drag .dk-sb-row[data-dk-id]')?.closest('.dk-sb-drag')?.getAttribute('draggable')`);
+		check("server and favourite rows are both draggable", sv === "true");
+	}
 
 	// Windows taskbar buttons: Discord accepts them, and each click does Discord's own thing
 	if (await js(`return navigator.userAgent.includes("Windows")`)) {

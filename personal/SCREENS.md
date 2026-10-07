@@ -177,13 +177,18 @@ It's a social app; he asked for some pizzazz.
   mockup and removed the same day: he didn't like it in use. Favourited voice channels are back to
   one row with the people in the call listed under it.
 
-## 8. Drag to reorder servers (2026-10-06)
+## 8. Drag to reorder servers and favourites (2026-10-06)
 
 Servers and folders in the sidebar drag like Discord's rail: the dragged row dims and a 2px accent
 line shows where it lands (above or below the row under the pointer). Dropping calls Discord's own
 `GuildActionCreators.moveById` (what the rail does), so the order saves to his account and syncs
 like any Discord change; dropping on a server inside an open folder moves it into the folder.
 Folders themselves move the same way. No folder creation by dropping (yet).
+
+Favourites drag the same way (2026-10-07); the order is saved in the plugin's settings and is also
+Ctrl 1-9's. A favourite voice channel moves with the people listed under it. Each list keeps its
+own drag, so a server can't be dropped into Favorites or the other way round. Right-click › Move
+up / Move down still works.
 
 ## 9. Triage, living rows, the look from Ctrl K (2026-10-06)
 

@@ -18,7 +18,7 @@ import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import { Column } from "./Column";
 import {
-    addFavorite, backOut, callChannel, DirectItem, drillIn, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
+    addFavorite, backOut, callChannel, DirectItem, drillIn, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
 moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, PrivateChannelReadStateStore,
     removeFavorite, rowMeta, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
@@ -310,17 +310,19 @@ function FavoritesSection() {
         .filter(f => isVoiceChannel(ChannelStore.getChannel(f.id)))
         .flatMap(f => occupants(f.id)).sort().join(","), [key]);
     const listed = new Set(inCalls ? inCalls.split(",") : []);
+    const drag = useDragReorder("favorite", dropFavorite);
     return (
         <Section id="favorites" label="Favorites">
             {list.length
                 ? list.map((f, i) => {
                     const c = ChannelStore.getChannel(f.id);
                     if (c?.type === 1 && listed.has(c.recipients[0])) return null;
+                    // a voice channel moves with the people listed under it
                     return (
-                        <React.Fragment key={f.id}>
+                        <div key={f.id} className="dk-sb-drag" {...drag(f.id)}>
                             <FavoriteRow id={f.id} label={f.label} index={i + 1} />
                             {isVoiceChannel(c) && <VoiceMembers channelId={f.id} max={6} />}
-                        </React.Fragment>
+                        </div>
                     );
                 })
                 : <p className="dk-sb-empty">Right-click any person, group or channel › Add to Favorites</p>}
@@ -353,12 +355,13 @@ function MessagesSection() {
     );
 }
 
-// ── Drag to reorder servers and folders ──
+// ── Drag to reorder (servers and folders, favourites) ──
 // A 2px line shows where it lands (above or below the row under the pointer); the dragged row dims.
+// Each list has its own hook, so a row can only land in the list it came from.
 
 type DropAt = { id: string; below: boolean; } | null;
 
-function useServerDrag() {
+function useDragReorder(kind: string, move: (id: string, targetId: string, below: boolean) => void) {
     const [dragging, setDragging] = useState<string | null>(null);
     const [drop, setDrop] = useState<DropAt>(null);
     // refs, not just state: dragover and drop can arrive before React has re-rendered
@@ -371,7 +374,7 @@ function useServerDrag() {
         "data-dk-drop": drop?.id === id ? (drop.below ? "below" : "above") : undefined,
         onDragStart: (e: React.DragEvent) => {
             e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/x-dk-server", id);
+            e.dataTransfer.setData(`text/x-dk-${kind}`, id);
             src.current = id;
             setDragging(id);
         },
@@ -387,9 +390,10 @@ function useServerDrag() {
             if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) setDrop(d => d?.id === id ? null : d);
         },
         onDrop: (e: React.DragEvent) => {
+            if (!src.current) return; // from another list: not ours to place
             e.preventDefault();
-            const from = src.current ?? e.dataTransfer.getData("text/x-dk-server");
-            if (from && from !== id) moveServer(from, id, at.current?.id === id ? at.current.below : false);
+            const from = src.current;
+            if (from !== id) move(from, id, at.current?.id === id ? at.current.below : false);
             end();
         },
         onDragEnd: end
@@ -406,7 +410,7 @@ function ServersSection() {
     [folders, collapseMuted], sameList);
     const [showTucked, setShowTucked] = useState(false);
     const tuckedSet = new Set(tucked);
-    const drag = useServerDrag();
+    const drag = useDragReorder("server", moveServer);
 
     return (
         <Section id="servers" label="Servers" aside={<button className="dk-sb-iconlink" onClick={openAddServer} data-dk-nav data-dk-action="add-server" aria-label="Add a server" title="Add a server: create one, or join with an invite"><Icon name="plus" size={16} /></button>}>

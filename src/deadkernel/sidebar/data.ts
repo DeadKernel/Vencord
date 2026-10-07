@@ -190,13 +190,23 @@ export function removeFavorite(id: string) {
     setFavorites(getFavorites().filter(f => f.id !== id));
 }
 
-export function moveFavorite(id: string, by: -1 | 1) {
-    const list = [...getFavorites()];
-    const i = list.findIndex(f => f.id === id);
-    const j = i + by;
-    if (i < 0 || j < 0 || j >= list.length) return;
-    [list[i], list[j]] = [list[j], list[i]];
+/** Drag to reorder favourites: `id` lands just above or below `targetId`. The order is also Ctrl 1-9's. */
+export function dropFavorite(id: string, targetId: string, below: boolean) {
+    if (id === targetId) return;
+    const list = getFavorites().filter(f => f.id !== id);
+    const moved = getFavorites().find(f => f.id === id);
+    const at = list.findIndex(f => f.id === targetId);
+    if (!moved || at < 0) return;
+    track("favorite_move");
+    list.splice(below ? at + 1 : at, 0, moved);
     setFavorites(list);
+}
+
+/** Right-click › Move up / Move down */
+export function moveFavorite(id: string, by: -1 | 1) {
+    const list = getFavorites();
+    const neighbour = list[list.findIndex(f => f.id === id) + by];
+    if (neighbour) dropFavorite(id, neighbour.id, by === 1);
 }
 
 // ── Names ────────────────────────────────────────────────────────────────────
