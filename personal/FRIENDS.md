@@ -30,16 +30,17 @@ you've set them, and errors. Never names, IDs, servers, channels or messages. Se
 Vencord > Plugins > DeadKernel shows exactly what would be sent, and switches it off.
 
 YOUR FIRST FIVE MINUTES
-- Home (top of the sidebar) is where you start: friends in voice, requests, who's online,
-  recent DMs.
+- Home (top of the sidebar) is where you start: "For you" (mentions, replies and DMs waiting for
+  you, with what they said), friends in voice, requests, who's online, recent DMs.
 - The sidebar replaces the server list. Click a server and its channels open in a column beside
   it. The × on that column closes the column; your conversation stays open.
 - Inside a server, only active channels show. "· N" after a category, or "Show all quiet
   channels", unfolds the rest. Click the server's name for invites, notification settings and
   leaving.
-- Clicking a voice channel joins it.
+- Clicking a voice channel joins it. A call shows how long it's been going, and a small screen
+  icon when someone's streaming. If you can move members, drag people between voice channels.
 - Right-click a person, group or channel > Add to Favorites (or the star in a conversation's
-  header). Favorites are single things, not whole servers.
+  header). Favorites are single things, not whole servers. Drag them (and servers) to reorder.
 - Ctrl 1…9 opens your favourites in order (hold Ctrl to see the numbers).
 - Ctrl K › "Focus for an hour": only your favourites can notify you until it ends.
 - Ctrl K jumps anywhere. Type ">" for actions (mark mentions read, mute this server, stop

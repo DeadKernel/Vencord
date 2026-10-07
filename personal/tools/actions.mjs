@@ -143,7 +143,7 @@ try {
 	await openMenuOn(rowSel);
 	check("voice row: Discord's channel menu has Add to Favorites", await until(`document.querySelector('[role="menu"] [id$="dk-favorite"]')`, 3000));
 	await js(`document.querySelector('[role="menu"] [id$="dk-favorite"]').click()`);
-	check("added favourite shows in the sidebar at once", await until(`[...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => s.textContent.includes("Favorites"))?.textContent.includes(${JSON.stringify(t.voiceName)})`, 500));
+	check("added favourite shows in the sidebar at once", await until(`[...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => s.textContent.includes("Favorites"))?.textContent.includes(${JSON.stringify(t.voiceName)})`, 500), await js(`return [...document.querySelectorAll(".dk-layer-top .dk-sb-section")].map(s => (s.querySelector(".dk-sb-label-toggle")?.textContent ?? "?") + ": " + s.innerText.replaceAll(String.fromCharCode(10), " | ").slice(0, 160)).join(" || ")`));
 	check("…and in the column's Favorites", await until(`[...document.querySelectorAll(".dk-col .dk-sb-section")].some(s => s.querySelector(".dk-sb-label-text")?.textContent === "Favorites" && s.textContent.includes(${JSON.stringify(t.voiceName)}))`, 500));
 	check("…and it's saved (plain settings, not just memory)", await js(`const me = ${C}.UserStore.getCurrentUser().id; return !!(Vencord.Api.Settings.PlainSettings.plugins.Sidebar.favorites[me] ?? []).some(f => f.id === ${JSON.stringify(t.voice)})`));
 
@@ -171,7 +171,7 @@ try {
 	await openMenuOn(rowSel);
 	await until(`document.querySelector('[role="menu"] [id$="dk-unfavorite"]')`, 3000);
 	await js(`document.querySelector('[role="menu"] [id$="dk-unfavorite"]').click()`);
-	check("removed favourite leaves the sidebar at once", await until(`![...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => s.textContent.includes("Favorites"))?.textContent.includes(${JSON.stringify(t.voiceName)})`, 500));
+	check("removed favourite leaves the sidebar at once", await until(`![...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => s.textContent.includes("Favorites"))?.textContent.includes(${JSON.stringify(t.voiceName)})`, 500), await js(`return [...document.querySelectorAll(".dk-layer-top .dk-sb-section")].map(s => (s.querySelector(".dk-sb-label-toggle")?.textContent ?? "?") + ": " + s.innerText.replaceAll(String.fromCharCode(10), " | ").slice(0, 160)).join(" || ")`));
 
 	// ── 4. Header star on the open text channel ──
 	await js(`document.querySelector(".dk-star")?.click()`);
@@ -397,7 +397,7 @@ try {
 		check("Ctrl+1 opens favourite 1", recHas(kr, "nav") || recHas(kr, "chatOpen"), JSON.stringify(kr));
 	}
 	await js(`window.dispatchEvent(new KeyboardEvent("keydown", { key: "Control", code: "ControlLeft", ctrlKey: true, bubbles: true }))`);
-	check("holding Ctrl shows the favourites' numbers", await until(`"dkCtrl" in document.documentElement.dataset`, 1200));
+	check("holding Ctrl shows the favourites' numbers", await until(`"dkCtrl" in document.documentElement.dataset`, 1200), await js(`return "focus=" + document.hasFocus() + " active=" + document.activeElement?.tagName + "." + String(document.activeElement?.className).slice(0, 40) + " dialogs=" + document.querySelectorAll('[role="dialog"], [role="menu"]').length`));
 	await js(`window.dispatchEvent(new KeyboardEvent("keyup", { key: "Control", code: "ControlLeft", bubbles: true }))`);
 	check("…and letting go hides them", await until(`!("dkCtrl" in document.documentElement.dataset)`, 500));
 
