@@ -221,6 +221,26 @@
 /* search: an icon until you use it (Ctrl+F or a click), then it opens to full width */
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:has([class*="searchBar_"]) {
     width: auto !important;
+    min-width: 0 !important;
+    /* Discord's basis is 244px; the box below sets the size, so it sits flush right */
+    flex: 0 0 auto !important;
+}
+
+/* closed, the box is just the icon, centred: the empty editor's padding pushed it right */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] {
+    justify-content: center;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] > [class*="icon_"] {
+    margin: 0 !important;
+}
+
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] [class*="editor_"] {
+    position: absolute !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
 }
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
