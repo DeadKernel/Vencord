@@ -16,7 +16,7 @@ import {
 import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
-import { callStart, CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
+import { CallTimer, requestStartTimes, useCallStart } from "./calltimer";
 import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
 import { digestDmIds, ForYou } from "./digest";
 import { Icon, IconSlot } from "./icons";
@@ -61,7 +61,7 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(channelId), [channelId]);
     const everyone = useStateFromStores([VoiceStateStore], () => occupants(channelId).length, [channelId]);
     const mine = useStateFromStores([VoiceStateStore], () => VoiceStateStore.isInChannel(channelId), [channelId]);
-    const since = useStateFromStores(voiceStartStore() ? [voiceStartStore()] : [], () => channel ? callStart(channel) : undefined, [channel]);
+    const since = useCallStart(channel, everyone > 0);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
     const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;

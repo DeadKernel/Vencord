@@ -11,7 +11,7 @@
 // Looked up directly, not with lazy finders (they give up after five misses at startup).
 
 import { filters, find } from "@webpack";
-import { useEffect, useState } from "@webpack/common";
+import { useEffect, useState, useStateFromStores } from "@webpack/common";
 
 let startStore: any = null;
 let requestChannelInfo: ((guildId: string) => void) | null = null;
@@ -36,6 +36,25 @@ export function requestStartTimes(guildIds: Iterable<string>) {
     requestChannelInfo ??= find(filters.byCode('"voice_start_time"'), { isIndirect: true });
     if (!store || typeof requestChannelInfo !== "function") return;
     for (const id of new Set(guildIds)) if (id && !store.hasRequestedStartTimes(id)) requestChannelInfo(id);
+}
+
+let socketHolder: { getSocket(): any; } | null = null;
+const lastAsked = new Map<string, number>();
+
+/** A call is going but Discord hasn't told us when it started (it was empty when we asked, and no
+ * update came): ask the gateway again, as Discord's request does, at most once a minute a server. */
+export function refreshStartTime(guildId: string | undefined) {
+    if (!guildId || Date.now() - (lastAsked.get(guildId) ?? 0) < 60_000) return;
+    lastAsked.set(guildId, Date.now());
+    socketHolder ??= find(filters.byProps("getSocket"), { isIndirect: true });
+    socketHolder?.getSocket()?.requestChannelInfo?.(guildId, ["status", "voice_start_time"]);
+}
+
+/** When this server voice channel's call started; asks again if it's occupied and we don't know. */
+export function useCallStart(channel: any, occupied: boolean): number | undefined {
+    const since = useStateFromStores(voiceStartStore() ? [voiceStartStore()] : [], () => channel ? callStart(channel) : undefined, [channel]);
+    useEffect(() => { if (occupied && !since && channel?.guild_id) refreshStartTime(channel.guild_id); }, [occupied, since, channel]);
+    return since;
 }
 
 export function elapsed(ms: number) {

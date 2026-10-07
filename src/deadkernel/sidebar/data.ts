@@ -322,15 +322,25 @@ export function userPresence(userId: string): Presence {
     return (PresenceStore.getStatus(userId) ?? "offline") as Presence;
 }
 
-export type Meta = { text: string; live: boolean; since?: number; };
+export type Meta = { text: string; live: boolean; since?: number; stream?: boolean; };
+
+/** Streaming right now: Discord's voice flag or a stream it knows of; your own stream is only
+ * in "your active stream", not in the stream list it keeps for others. */
+export function isStreaming(userId: string) {
+    const vs: any = VoiceStateStore.getVoiceStateForUser(userId);
+    if (vs?.selfStream || ApplicationStreamingStore.getAnyStreamForUser(userId)) return true;
+    return userId === UserStore.getCurrentUser()?.id && !!ApplicationStreamingStore.getCurrentUserActiveStream?.();
+}
 
 /** "in voice", "streaming", or "voice · N" for a group call; nothing for playing a game. A server
  * voice channel's call shows how long it's been going (`since`) when Discord knows. */
 export function presenceWord(channel: Channel): Meta | null {
-    const inCall = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id) ?? {}).length;
+    const people = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id) ?? {});
+    const inCall = people.length;
     if (inCall) {
         const since = channel.guild_id ? callStart(channel) : undefined;
-        return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true, ...(since && { since }) };
+        const stream = people.some(isStreaming);
+        return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true, ...(since && { since }), ...(stream && { stream }) };
     }
     if (channel.type !== 1) return null;
     const uid = channel.recipients[0];

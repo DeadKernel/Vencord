@@ -432,6 +432,7 @@ try {
 	const before = await js(`return ${homeTimer}?.textContent`);
 	await sleep(1300);
 	check("…and it ticks", await js(`return ${homeTimer}?.textContent`) !== before);
+	check("a call with someone streaming says so on its row (Discord's LIVE)", await js(`return [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].some(r => r.querySelector(".dk-sb-live"))`));
 	await block(true);
 	await rec();
 	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-main').click()`);

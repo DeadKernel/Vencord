@@ -1319,3 +1319,11 @@ html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*=
         animation: none !important;
     }
 }
+
+/* someone in this call is streaming: Discord's "LIVE", as a small teal screen before the timer */
+.dk-sb-live {
+    display: grid;
+    place-items: center;
+    flex: none;
+    color: var(--dk-teal);
+}

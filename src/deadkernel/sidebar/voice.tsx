@@ -10,7 +10,7 @@
 import { classes } from "@utils/misc";
 import { ApplicationStreamingStore, ChannelActionCreators, ChannelStore, RelationshipStore, UserStore, useStateFromStores, VoiceStateStore } from "@webpack/common";
 
-import { openChannel } from "./data";
+import { isStreaming, openChannel } from "./data";
 import { Icon } from "./icons";
 
 export const occupants = (channelId: string) => Object.keys(VoiceStateStore.getVoiceStatesForChannel(channelId) ?? {});
@@ -20,7 +20,7 @@ export interface VoiceFlags { live: boolean; video: boolean; muted: boolean; dea
 export function voiceFlags(userId: string): VoiceFlags {
     const vs: any = VoiceStateStore.getVoiceStateForUser(userId);
     return {
-        live: !!vs?.selfStream || !!ApplicationStreamingStore.getAnyStreamForUser(userId),
+        live: isStreaming(userId),
         video: !!vs?.selfVideo,
         muted: !!(vs?.selfMute || vs?.mute),
         deaf: !!(vs?.selfDeaf || vs?.deaf)

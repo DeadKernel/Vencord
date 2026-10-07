@@ -16,7 +16,7 @@ import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react"
 import { track } from "../core/telemetry";
 import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
-import { CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
+import { callStart, CallTimer, refreshStartTime, requestStartTimes, voiceStartStore } from "./calltimer";
 import { Column } from "./Column";
 import {
     addFavorite, backOut, callChannel, DirectItem, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, Meta, moveFavorite,
@@ -110,6 +110,7 @@ function Row(p: RowProps) {
             {p.where && <span className="dk-sb-where">{p.where}</span>}
             <span className="dk-sb-trail">
                 {p.draft && <span className="dk-sb-draft" title="Unsent draft"><Icon name="pencil" size={14} /></span>}
+                {p.meta?.stream && <span className="dk-sb-live" title="Someone's streaming"><Icon name="screen" size={14} /></span>}
                 {p.meta && (p.meta.since
                     ? <CallTimer since={p.meta.since} className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={`${p.meta.text} · going for`} />
                     : <span className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={p.meta.text}>{p.meta.text}</span>)}
@@ -318,6 +319,13 @@ function FavoritesSection() {
     useEffect(() => {
         requestStartTimes(list.map(f => ChannelStore.getChannel(f.id)).filter(c => isVoiceChannel(c) && c?.guild_id).map(c => c!.guild_id));
     }, [key]);
+    // a favourite call that started after that request may never have sent its start time: ask again
+    useEffect(() => {
+        for (const f of list) {
+            const c = ChannelStore.getChannel(f.id);
+            if (isVoiceChannel(c) && c?.guild_id && occupants(f.id).length && !callStart(c)) refreshStartTime(c.guild_id);
+        }
+    }, [key, inCalls]);
     return (
         <Section id="favorites" label="Favorites">
             {list.length

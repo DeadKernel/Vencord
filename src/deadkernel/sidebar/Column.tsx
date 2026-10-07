@@ -17,9 +17,10 @@ import type { ComponentType, MouseEvent } from "react";
 
 import { track } from "../core/telemetry";
 import { actionsFor, RowActions } from "./actions";
-import { callStart, CallTimer, requestStartTimes, voiceStartStore } from "./calltimer";
+import { CallTimer, requestStartTimes, useCallStart } from "./calltimer";
 import {
-    addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
+    addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, isStreaming,
+joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
     snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites
 } from "./data";
 import { openChannelMenu, openGuildMenu } from "./discordMenus";
@@ -112,7 +113,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
     const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
     const selected = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getChannelId() === id, [id]);
     const people = useStateFromStores([VoiceStateStore], () => occupants(id).join(","), [id]);
-    const since = useStateFromStores(voiceStartStore() ? [voiceStartStore()] : [], () => channel ? callStart(channel) : undefined, [channel]);
+    const since = useCallStart(channel, !!people);
     const threadIds = useStateFromStores([ChannelListStore, ReadStateStore], () => {
         if (!threads || !channel) return "";
         const row = ChannelListStore.getGuildWithoutChangingGuildActionRows(channel.guild_id)?.guildChannels?.getChannel?.(id);
@@ -139,6 +140,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     <IconSlot name={glyph(channel)} />
                     <span className="dk-sb-name">{channel.name}</span>
                     <span className="dk-sb-trail">
+                        {voice && users.some(isStreaming) && <span className="dk-sb-live" title="Someone's streaming"><Icon name="screen" size={14} /></span>}
                         {voice && users.length > 0 && (since
                             ? <CallTimer since={since} className="dk-sb-meta dk-live" title={`${users.length} in call · going for`} />
                             : <span className="dk-sb-meta dk-live">· {users.length}</span>)}

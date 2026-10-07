@@ -82,8 +82,15 @@ const inspect = (sel, scroll = true) => js(`
 
 /** WCAG text contrast inside the surface (contrast-audit.mjs); disabled controls are exempt. */
 async function contrast(name, sel) {
-	const rows = await js(`return ${auditExpr(sel)}`);
-	const bad = rows.filter(r => r.ratio < r.need && !r.disabled);
+	const failing = rows => rows.filter(r => r.ratio < r.need && !r.disabled);
+	let rows = await js(`return ${auditExpr(sel)}`);
+	let bad = failing(rows);
+	// something mid-transition (a button fading in as it enables) reads low for a moment: look again
+	if (bad.length) {
+		await sleep(800);
+		const again = failing(rows = await js(`return ${auditExpr(sel)}`));
+		bad = bad.filter(b => again.some(a => a.where === b.where && a.fg === b.fg && a.bg === b.bg));
+	}
 	check(`${name}: text contrast (${rows.length} styles)`, !bad.length,
 		bad.slice(0, 4).map(r => `${r.ratio}:1 ${r.fg} on ${r.bg} "${r.text}" ${r.where}`).join("; "));
 }
