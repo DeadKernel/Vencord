@@ -129,6 +129,12 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   discord:// links to the real app, and loads this repo's releases. Daily `dk-sync.yml` in both
   forks folds in upstream and ships it when the tests pass; `main` is now the shipping branch.
   personal/RELEASING.md.
+- **Lesson (Accord's first installer):** electron-builder includes `build/installer.nsh` whenever
+  it exists, config or not. Vesktop's pins installs to `%LocalAppData%esktop`, so the first
+  Accord install overwrote his real Vesktop's files there. Repaired with Vesktop 1.6.5's official
+  installer, and the release was pulled. Accord now has its own include. Installer tests now
+  fingerprint every other app's folder before and after, and uninstall at the end. Also:
+  electron-builder's own publishing raced into two releases; `gh release create` makes one.
 - **Screen share picker, 2026-10-07.** It took 3.5s to open: Windows' capture API fails on hidden
   helper windows (NVIDIA Broadcast, Razer) at about a second each, and the preview step captured
   everything again. Now names and icons open it in ~0.3s and thumbnails fill in
