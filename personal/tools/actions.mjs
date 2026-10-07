@@ -85,6 +85,8 @@ await js(`
 	intercept(W.findByProps("openCreateGuildModal"), "openCreateGuildModal", "createGuild");
 	intercept(C.ChannelActionCreators, "openPrivateChannel", "openDmNew");
 	intercept(W.findByProps("moveById", "createGuildFolderLocal"), "moveById", "moveServer");
+	// account settings writes (the server order, ...): recorded, never sent
+	intercept(C.UserSettingsActionCreators.PreloadedUserSettingsActionCreators, "updateAsync", "settingsSave");
 	intercept(W.findByProps("toggleSelfMute", "toggleSelfDeaf"), "toggleSelfMute", "selfMute");
 	intercept(W.findByProps("toggleSelfMute", "toggleSelfDeaf"), "toggleSelfDeaf", "selfDeaf");
 	intercept(W.findByProps("selectVoiceChannel", "disconnect"), "disconnect", "disconnect");
@@ -251,6 +253,7 @@ try {
 	check("dragging a server dims it and shows where it lands", dragged.dim && dragged.line === "below", JSON.stringify(dragged));
 	r = await rec();
 	check("dropping it moves it through Discord's own move", recHas(r, "moveServer", a => a[0] === dragged.a && a[1] === dragged.b && a[2] === true), JSON.stringify(r));
+	check("…and saves the order to the account, as the rail does (else Discord's next sync undoes it)", recHas(r, "settingsSave", a => a[0] === "guildFolders"), JSON.stringify(r));
 	check("…and leaves nothing dimmed or marked", !dragged.left);
 	const older = `[...document.querySelectorAll(".dk-layer-top .dk-sb-more")].find(b => b.textContent.startsWith("Older conversations"))`;
 	if (await js(`return !!${older}`)) {

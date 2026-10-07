@@ -10,7 +10,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
-import { filters, findByPropsLazy, findStoreLazy, mapMangledModuleLazy } from "@webpack";
+import { filters, findByCodeLazy, findByPropsLazy, findStoreLazy, mapMangledModuleLazy } from "@webpack";
 import {
     ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, DraftStore, DraftType, FluxDispatcher, GuildChannelStore, GuildMemberCountStore, GuildReadStateStore,
     GuildStore,
@@ -91,6 +91,8 @@ export function applyAttr() {
 export const PrivateChannelReadStateStore = findStoreLazy("PrivateChannelReadStateStore");
 export const SortedGuildStoreTyped = findStoreLazy("SortedGuildStore") as {
     getGuildFolders(): { folderId?: number | string; folderName?: string; folderColor?: number; guildIds: string[]; }[];
+    /** the list as Discord saves it to the account */
+    getCompatibleGuildFolders(): unknown[];
 };
 
 // "QUICKSWITCHER_OPENED" is in three modules; this find is unique (personal research, screens-tech §4.3).
@@ -400,13 +402,18 @@ export function openGuild(guildId: string) {
 }
 
 const GuildMoveActions = findByPropsLazy("moveById", "createGuildFolderLocal");
+/** Discord's "save the server list to the account" (user settings: guildFolders) */
+const saveGuildFolders = findByCodeLazy('updateAsync("guildFolders"');
 
-/** Drag to reorder servers: Discord's own move (what its rail does on drop), which also saves the
- * order to his account. `targetId` is a server or folder id; inside an open folder, into it. */
+/** Drag to reorder servers, the two steps Discord's rail takes: the move on drop (which only
+ * reorders the list on this machine), then saving the order to the account when the drag ends.
+ * Without the save, the next settings sync from Discord put the old order back.
+ * `targetId` is a server or folder id; inside an open folder, into it. */
 export function moveServer(sourceId: string, targetId: string, below: boolean) {
     if (sourceId === targetId) return;
     track("server_move");
     GuildMoveActions.moveById(sourceId, targetId, below, false);
+    saveGuildFolders(SortedGuildStoreTyped.getCompatibleGuildFolders());
 }
 
 const GuildCreateActions = findByPropsLazy("openCreateGuildModal");
