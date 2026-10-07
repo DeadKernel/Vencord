@@ -1,6 +1,7 @@
 # DeadKernel releases (personal/RELEASING.md). Push a tag like dk-2026.10.07 and this builds the
 # standalone Vesktop files and publishes them as the latest release. Every DeadKernel client checks
-# that release (Vencord's own updater) and updates itself or offers to.
+# that release (Vencord's own updater) and updates itself or offers to. dk-sync.yml calls it too,
+# after folding in upstream Vencord (a tag pushed by a workflow doesn't start other workflows).
 #
 # The release name must end with the build's commit hash: that is what the updater compares.
 name: DeadKernel release
@@ -8,12 +9,18 @@ on:
     push:
         tags:
             - "dk-*"
+    workflow_call:
+        inputs:
+            tag:
+                type: string
+                required: true
 
 permissions:
     contents: write
 
 env:
     FORCE_COLOR: true
+    TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
     Release:
@@ -21,6 +28,9 @@ jobs:
 
         steps:
             - uses: actions/checkout@v7
+              with:
+                  ref: refs/tags/${{ inputs.tag || github.ref_name }}
+                  fetch-tags: true
 
             - uses: pnpm/action-setup@v6
 
@@ -52,10 +62,11 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  NOTES=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME")
+                  git fetch -q --force origin "refs/tags/$TAG:refs/tags/$TAG"
+                  NOTES=$(git tag -l --format="%(contents)" "$TAG")
                   [ -n "$NOTES" ] || NOTES="DeadKernel build $HASH"
-                  gh release create "$GITHUB_REF_NAME" \
-                      --title "DeadKernel ${GITHUB_REF_NAME#dk-} $HASH" \
+                  gh release create "$TAG" \
+                      --title "DeadKernel ${TAG#dk-} $HASH" \
                       --notes "$NOTES" \
                       --latest \
                       out/DeadKernel/vencordDesktopMain.js \

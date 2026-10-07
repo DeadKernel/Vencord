@@ -2,8 +2,8 @@
 // background, a dark square with a thin border. Distinct from the real Discord app's blurple icon
 // sitting next to it on the taskbar. Drawn by the running client's canvas (CDP), so no image tools.
 //   CDP_PORT=9223 node personal/tools/make-icon.mjs [vesktopDir]
-// Writes <vesktop>/static/deadkernel/{icon.svg,icon.png,icon.ico}, and the tray icons into the
-// DeadKernel profile's userAssets (Vesktop's own "custom tray icon" slot).
+// Writes <vesktop>/static/deadkernel/: icon.ico (window, installer, shortcuts), icon.png (splash),
+// icon.svg, and tray.png / trayUnread.png (the DeadKernel app's default tray icons).
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -64,11 +64,8 @@ writeFileSync(join(out, "icon.ico"), ico(images));
 writeFileSync(join(out, "icon.png"), images.at(-1).data);
 writeFileSync(join(out, "icon.svg"), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect x="1" y="1" width="254" height="254" rx="31" fill="${BG}" stroke="${BORDER}" stroke-width="2"/><g transform="translate(51.2 56.96) scale(6.4)"><path fill="${ACCENT}" d="${MARK}"/></g></svg>\n`);
 
-// the tray: Vesktop takes a custom tray icon from the profile's userAssets (no extension)
-const assets = join(process.env.APPDATA, "vesktop-deadkernel", "userAssets");
-mkdirSync(assets, { recursive: true });
-writeFileSync(join(assets, "tray"), await png(draw(32)));
-writeFileSync(join(assets, "trayUnread"), await png(draw(32, { dot: true })));
+writeFileSync(join(out, "tray.png"), await png(draw(32)));
+writeFileSync(join(out, "trayUnread.png"), await png(draw(32, { dot: true })));
 // the sizes side by side on a dark and a light taskbar, to look at (not shipped)
 mkdirSync(join(process.env.USERPROFILE, ".t3", "data", "shots"), { recursive: true });
 writeFileSync(join(process.env.USERPROFILE, ".t3", "data", "shots", "icon-preview.png"), await png(`
@@ -76,5 +73,5 @@ writeFileSync(join(process.env.USERPROFILE, ".t3", "data", "shots", "icon-previe
 	g.fillStyle = "#202020"; g.fillRect(0, 0, 460, 150); g.fillStyle = "#f3f3f3"; g.fillRect(0, 150, 460, 150);
 	return new Promise(done => { let x = 10; const imgs = ${JSON.stringify(images.filter(i => [16, 24, 32, 48, 128].includes(i.size)).map(i => [i.size, i.data.toString("base64")]))};
 		let n = 0; for (const [s, b] of imgs) { const im = new Image(); const at = x; x += s + 16; im.onload = () => { g.drawImage(im, at, 75 - s / 2); g.drawImage(im, at, 225 - s / 2); if (++n === imgs.length) done(c.toDataURL().split(",")[1]); }; im.src = "data:image/png;base64," + b; } });`));
-console.log(`wrote ${out}\\icon.{ico,png,svg} (${sizes.join(", ")}) and tray icons in ${assets}`);
+console.log(`wrote icon.{ico,png,svg} (${sizes.join(", ")}), tray.png, trayUnread.png in ${out}`);
 ws.close();

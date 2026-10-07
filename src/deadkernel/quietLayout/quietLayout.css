@@ -222,6 +222,7 @@
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:has([class*="searchBar_"]) {
     width: auto !important;
     min-width: 0 !important;
+
     /* Discord's basis is 244px; the box below sets the size, so it sits flush right */
     flex: 0 0 auto !important;
 }
@@ -241,6 +242,7 @@
     min-width: 0 !important;
     padding: 0 !important;
     overflow: hidden;
+    opacity: 0;
 }
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
@@ -250,10 +252,6 @@
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:focus-within [class*="searchBar_"] {
     width: 240px !important;
-}
-
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] [class*="editor_"] {
-    opacity: 0;
 }
 
 /* Quiet channel list, continued */

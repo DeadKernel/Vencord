@@ -1,0 +1,85 @@
+# Folds upstream Vencord into DeadKernel every day, and ships it if it builds (personal/RELEASING.md).
+# Upstream is where fixes for Discord's own changes land, usually within a day of Discord breaking
+# something, so this is how DeadKernel keeps up without anyone doing it by hand.
+#
+#   new upstream commits → merge into main → the full test suite → push, tag dk-<date>.<n>, release
+#
+# Nothing ships if the merge conflicts or a test fails: the run fails and GitHub emails the owner,
+# and main is left untouched. Runs from main (GitHub only schedules the default branch's workflows).
+name: DeadKernel sync
+on:
+    schedule:
+        - cron: "17 6 * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+env:
+    FORCE_COLOR: true
+
+jobs:
+    Sync:
+        runs-on: ubuntu-latest
+        outputs:
+            tag: ${{ steps.ship.outputs.tag }}
+
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: main
+                  fetch-depth: 0
+
+            - name: Merge upstream Vencord
+              id: merge
+              run: |
+                  git config user.name "DeadKernel sync"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git fetch -q https://github.com/Vendicated/Vencord.git main
+                  NEW=$(git rev-list --count HEAD..FETCH_HEAD)
+                  echo "new=$NEW" >> "$GITHUB_OUTPUT"
+                  if [ "$NEW" = 0 ]; then echo "Up to date with upstream Vencord."; exit 0; fi
+                  git log --format='- %s' HEAD..FETCH_HEAD | head -30 > "$RUNNER_TEMP/upstream.txt"
+                  if ! git merge --no-edit -m "Fold in upstream Vencord ($NEW commits)" FETCH_HEAD; then
+                      echo "::error::Upstream Vencord conflicts with DeadKernel in:"
+                      git diff --name-only --diff-filter=U
+                      git merge --abort
+                      exit 1
+                  fi
+
+            - uses: pnpm/action-setup@v6
+              if: steps.merge.outputs.new != '0'
+
+            - name: Use Node.js 24
+              if: steps.merge.outputs.new != '0'
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Test (build, types, lint)
+              if: steps.merge.outputs.new != '0'
+              run: |
+                  pnpm install --frozen-lockfile
+                  pnpm test
+
+            - name: Push and tag
+              id: ship
+              if: steps.merge.outputs.new != '0'
+              run: |
+                  git push origin HEAD:main
+                  DAY=$(date -u +%Y.%m.%d)
+                  N=$(git tag -l "dk-$DAY.*" | wc -l)
+                  TAG="dk-$DAY.$((N + 1))"
+                  git tag -a "$TAG" -m "Folds in upstream Vencord (${{ steps.merge.outputs.new }} changes)" -F "$RUNNER_TEMP/upstream.txt"
+                  git push origin "$TAG"
+                  echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+    Release:
+        needs: Sync
+        if: needs.Sync.outputs.tag != ''
+        uses: ./.github/workflows/dk-release.yml
+        with:
+            tag: ${{ needs.Sync.outputs.tag }}
+        permissions:
+            contents: write
