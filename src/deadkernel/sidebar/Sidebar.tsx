@@ -7,7 +7,7 @@
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
-    ApplicationStreamingStore, ChannelStore, DraftStore, GuildReadStateStore, GuildStore, MessageRequestStore, NavigationRouter,
+    ApplicationStreamingStore, ChannelStore, DraftStore, GuildReadStateStore, GuildStore, MessageRequestStore,
     PresenceStore, PrivateChannelSortStore, React, ReadStateStore, RelationshipStore, SelectedChannelStore, SelectedGuildStore,
     TypingStore, useEffect, useRef, UserGuildSettingsStore, useState, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
@@ -18,7 +18,7 @@ import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import { Column } from "./Column";
 import {
-    addFavorite, backOut, callChannel, DirectItem, drillIn, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
+    addFavorite, backOut, callChannel, DirectItem, dropFavorite, getFavorites, guildChannelIds, guildSignal, hasDraft, isFavorite, joinVoice, labelFor, markRead, moveFavorite,
 moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, PrivateChannelReadStateStore,
     removeFavorite, rowMeta, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
@@ -440,22 +440,6 @@ function ServersSection() {
     );
 }
 
-function ReturnRow({ routeGuildId }: { routeGuildId?: string | null; }) {
-    const place = React.useSyncExternalStore(navState.subscribe, navState.lastPlace);
-    const channel = useStateFromStores([ChannelStore], () => place ? ChannelStore.getChannel(place.channelId) : null, [place]);
-    if (!place || !channel || routeGuildId === place.guildId) return null;
-    const guild = GuildStore.getGuild(place.guildId);
-    return (
-        <button className="dk-sb-return" data-dk-nav
-            onClick={() => { track("return_row"); drillIn(); NavigationRouter.transitionTo(`/channels/${place.guildId}/${place.channelId}`); }}
-            title={`Return to ${labelFor(channel)}${guild ? ` · ${guild.name}` : ""}`}>
-            <IconSlot name="back" />
-            <span className="dk-sb-name">Return to {labelFor(channel)}</span>
-            {guild && <span className="dk-sb-where">{guild.name}</span>}
-        </button>
-    );
-}
-
 /** The way back to Home from anywhere: who's in voice, who's around, recent DMs. */
 /** While Focus is on: one row saying so, with the time left. Click ends it. */
 function FocusRow() {
@@ -553,7 +537,6 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                     <JumpRow />
                     <HomeRow selected={!routeGuildId && !selectedChannelId} />
                     <FocusRow />
-                    <ReturnRow routeGuildId={routeGuildId} />
                     <DirectSection />
                     <FavoritesSection />
                     <MessagesSection />

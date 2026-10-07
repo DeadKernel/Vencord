@@ -254,8 +254,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
 }
 
 /* ── Rows: 32px, whole row clickable; name, where (muted), fixed trailing slot ── */
-.dk-sb-row,
-.dk-sb-return {
+.dk-sb-row {
     display: flex !important;
     align-items: center;
     gap: 8px;
@@ -267,12 +266,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     transition: background-color 80ms linear;
 }
 
-.dk-sb-return {
-    color: var(--dk-accent) !important;
-}
-
-.dk-sb-row:hover,
-.dk-sb-return:hover {
+.dk-sb-row:hover {
     background: var(--dk-hover) !important;
 }
 

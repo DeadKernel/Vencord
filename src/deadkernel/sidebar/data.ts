@@ -123,8 +123,7 @@ const emit = () => listeners.forEach(l => l());
 
 export const navState = {
     subscribe(l: () => void) { listeners.add(l); return () => void listeners.delete(l); },
-    backedOutOf: () => backedOutOf,
-    lastPlace: () => lastPlace
+    backedOutOf: () => backedOutOf
 };
 
 export function backOut(guildId: string) {
