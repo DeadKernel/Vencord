@@ -28,6 +28,7 @@ import { openGuildMenu } from "./discordMenus";
 import { focusLeft, focusOn, setFocus } from "./focus";
 import { Icon, IconSlot } from "./icons";
 import { ContextItem, openMenu } from "./menu";
+import { useVoiceDrop } from "./move";
 import { occupants, VoiceMembers } from "./voice";
 
 export interface ChannelAreaProps {
@@ -185,8 +186,10 @@ function ConversationRow({ id, fallback, inFavorites, onOpen }: { id: string; fa
 function FavoriteRow({ id, label, index }: { id: string; label: string; index: number; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
     const voice = isVoiceChannel(channel);
+    // people dragged from another call land here (Discord's Move Members)
+    const drop = useVoiceDrop(voice ? channel : null);
     return (
-        <div className="dk-sb-rowwrap">
+        <div className="dk-sb-rowwrap" {...(voice ? drop : {})}>
             {index <= 9 && <span className="dk-fav-key" aria-hidden title={`Ctrl ${index}`}>{index}</span>}
             <ConversationRow id={id} fallback={label} inFavorites onOpen={voice && channel ? () => joinVoice(channel) : undefined} />
             <RowActions actions={actionsFor(channel)} />

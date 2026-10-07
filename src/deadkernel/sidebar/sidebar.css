@@ -1327,3 +1327,13 @@ html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*=
     flex: none;
     color: var(--dk-teal);
 }
+
+/* moving people between calls (Discord's Move Members): who can be picked up, and where they'd land */
+[data-dk-movable] {
+    cursor: grab;
+}
+
+[data-dk-voice-drop] {
+    background: var(--hl-accent-08, var(--background-mod-subtle)) !important;
+    box-shadow: inset 0 0 0 1px var(--dk-accent);
+}

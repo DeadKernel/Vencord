@@ -85,6 +85,7 @@ await js(`
 	intercept(W.findByProps("openCreateGuildModal"), "openCreateGuildModal", "createGuild");
 	intercept(C.ChannelActionCreators, "openPrivateChannel", "openDmNew");
 	intercept(W.findByProps("moveById", "createGuildFolderLocal"), "moveById", "moveServer");
+	intercept(W.findByProps("setChannel", "setServerMute"), "setChannel", "moveMember");
 	// account settings writes (the server order, ...): recorded, never sent
 	intercept(C.UserSettingsActionCreators.PreloadedUserSettingsActionCreators, "updateAsync", "settingsSave");
 	intercept(W.findByProps("toggleSelfMute", "toggleSelfDeaf"), "toggleSelfMute", "selfMute");
@@ -433,6 +434,27 @@ try {
 	await sleep(1300);
 	check("…and it ticks", await js(`return ${homeTimer}?.textContent`) !== before);
 	check("a call with someone streaming says so on its row (Discord's LIVE)", await js(`return [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].some(r => r.querySelector(".dk-sb-live"))`));
+	// drag someone from the call to another voice channel in the same server (Discord's Move Members)
+	const moved = await js(`
+		const C = ${C}, vc = C.ChannelStore.getChannel(${JSON.stringify(t.voice)});
+		const person = [...document.querySelectorAll('[data-dk-movable]')].find(e => e.closest('[data-dk-id="${t.voice}"], .dk-sb-drag, .dk-home-callblock'));
+		const target = [...document.querySelectorAll('.dk-sb-rowwrap, .dk-col-row, .dk-home-callblock')].map(e => [e, e.dataset.dkId ?? e.querySelector('[data-dk-id]')?.dataset.dkId])
+			.find(([, id]) => id && id !== vc.id && [2, 13].includes(C.ChannelStore.getChannel(id)?.type) && C.ChannelStore.getChannel(id)?.guild_id === vc.guild_id);
+		if (!person || !target) return { skipped: !person ? "no permission to move here, or no one draggable" : "no other voice channel in this server on screen" };
+		const dt = new DataTransfer();
+		person.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: dt }));
+		target[0].dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt }));
+		await new Promise(r => setTimeout(r, 60));
+		const lit = target[0].hasAttribute("data-dk-voice-drop");
+		target[0].dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt }));
+		person.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: dt }));
+		return { lit, target: target[1], guild: vc.guild_id };`);
+	if (moved.skipped) console.log(`skip  moving people between calls: ${moved.skipped}`);
+	else {
+		r = await rec();
+		check("dragging someone onto another call highlights it", moved.lit);
+		check("…and moves them with Discord's own move", recHas(r, "moveMember", a => a[0] === moved.guild && a[2] === moved.target), JSON.stringify(r));
+	}
 	await block(true);
 	await rec();
 	await js(`document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-main').click()`);

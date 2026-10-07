@@ -20,6 +20,7 @@ import { CallTimer, requestStartTimes, useCallStart } from "./calltimer";
 import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
 import { digestDmIds, ForYou } from "./digest";
 import { Icon, IconSlot } from "./icons";
+import { useVoiceDrop } from "./move";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
@@ -62,11 +63,12 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     const everyone = useStateFromStores([VoiceStateStore], () => occupants(channelId).length, [channelId]);
     const mine = useStateFromStores([VoiceStateStore], () => VoiceStateStore.isInChannel(channelId), [channelId]);
     const since = useCallStart(channel, everyone > 0);
+    const drop = useVoiceDrop(channel?.guild_id ? channel : null);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
     const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
     return (
-        <div className="dk-home-callblock" data-dk-id={channelId}>
+        <div className="dk-home-callblock" data-dk-id={channelId} {...(channel.guild_id ? drop : {})}>
             <div className="dk-home-row dk-home-call">
                 <button className="dk-home-main" onClick={() => openVoiceChat(channel as Channel)} title={`Open ${labelFor(channel)}'s chat (Join joins)`}>
                     <IconSlot name="voice" />

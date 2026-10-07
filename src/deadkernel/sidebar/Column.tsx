@@ -26,6 +26,7 @@ joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
 import { openChannelMenu, openGuildMenu } from "./discordMenus";
 import { Icon, IconName, IconSlot } from "./icons";
 import { ContextItem } from "./menu";
+import { useVoiceDrop } from "./move";
 import { occupants, VoiceMembers } from "./voice";
 
 const DAY = 864e5;
@@ -114,6 +115,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
     const selected = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getChannelId() === id, [id]);
     const people = useStateFromStores([VoiceStateStore], () => occupants(id).join(","), [id]);
     const since = useCallStart(channel, !!people);
+    const drop = useVoiceDrop(channel && isVoice(channel) ? channel : null);
     const threadIds = useStateFromStores([ChannelListStore, ReadStateStore], () => {
         if (!threads || !channel) return "";
         const row = ChannelListStore.getGuildWithoutChangingGuildActionRows(channel.guild_id)?.guildChannels?.getChannel?.(id);
@@ -132,6 +134,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread")}
                     onClick={open}
                     data-dk-id={id}
+                    {...(voice ? drop : {})}
                     onContextMenu={(e: MouseEvent) => openChannelMenu(e, channel, channelMenu(channel))}
                     title={voice ? `${channel.name} · click to join voice` : channel.name}
                     aria-current={selected ? "page" : undefined}

@@ -12,6 +12,7 @@ import { ApplicationStreamingStore, ChannelActionCreators, ChannelStore, Relatio
 
 import { isStreaming, openChannel } from "./data";
 import { Icon } from "./icons";
+import { personDragProps } from "./move";
 
 export const occupants = (channelId: string) => Object.keys(VoiceStateStore.getVoiceStatesForChannel(channelId) ?? {});
 
@@ -58,8 +59,9 @@ export function Flags({ uid }: { uid: string; }) {
     );
 }
 
-function Member({ uid, className }: { uid: string; className: string; }) {
+function Member({ uid, className, channelId }: { uid: string; className: string; channelId: string; }) {
     const user = useStateFromStores([UserStore], () => UserStore.getUser(uid), [uid]);
+    const drag = personDragProps(uid, ChannelStore.getChannel(channelId));
     const friend = RelationshipStore.isFriend(uid);
     if (!user) return null;
     const name = nameOf(uid);
@@ -72,8 +74,8 @@ function Member({ uid, className }: { uid: string; className: string; }) {
     );
     // friends open your DM with them; strangers in a community's voice channel aren't a click target
     return friend
-        ? <button className={classes("dk-sb-row", className)} title={`Message ${name}`} onClick={() => openDm(uid)} data-dk-nav>{body}</button>
-        : <div className={classes("dk-sb-row", className)} title={name}>{body}</div>;
+        ? <button className={classes("dk-sb-row", className)} title={`Message ${name}`} onClick={() => openDm(uid)} data-dk-nav {...drag}>{body}</button>
+        : <div className={classes("dk-sb-row", className)} title={name} {...drag}>{body}</div>;
 }
 
 /** The people in a call, indented under its row. Long calls show the first `max` and a count. */
@@ -84,7 +86,7 @@ export function VoiceMembers({ channelId, max = 8, className = "dk-col-member" }
     const all = ids.split(",");
     return (
         <>
-            {all.slice(0, max).map(uid => <Member key={uid} uid={uid} className={className} />)}
+            {all.slice(0, max).map(uid => <Member key={uid} uid={uid} className={className} channelId={channelId} />)}
             {all.length > max && <div className={classes("dk-sb-row", className, "dk-vc-more")}>+{all.length - max} more</div>}
         </>
     );
