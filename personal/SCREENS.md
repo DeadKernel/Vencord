@@ -73,6 +73,17 @@ in the last 60 days, with friends in voice, or with a message in the last 30 day
 Discord's Friends page answers "who are my friends" with four tabs and an Active Now column.
 Home answers "what are my people doing", in one column at reading width:
 
+0. **For you · N** (2026-10-07; hidden when nothing's waiting): what's waiting for him, with what
+   was said. The sidebar's DMs & mentions says *where* someone needs him; this says *what they
+   said*. Only things addressed to him: direct @mentions, replies to him, unread DMs. One line per
+   person per place (newest message, a pink count if more): avatar, name, the message as one line
+   (mentions, channels and emoji as words), `#channel · server`, time. Click jumps to that message
+   (a DM opens). On hover a ✓ replaces the time and marks the conversation read without opening it.
+   At most 8 lines, then "N more in the inbox". @everyone and role pings are one dim line,
+   "N @everyone or role pings in K servers", which opens Discord's inbox. Text comes from
+   Discord's own mentions list (the inbox's request and filters) when Home opens, at most every 5
+   minutes, and for an unread DM its latest message, read once per new message, without touching
+   Discord's message cache. Recent leaves out the DMs shown here. `sidebar/digest.tsx`.
 1. **In voice** (hidden when empty): one block per call his friends are in. The call's row:
    "♪ channel  server", "live" if anyone is streaming, "N in call · M friends", and a teal text
    **Join**. Under it, everyone in the call, one 28px line each: friends first (clicking one opens

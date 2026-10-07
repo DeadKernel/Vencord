@@ -232,6 +232,17 @@ export function labelFor(channel?: Channel | null): string {
 
 const DISCORD_EPOCH = 1420070400000n;
 export const snowflakeTime = (id?: string | null) => id ? Number((BigInt(id) >> 22n) + DISCORD_EPOCH) : 0;
+
+/** "now", "5m", "3h", "2d", "4mo" */
+export function ago(ms: number) {
+    const m = Math.round((Date.now() - ms) / 60000);
+    if (m < 1) return "now";
+    if (m < 60) return `${m}m`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${h}h`;
+    const d = Math.round(h / 24);
+    return d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
+}
 const compareSnowflake = (a?: string | null, b?: string | null) => {
     const x = a ? BigInt(a) : 0n, y = b ? BigInt(b) : 0n;
     return x < y ? -1 : x > y ? 1 : 0;

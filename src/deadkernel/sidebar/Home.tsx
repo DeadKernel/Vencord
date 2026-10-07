@@ -16,22 +16,13 @@ import {
 import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
-import { activityOf, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
+import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
+import { digestDmIds, ForYou } from "./digest";
 import { Icon, IconSlot } from "./icons";
 import { nameOf, occupants, openDm, VoiceMembers } from "./voice";
 
 const RECENT_MAX = 10;
 const RECENT_DAYS = 30;
-
-function ago(ms: number) {
-    const m = Math.round((Date.now() - ms) / 60000);
-    if (m < 1) return "now";
-    if (m < 60) return `${m}m`;
-    const h = Math.round(m / 60);
-    if (h < 24) return `${h}h`;
-    const d = Math.round(h / 24);
-    return d < 30 ? `${d}d` : `${Math.round(d / 30)}mo`;
-}
 
 
 function Avatar({ uid, size = 24, status }: { uid: string; size?: number; status?: string; }) {
@@ -129,7 +120,7 @@ function RecentRow({ id }: { id: string; }) {
     if (!channel) return null;
     const uid = channel.type === 1 ? channel.recipients[0] : null;
     return (
-        <button className={classes("dk-home-row dk-home-main", unread && "dk-unread")} onClick={() => openChannel(id)}>
+        <button className={classes("dk-home-row dk-home-main", unread && "dk-unread")} data-dk-id={id} onClick={() => openChannel(id)}>
             {uid ? <Avatar uid={uid} status={PresenceStore.getStatus(uid)} /> : <span className="dk-sb-icon"><span className="dk-sb-glyph">{labelFor(channel)[0]}</span></span>}
             <span className="dk-home-name">{labelFor(channel)}</span>
             <span className="dk-home-dim dk-home-time">{last ? ago(last) : ""}</span>
@@ -143,8 +134,9 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
     const online = useOnline();
     const recent = useStateFromStores([PrivateChannelSortStore, ReadStateStore], () => {
         const cutoff = Date.now() - RECENT_DAYS * 864e5;
-        return PrivateChannelSortStore.getPrivateChannelIds().filter((id: string) =>
-            ReadStateStore.hasUnread(id) || snowflakeTime(ReadStateStore.lastMessageId(id)) > cutoff).join(",");
+        const inDigest = new Set(digestDmIds());
+        return PrivateChannelSortStore.getPrivateChannelIds().filter((id: string) => !inDigest.has(id) &&
+            (ReadStateStore.hasUnread(id) || snowflakeTime(ReadStateStore.lastMessageId(id)) > cutoff)).join(",");
     });
     const recentIds = recent ? recent.split(",") : [];
     const [moreRecent, setMoreRecent] = useState(false);
@@ -173,6 +165,7 @@ export function Home({ Original, initialSection, ...rest }: { Original: Componen
             </header>
             <div className="dk-home-body">
                 <div className="dk-home-flow">
+                <ForYou />
                 {calls.length > 0 && (
                     <section>
                         <h2>In voice</h2>

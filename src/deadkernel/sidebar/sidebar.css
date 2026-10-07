@@ -981,11 +981,91 @@ div.dk-home-member:hover {
     font-weight: 600;
 }
 
-.dk-home-call {
+.dk-home-call,
+.dk-home-digest {
     cursor: default;
 }
 
-.dk-home-call .dk-home-main {
+/* For you: who, what they said (takes the room), where, when. On hover a ✓ (mark read) takes
+   the time's place, as in the sidebar, so times line up with Recent's below */
+.dk-home-digest {
+    position: relative;
+}
+
+.dk-home-digest .dk-home-name {
+    flex: none;
+    max-width: 30%;
+    color: var(--dk-strong);
+    font-weight: 600;
+}
+
+.dk-home-said {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--dk-text);
+}
+
+.dk-home-where {
+    flex: 0 1000 auto;
+    max-width: 35%;
+}
+
+.dk-home-digest .dk-home-ago {
+    flex: none;
+    overflow: visible;
+}
+
+.dk-home-digest:hover .dk-home-ago,
+.dk-home-digest:hover .dk-sb-count,
+.dk-home-digest:focus-within .dk-home-ago {
+    visibility: hidden;
+}
+
+.dk-home-digest .dk-sb-count {
+    flex: none;
+    margin-left: 0;
+}
+
+.dk-home-read {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--dk-text-2);
+    cursor: pointer;
+    opacity: 0;
+}
+
+.dk-home-digest:hover .dk-home-read,
+.dk-home-read:focus-visible {
+    opacity: 1;
+}
+
+.dk-home-read:hover {
+    color: var(--dk-teal);
+    background: color-mix(in srgb, var(--dk-teal) 12%, transparent);
+}
+
+.dk-home-broadcast {
+    color: var(--dk-text-2);
+}
+
+.dk-home-broadcast svg {
+    flex: none;
+    width: 24px;
+}
+
+.dk-home-call .dk-home-main,
+.dk-home-digest .dk-home-main {
     display: flex;
     align-items: center;
     gap: 10px;

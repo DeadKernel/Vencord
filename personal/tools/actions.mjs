@@ -441,6 +441,26 @@ try {
 	await js(`document.querySelector(".dk-home-back").click()`);
 	check("← Home comes back", await until(`document.querySelector(".dk-home")`, 1500));
 
+	// For you: a line opens its message, ✓ marks read through Discord's bulk ack (both recorded, not done)
+	await until(`document.querySelector(".dk-home-foryou")`, 4000);
+	if (await js(`return !!document.querySelector(".dk-home-digest")`)) {
+		await block(true);
+		check("For you never repeats a conversation under Recent", await js(`
+			const shown = new Set([...document.querySelectorAll(".dk-home-digest[data-dk-id]")].map(r => r.dataset.dkId));
+			const recent = [...document.querySelectorAll(".dk-home-body section")].find(s => s.querySelector("h2")?.textContent === "Recent");
+			return ![...(recent?.querySelectorAll("button.dk-home-row[data-dk-id]") ?? [])].some(b => shown.has(b.dataset.dkId));`));
+		await rec();
+		await js(`document.querySelector(".dk-home-digest .dk-home-main").click()`);
+		r = await rec();
+		check("a For you line opens its conversation or message", recHas(r, "nav", a => a[0].startsWith("/channels/")), JSON.stringify(r));
+		await js(`document.querySelector(".dk-home-digest .dk-home-read").click()`);
+		r = await rec();
+		check("…and ✓ marks it read through Discord's bulk ack, without opening", recHas(r, "dispatch", a => a[0] === "BULK_ACK") && !recHas(r, "nav"), JSON.stringify(r));
+		await block(false);
+	}
+	check("For you's broadcast line counts only unread @everyone/role pings", await js(`
+		const b = document.querySelector('[data-dk-action="broadcasts"]'); return !b || /^\\d+ @everyone or role ping/.test(b.textContent.trim())`));
+
 	// ── 11. Palette rows (empty state) ──
 	await block(true);
 	await js(`Vencord.Webpack.mapMangledModule('type:"QUICKSWITCHER_SEARCH"', { show: Vencord.Webpack.filters.byCode('"KEYBIND"') }).show("KEYBIND", "")`);

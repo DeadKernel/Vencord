@@ -135,6 +135,14 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   installer, and the release was pulled. Accord now has its own include. Installer tests now
   fingerprint every other app's folder before and after, and uninstall at the end. Also:
   electron-builder's own publishing raced into two releases; `gh release create` makes one.
+- **Home's "For you", 2026-10-07.** A digest of what's waiting for him with the actual text
+  (personal/SCREENS.md, Home). Two lessons. Vencord's lazy finders (`findStoreLazy`,
+  `findByPropsLazy`) **give up for good after five misses**: right after startup Discord hadn't
+  registered RecentMentionsStore yet, so touching it threw inside Home and dropped Home to
+  Discord's Friends page. Look such things up directly, retrying, and give new sections their own
+  ErrorBoundary. And **build the dev app with `pnpm build --disable-updater`** (restart.ps1 does):
+  a plain build leaves Vencord's updater on, and the dev app replaced my build with the latest
+  release within a minute, so I was testing old code.
 - **Screen share picker, 2026-10-07.** It took 3.5s to open: Windows' capture API fails on hidden
   helper windows (NVIDIA Broadcast, Razer) at about a second each, and the preview step captured
   everything again. Now names and icons open it in ~0.3s and thumbnails fill in
