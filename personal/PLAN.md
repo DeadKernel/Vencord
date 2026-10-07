@@ -115,6 +115,13 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   still laid out. The screen-share picker scrolled fine in every test. The GIF picker isn't
   scrolled (it streams dozens of videos); his PC crashed in a GPU reset during this session,
   probably not ours, but no need to load it.
+- **App icon, 2026-10-07.** The dev build runs a bare `electron.exe`, so Windows showed
+  Electron's icon, and it borrowed the installed Vesktop's app id. Side by side, the Vesktop fork
+  now uses its own icon: Discord's mark in the accent on the theme's dark, unlike the real app's
+  blurple. Drawn by `personal/tools/make-icon.mjs`, which also sets the tray icon through
+  Vesktop's custom tray slot. Its own app id is `DeadKernel.Discord`, and a Start Menu shortcut
+  "Discord (DeadKernel)" runs `vesktop-dev.ps1`. Windows takes notification names and pinned
+  buttons from that shortcut. Friends on stock Vesktop keep Vesktop's icon.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 

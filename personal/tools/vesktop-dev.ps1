@@ -32,6 +32,8 @@ if (-not (Test-Path $settings)) {
 
 $env:VENCORD_USER_DATA_DIR = $data
 $env:VESKTOP_SIDE_BY_SIDE = "1"
+# so the Start Menu shortcut and a pinned taskbar button start it the same way (vesktop src/main/deadkernel.ts)
+$env:VESKTOP_LAUNCHER = $PSCommandPath
 Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue # set when launched from an Electron-based terminal
 $electron = Join-Path $vesktop "node_modules\electron\dist\electron.exe"
 Start-Process -FilePath $electron -WorkingDirectory $vesktop -ArgumentList ".", "--remote-debugging-port=$Port"
