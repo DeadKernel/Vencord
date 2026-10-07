@@ -396,13 +396,13 @@ try {
 	check("…and letting go hides them", await until(`!("dkCtrl" in document.documentElement.dataset)`, 500));
 
 	await block(false);
-	const look = await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; return { palette: t.palette, density: t.density };`);
+	const look = await js(`const t = Vencord.Settings.plugins.Theme; return { palette: t.palette, density: t.density };`);
 	await runAction("Palette: Midnight");
 	check("› Palette: Midnight switches the palette", await until(`document.documentElement.dataset.dkPalette === "midnight"`, 1000));
 	await runAction("Density: Compact");
 	check("› Density: Compact switches density", await until(`document.documentElement.dataset.dkDensity === "compact"`, 1000));
-	await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; t.palette = ${JSON.stringify(look.palette ?? "humanlayer")}; t.density = ${JSON.stringify(look.density ?? "default")};`);
-	check("…and his look is back", await js(`const t = Vencord.Settings.plugins.HumanLayerTheme; return (t.palette ?? "humanlayer") === ${JSON.stringify(look.palette ?? "humanlayer")} && (t.density ?? "default") === ${JSON.stringify(look.density ?? "default")}`));
+	await js(`const t = Vencord.Settings.plugins.Theme; t.palette = ${JSON.stringify(look.palette ?? "poimandres")}; t.density = ${JSON.stringify(look.density ?? "default")};`);
+	check("…and his look is back", await js(`const t = Vencord.Settings.plugins.Theme; return (t.palette ?? "poimandres") === ${JSON.stringify(look.palette ?? "poimandres")} && (t.density ?? "default") === ${JSON.stringify(look.density ?? "default")}`));
 	await block(false);
 
 	// ── 10. Home, with a call injected into Discord's local voice store (nothing is sent) ──

@@ -1,4 +1,4 @@
-/* Palettes and density for the HumanLayer theme. Each palette sets only the base tokens; every
+/* Palettes and density for the Theme plugin. Each palette sets only the base tokens; every
    tint and every Discord variable is derived from them in HumanLayer.theme.css. The plugin puts
    data-dk-palette and data-dk-density on <html> (personal/SCREENS.md "Palettes and density"). */
 

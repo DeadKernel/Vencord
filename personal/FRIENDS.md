@@ -48,10 +48,10 @@ have no count in the header, and there's no "jump to new messages" bar yet.
 
 IF SOMETHING LOOKS WRONG
 Settings > Vencord > Plugins: "Sidebar" (the layout), "QuietLayout" (the chat), "Declutter"
-(what's hidden), "HumanLayerTheme" (the look). Each can be switched off, and every option inside
+(what's hidden), "Theme" (the look). Each can be switched off, and every option inside
 switches live. If part of the layout breaks, it falls back to Discord's own.
 Everything grows with the window; if it's too big or small for you, QuietLayout > Overall size.
-Colours and spacing: HumanLayerTheme > Palette (five, one light) and Density (compact to
+Colours and spacing: Theme > Palette (five, one light) and Density (compact to
 comfortable).
 
 FEEDBACK: DM Aditya (screenshots help; blur anything private)

@@ -75,7 +75,7 @@ function setup() {
         sidebar: !!sidebar.enabled,
         quiet_layout: !!p.QuietLayout?.enabled,
         declutter: !!p.Declutter?.enabled,
-        theme: !!p.HumanLayerTheme?.enabled,
+        theme: !!p.Theme?.enabled,
         sidebar_home: sidebar.home !== false,
         sidebar_palette: sidebar.palette !== false,
         sidebar_collapse_muted: !!sidebar.collapseMuted,

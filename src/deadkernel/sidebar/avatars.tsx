@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// Avatars and server icons in the 24px slot every row has (animated ones play: HumanLayerTheme's
+// Avatars and server icons in the 24px slot every row has (animated ones play: Theme's
 // "Animated avatars" wraps the URL helpers these call).
 
 import { Channel } from "@vencord/discord-types";

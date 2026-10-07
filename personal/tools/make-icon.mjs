@@ -1,4 +1,4 @@
-// DeadKernel's app icon: Discord's mark (Simple Icons, CC0) in the HumanLayer accent on its
+// DeadKernel's app icon: Discord's mark (Simple Icons, CC0) in the Poimandres accent on its
 // background, a dark square with a thin border. Distinct from the real Discord app's blurple icon
 // sitting next to it on the taskbar. Drawn by the running client's canvas (CDP), so no image tools.
 //   CDP_PORT=9223 node personal/tools/make-icon.mjs [vesktopDir]

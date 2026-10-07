@@ -155,9 +155,9 @@ function emptyLines(): Line[] {
     return lines;
 }
 
-// The look, from the keyboard: HumanLayerTheme's palette and density (">midnight", ">compact").
+// The look, from the keyboard: Theme's palette and density (">midnight", ">compact").
 const PALETTES = [
-    { value: "humanlayer", name: "HumanLayer", bg: "#1b1e28", accent: "#add7ff" },
+    { value: "poimandres", name: "Poimandres", bg: "#1b1e28", accent: "#add7ff" },
     { value: "midnight", name: "Midnight", bg: "#000", accent: "#7aa2ff" },
     { value: "gruvbox", name: "Gruvbox", bg: "#1d2021", accent: "#83a598" },
     { value: "nord", name: "Nord", bg: "#2e3440", accent: "#88c0d0" },
@@ -166,9 +166,9 @@ const PALETTES = [
 const DENSITIES = [{ value: "compact", name: "Compact" }, { value: "default", name: "Default" }, { value: "comfortable", name: "Comfortable" }];
 
 function lookActions(): Entry[] {
-    const theme = VencordSettings.plugins.HumanLayerTheme;
+    const theme = VencordSettings.plugins.Theme;
     if (!theme?.enabled) return [];
-    const palette = theme.palette ?? "humanlayer", density = theme.density ?? "default";
+    const palette = theme.palette ?? "poimandres", density = theme.density ?? "default";
     return [
         ...PALETTES.map(p => ({
             key: `a-palette-${p.value}`, label: `Palette: ${p.name}`, where: p.value === palette ? "current" : undefined,

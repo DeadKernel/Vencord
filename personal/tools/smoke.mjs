@@ -64,7 +64,7 @@ const C = "Vencord.Webpack.Common";
 const go = (path) => js(`${C}.NavigationRouter.transitionTo(${JSON.stringify(path)})`);
 
 // ── 1. Plugins ──
-const plugins = await js(`return ["Sidebar","Declutter","QuietLayout","HumanLayerTheme","DeadKernel"].map(n => [n, !!Vencord.Plugins.plugins[n]?.started])`);
+const plugins = await js(`return ["Sidebar","Declutter","QuietLayout","Theme","DeadKernel"].map(n => [n, !!Vencord.Plugins.plugins[n]?.started])`);
 for (const [n, on] of plugins) check(`plugin ${n} started`, on);
 
 // ── 2. Home ──
