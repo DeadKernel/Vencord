@@ -88,7 +88,8 @@ function setup() {
 /** What a flush would send right now (also what the settings page shows). */
 export function pending(): unknown[] {
     const base = { distinct_id: installId(), timestamp: new Date().toISOString() };
-    const common = { $process_person_profile: false, $lib: "deadkernel", build: gitHash, os: os() };
+    // no person profiles, and no location looked up from the sender's IP
+    const common = { $process_person_profile: false, $geoip_disable: true, $lib: "deadkernel", build: gitHash, os: os() };
     const batch: any[] = [];
     if (!sessionSent) batch.push({ ...base, event: "dk_session_start", properties: { ...common, window: widthBucket(), ...setup() } });
     if (counts.size) batch.push({

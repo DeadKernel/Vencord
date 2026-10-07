@@ -1,6 +1,6 @@
 Accord: a quieter Discord (early build for a few friends)
 
-Aditya's redesign of the Discord desktop app, built on Vesktop and Vencord. It changes how
+A redesign of the Discord desktop app, built on Vesktop and Vencord. It changes how
 Discord looks and is laid out. It doesn't send or store anything outside your machine.
 
 ONE THING FIRST
@@ -25,7 +25,7 @@ click to restart". The app itself: now and then it offers an update in a small w
 Discord's own changes usually arrive within a day, without you doing anything.
 
 TELEMETRY (only if you say yes)
-Once, you'll be asked whether to share anonymous usage: which of Aditya's changes you use, how
+Once, you'll be asked whether to share anonymous usage: which of these changes you use, how
 you've set them, and errors. Never names, IDs, servers, channels or messages. Settings >
 Vencord > Plugins > DeadKernel shows exactly what would be sent, and switches it off.
 
@@ -58,7 +58,7 @@ Everything grows with the window; if it's too big or small for you, QuietLayout 
 Colours and spacing: Theme > Palette (five, one light) and Density (compact to
 comfortable).
 
-FEEDBACK: DM Aditya (screenshots help; blur anything private)
+FEEDBACK: message me (screenshots help; blur anything private)
 - The first 10 minutes: what confused you, what you went looking for and couldn't find.
 - Does the sidebar show what you actually care about, in the right order?
 - Inside a server: are the right channels showing? Did you miss any?

@@ -1,6 +1,6 @@
 # Start here (DeadKernel fork)
 
-This is Aditya's personal fork of Vencord. Read `personal/PLAN.md` first: goal, the three
+This is the DeadKernel personal fork of Vencord. Read `personal/PLAN.md` first: goal, the three
 layers (Discord web client / Vencord / Vesktop), milestones, and ground rules.
 
 - Personal work goes in `personal/` and our own plugin folder, not scattered through

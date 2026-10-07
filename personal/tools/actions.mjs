@@ -198,9 +198,11 @@ try {
 	await rec();
 	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent === "Home")?.click()`);
 	check("Home row goes Home", recHas(await rec(), "nav", a => a[0] === "/channels/@me"));
-	const dmMention = await js(`return !![...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0]?.querySelector(".dk-sb-row")`);
+	// DMs & mentions only shows while something's unread there
+	const directSection = `[...document.querySelectorAll(".dk-layer-top .dk-sb-section")].find(s => /^DMs & mentions/i.test(s.querySelector(".dk-sb-label, .dk-sb-label-toggle")?.textContent ?? ""))`;
+	const dmMention = await js(`return !!${directSection}?.querySelector(".dk-sb-row")`);
 	if (dmMention) {
-		await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0].querySelector(".dk-sb-row").click()`);
+		await js(`${directSection}.querySelector(".dk-sb-row").click()`);
 		check("DMs & mentions row opens its conversation", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
 		await js(`document.querySelector('[data-dk-action="mark-read"]')?.click()`);
 		r = await rec();
@@ -220,7 +222,7 @@ try {
 	await js(`${serverRow}?.click()`);
 	check("server row opens the server", recHas(await rec(), "nav", a => a[0].startsWith("/channels/")));
 	// triage from DMs & mentions without opening anything (Discord's side effects recorded)
-	const triage = `[...document.querySelectorAll(".dk-layer-top .dk-sb-section")][0]?.querySelector(".dk-sb-rowwrap .dk-sb-actions")`;
+	const triage = `${directSection}?.querySelector(".dk-sb-rowwrap .dk-sb-actions")`;
 	if (await js(`return !!${triage}`)) {
 		await rec();
 		await js(`${triage}.querySelector('[data-dk-action="read"]').click()`);

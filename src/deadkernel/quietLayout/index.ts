@@ -97,7 +97,7 @@ const onResize = () => {
 export default definePlugin({
     name: "QuietLayout",
     description: "A quiet, Slack-shaped Discord: grey rail, bare header, one-line rows, names and text without avatars in servers, nothing animating.",
-    authors: [{ name: "Aditya Padwal", id: 0n }],
+    authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     settings,
     managedStyle: style,

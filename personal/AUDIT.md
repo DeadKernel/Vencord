@@ -2,7 +2,7 @@
 
 Walked live in Vesktop with our Vencord build on 2026-10-06 (Discord stable 629779). Marked by
 Claude on 2026-10-06 from `DESIGN.md` (HumanLayer material, Maeda's discipline, Slack's
-structure), at Aditya's request, then pushed further the same day after he asked for a more
+structure), at the owner's request, then pushed further the same day after he asked for a more
 radical cut, with his two uses in mind: friends, and developer communities for work. Change any
 mark and the plugins follow.
 

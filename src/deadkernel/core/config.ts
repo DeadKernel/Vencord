@@ -8,7 +8,7 @@
 
 /** PostHog project key (phc_…): public and write-only by design, safe to ship in the client.
  * Empty = telemetry never sends, whatever the setting says. */
-export const POSTHOG_KEY = "";
+export const POSTHOG_KEY = "phc_rWqxLLG3EwZZNAbeKiMg2hBecxZarovM98nV8rseGdFo";
 export const POSTHOG_HOST = "https://us.i.posthog.com";
 
 /** Announcements for everyone running a DeadKernel build (personal/RELEASING.md). */

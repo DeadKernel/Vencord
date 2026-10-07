@@ -87,7 +87,7 @@ const userMenu: NavContextMenuPatchCallback = (children, { user, channel }: { us
 export default definePlugin({
     name: "Sidebar",
     description: "One sidebar instead of the server rail and channel list: what needs you, favorites, messages, and your servers.",
-    authors: [{ name: "Aditya Padwal", id: 0n }],
+    authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     settings,
     managedStyle: style,

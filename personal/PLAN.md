@@ -1,4 +1,4 @@
-# Aditya's Discord client: plan
+# DeadKernel: plan
 
 Last updated 2026-10-06. One of two independent tracks; the other is Sightline (private
 repo `DeadKernel/sightline`, see its `docs/PLAN.md`). Each gets built regardless of how
@@ -6,7 +6,7 @@ the other goes.
 
 ## Goal
 
-A Discord client Aditya daily-drives on Windows and Mac, cut down to what he actually uses.
+A Discord client its owner daily-drives on Windows and Mac, cut down to what he actually uses.
 What he hates about Discord is bloat: features he never touches, cluttered UI, bad
 notifications. His version hides most of it behind toggles and feels closer to Slack.
 Design language: HumanLayer's (`personal/themes/humanlayer/tokens.md`).

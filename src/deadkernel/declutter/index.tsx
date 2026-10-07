@@ -144,7 +144,7 @@ function queueDmTags() {
 export default definePlugin({
     name: "Declutter",
     description: "Hides the parts of Discord you don't use: promos, paid cosmetics, growth features. One toggle each.",
-    authors: [{ name: "Aditya Padwal", id: 0n }],
+    authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     settings,
     managedStyle: style,

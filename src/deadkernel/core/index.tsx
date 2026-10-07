@@ -34,8 +34,8 @@ const timers: number[] = [];
 function askConsent() {
     if (settings.store.askedConsent || !canSend()) return;
     Alerts.show({
-        title: "Share anonymous usage with Aditya?",
-        body: "Which of his changes you use, how you've set them, and any errors. "
+        title: "Share anonymous usage?",
+        body: "With this build's developer only: which of its changes you use, how you've set them, and any errors. "
             + "Never names, IDs, servers, channels or messages. Settings > Vencord > Plugins > DeadKernel shows exactly what's sent, "
             + "and turns it off.",
         confirmText: "Share",
@@ -85,7 +85,7 @@ async function checkUpdate() {
 export default definePlugin({
     name: "DeadKernel",
     description: "Updates from DeadKernel's GitHub releases, announcements about new builds, Windows taskbar mute/deafen buttons, and opt-in anonymous usage telemetry.",
-    authors: [{ name: "Aditya Padwal", id: 0n }],
+    authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     settings,
 

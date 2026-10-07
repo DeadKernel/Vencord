@@ -80,5 +80,6 @@ install id (resettable); events are personless (`$process_person_profile: false`
 PostHog project, turn on **Discard client IP data**. Friends see exactly what would be sent next,
 and what was sent last, in Settings > Vencord > Plugins > DeadKernel.
 
-To turn it on: create the project in a personal PostHog org, put its `phc_` key in `config.ts`,
-release.
+On since 2026-10-07: a personal PostHog org's project (US cloud), its `phc_` key in `config.ts`.
+Events also carry `$geoip_disable`, so no location is derived from the sender's IP. Friends are
+asked once; nothing is sent unless they say yes.

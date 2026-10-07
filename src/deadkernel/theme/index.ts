@@ -61,7 +61,7 @@ function apply() {
 export default definePlugin({
     name: "Theme",
     description: "The look: Poimandres (or four other palettes), IBM Plex Mono, square corners, hairline borders, and density.",
-    authors: [{ name: "Aditya Padwal", id: 0n }],
+    authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     managedStyle: style,
     settings,

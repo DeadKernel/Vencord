@@ -13,7 +13,7 @@ import { TelemetryPreview } from "./TelemetryPreview";
 export const settings = definePluginSettings({
     telemetry: {
         type: OptionType.BOOLEAN,
-        description: "Share anonymous usage with Aditya: which of his changes you use, how you've set them, and errors. Never names, IDs, servers, channels or messages.",
+        description: "Share anonymous usage with this build's developer: which of its changes you use, how you've set them, and errors. Never names, IDs, servers, channels or messages.",
         default: false
     },
     preview: {
