@@ -206,8 +206,14 @@ try {
 		r = await rec();
 		check("Mark read acks only through Discord's bulk ack", recHas(r, "dispatch", a => a[0] === "BULK_ACK") || !(await js(`return !!document.querySelector('[data-dk-action="mark-read"]')`)), JSON.stringify(r));
 	}
-	await js(`[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent.startsWith("Message requests"))?.click()`);
-	check("Message requests row opens message requests", recHas(await rec(), "nav", a => a[0] === "/message-requests"));
+	// the row only shows while there are requests
+	const requestsRow = `[...document.querySelectorAll(".dk-layer-top .dk-sb-row")].find(r => r.textContent.startsWith("Message requests"))`;
+	if (await js(`return !!${requestsRow}`)) {
+		await js(`${requestsRow}.click()`);
+		check("Message requests row opens message requests", recHas(await rec(), "nav", a => a[0] === "/message-requests"));
+	} else {
+		check("no Message requests row without requests", !(await js(`return Vencord.Webpack.Common.MessageRequestStore.getMessageRequestsCount?.() > 0`)));
+	}
 	await js(`document.querySelector('[data-dk-action="add-server"]')?.click()`);
 	check("Servers › Add opens Discord's create/join", recHas(await rec(), "createGuild"));
 	const serverRow = `[...document.querySelectorAll('.dk-layer-top .dk-sb-section')].find(s => s.querySelector(".dk-sb-label-toggle")?.textContent === "Servers")?.querySelector(".dk-sb-row[data-dk-id]")`;

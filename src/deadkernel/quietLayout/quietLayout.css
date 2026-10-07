@@ -133,9 +133,16 @@
     visibility: hidden;
 }
 
-/* the inbox: the sidebar's DMs & mentions is the inbox (Ctrl I still opens Discord's) */
+/* the inbox: the sidebar's DMs & mentions is the inbox (Ctrl I still opens Discord's). Hidden but
+   still laid out: Ctrl I's popout hangs from this button, and display:none put it at the window's
+   top-left corner, over the title bar */
 [data-dk-layout~="bareTitlebar"] [class*="bar_"] [class*="trailing_"] > [class*="iconWrapper_"]:has([aria-label="Inbox"]) {
-    display: none !important;
+    visibility: hidden;
+    width: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 /* the title bar's left: Discord's mark and name, dim (mark: Simple Icons, CC0) */

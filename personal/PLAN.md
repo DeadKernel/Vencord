@@ -106,6 +106,15 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   Developer Options > Vencord Location) after proving none of his ids are in the bundle.
 - **Lesson:** an effect must never return a value: `scrollIntoView` returns a Promise in this
   Chromium, React called it as a cleanup, and the sidebar crashed on switching servers.
+- **Discord's own surfaces, 2026-10-07.** `personal/tools/sweep.mjs` opens 14 of Discord's own
+  surfaces under our changes and checks each one: emoji/GIF pickers, profile and status
+  popouts, pins, inbox, shortcuts, image viewer, menus, the screen-share picker with 12 fake
+  sources, settings, the Friends page. Each must fit the window, sit clear of the title bar, and
+  scroll to its end. It found one real bug: hiding the title bar's Inbox with `display: none`
+  left Ctrl I's popout anchored at (0,0), over the title bar. The button is now invisible but
+  still laid out. The screen-share picker scrolled fine in every test. The GIF picker isn't
+  scrolled (it streams dozens of videos); his PC crashed in a GPU reset during this session,
+  probably not ours, but no need to load it.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
