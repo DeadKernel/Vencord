@@ -136,6 +136,9 @@ function wav(pcm: Float32Array[]) {
     return new Blob([buf], { type: "audio/wav" });
 }
 
+/** -60 dB at the left edge, 0 dB (clipping) at the right */
+const meterPct = (d: number) => Math.max(0, Math.min(100, (d + 60) / 60 * 100));
+
 function VoiceLab(props: any) {
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
     const [deviceId, setDeviceId] = useState<string>(MediaEngineStore.getInputDeviceId?.() ?? "default");
@@ -146,8 +149,43 @@ function VoiceLab(props: any) {
     const [variants, setVariants] = useState<Variant[]>([]);
     const [playing, setPlaying] = useState<string | null>(null);
     const audio = useRef<{ ctx: AudioContext; gains: Map<string, GainNode>; sources: AudioBufferSourceNode[]; } | null>(null);
+    const [meter, setMeter] = useState<{ level: number; peak: number; clip: boolean; } | null>(null);
+    const meterRef = useRef<{ stop(): void; } | null>(null);
 
-    useEffect(() => { navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === "audioinput"))); return () => stop(); }, []);
+    useEffect(() => { navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === "audioinput"))); return () => { stop(); stopMeter(); }; }, []);
+    useEffect(() => { if (meterRef.current) { stopMeter(); startMeter(); } }, [deviceId]);
+
+    function stopMeter() {
+        meterRef.current?.stop();
+        meterRef.current = null;
+        setMeter(null);
+    }
+
+    /** Live input level, unprocessed, for setting the mixer's knobs: the level, the peak of the last
+     * three seconds, and clipping (held two seconds). The mic is open only while this runs. */
+    async function startMeter() {
+        track("voice_lab_meter");
+        const device = deviceId && deviceId !== "default" ? { deviceId: { exact: deviceId } } : {};
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: { ...device, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+            const ctx = new AudioContext({ sampleRate: RATE });
+            const an = ctx.createAnalyser(); an.fftSize = 2048;
+            ctx.createMediaStreamSource(stream).connect(an);
+            const buf = new Float32Array(an.fftSize);
+            let hold = -120, holdAt = 0, clipAt = -1e9;
+            const timer = window.setInterval(() => {
+                an.getFloatTimeDomainData(buf);
+                let pk = 0; for (const v of buf) { const a = Math.abs(v); if (a > pk) pk = a; }
+                const d = db(pk), now = performance.now();
+                if (d >= hold || now - holdAt > 3000) { hold = d; holdAt = now; }
+                if (pk >= 0.999) clipAt = now;
+                setMeter({ level: d, peak: hold, clip: now - clipAt < 2000 });
+            }, 50);
+            meterRef.current = { stop: () => { clearInterval(timer); stream.getTracks().forEach(t => t.stop()); ctx.close(); } };
+        } catch (e) {
+            setError(String((e as Error)?.message ?? e));
+        }
+    }
 
     const voiceChannel = ChannelStore.getChannel(SelectedChannelStore.getVoiceChannelId?.() ?? "");
     const channelKbps = Math.round(((voiceChannel as any)?.bitrate ?? 64000) / 1000);
@@ -158,6 +196,7 @@ function VoiceLab(props: any) {
     async function record() {
         track("voice_lab_record");
         stop();
+        stopMeter();
         setError(""); setVariants([]); setPhase("recording"); setLeft(SECONDS);
         const ctx = new AudioContext({ sampleRate: RATE });
         const loops: Awaited<ReturnType<typeof opusLoop>>[] = [];
@@ -283,6 +322,20 @@ function VoiceLab(props: any) {
                     <select className="dk-lab-select" value={deviceId} onChange={e => setDeviceId(e.currentTarget.value)} disabled={phase === "recording" || phase === "working"}>
                         {devices.map(d => <option key={d.deviceId} value={d.deviceId}>{d.label || d.deviceId}</option>)}
                     </select>
+                </div>
+                <div className="dk-lab-row">
+                    <span className="dk-lab-k">Level</span>
+                    <button className="dk-lab-btn" data-dk-action="lab-meter" onClick={() => (meter ? stopMeter() : startMeter())} disabled={phase === "recording" || phase === "working"}>
+                        {meter ? "Stop meter" : "Live meter"}
+                    </button>
+                    {meter && <>
+                        <div className="dk-lab-meter" data-clip={meter.clip || undefined} title="Aim: your loudest moments in the shaded zone (-12 to -6 dB)">
+                            <div className="dk-lab-meter-zone" />
+                            <div className="dk-lab-meter-fill" style={{ width: `${meterPct(meter.level)}%` }} />
+                            <div className="dk-lab-meter-hold" style={{ left: `${meterPct(meter.peak)}%` }} />
+                        </div>
+                        <span className="dk-lab-meter-num" data-dk-meter={Math.round(meter.peak)}>{meter.clip ? "CLIP" : `${Math.round(meter.peak)} dB`}</span>
+                    </>}
                 </div>
                 {chain && <div className="dk-lab-row"><span className="dk-lab-k">Capture</span><span className="dk-lab-dim">{chain}</span></div>}
                 <button className="dk-lab-rec" data-dk-action="lab-record" disabled={phase === "recording" || phase === "working"} onClick={record}>

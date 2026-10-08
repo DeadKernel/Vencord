@@ -36,6 +36,14 @@ try {
 	check("Ctrl K › > lists Voice lab", await js(`return [...document.querySelectorAll(".dk-pal-row")].some(r => r.textContent.includes("Voice lab"))`));
 	for (const type of ["rawKeyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
 	check("it opens the lab", await (async () => { for (let i = 0; i < 30; i++) { if (await js(`return !!document.querySelector(".dk-lab")`)) return true; await sleep(100); } return false; })());
+	// live meter: the synthetic signal peaks near -9 dB
+	await js(`document.querySelector('[data-dk-action="lab-meter"]').click()`);
+	await sleep(1200);
+	const metered = await js(`return Number(document.querySelector("[data-dk-meter]")?.dataset.dkMeter ?? NaN)`);
+	check("the live meter reads the input level (about -9 dB here)", metered >= -12 && metered <= -6, String(metered));
+	await js(`document.querySelector('[data-dk-action="lab-meter"]').click()`);
+	await sleep(200);
+	check("…and stops (mic closed)", await js(`return !document.querySelector("[data-dk-meter]")`));
 	await js(`document.querySelector('[data-dk-action="lab-record"]').click()`);
 	let done = false;
 	for (let i = 0; i < 40 && !done; i++) { await sleep(500); done = await js(`return document.querySelectorAll("[data-dk-variant]").length >= 4 || !!document.querySelector(".dk-lab-error")`); }

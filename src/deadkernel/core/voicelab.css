@@ -114,3 +114,46 @@
     padding-top: 4px;
     font-size: 13px;
 }
+
+/* live meter: -60 dB at the left, clipping at the right; the shaded band is the target (-12 to -6) */
+.dk-lab-meter {
+    position: relative;
+    flex: 1;
+    height: 12px;
+    border: 1px solid var(--hl-border, var(--border-subtle));
+    background: var(--hl-bg, var(--background-base-lowest));
+    overflow: hidden;
+}
+
+.dk-lab-meter-zone {
+    position: absolute;
+    inset: 0 auto 0 80%;
+    width: 10%;
+    background: color-mix(in srgb, var(--hl-teal, #2dd4bf) 22%, transparent);
+}
+
+.dk-lab-meter-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--hl-accent, var(--brand-500));
+    opacity: 0.85;
+}
+
+.dk-lab-meter[data-clip] .dk-lab-meter-fill {
+    background: var(--hl-pink, var(--text-danger));
+}
+
+.dk-lab-meter-hold {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--hl-text-strong, var(--text-normal));
+}
+
+.dk-lab-meter-num {
+    flex: none;
+    width: 52px;
+    text-align: right;
+    font-size: 12px;
+}
