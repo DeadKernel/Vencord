@@ -14,6 +14,7 @@
 import { enableStyle } from "@api/Styles";
 import { ChannelStore, MediaEngineStore, Modal, openModal, SelectedChannelStore, useEffect, useRef, useState } from "@webpack/common";
 
+import { settings } from "./settings";
 import { track } from "./telemetry";
 import style from "./voicelab.css?managed";
 
@@ -141,7 +142,7 @@ const meterPct = (d: number) => Math.max(0, Math.min(100, (d + 60) / 60 * 100));
 
 function VoiceLab(props: any) {
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-    const [deviceId, setDeviceId] = useState<string>(MediaEngineStore.getInputDeviceId?.() ?? "default");
+    const [deviceId, setDeviceId] = useState<string>(settings.store.labInput || MediaEngineStore.getInputDeviceId?.() || "default");
     const [phase, setPhase] = useState<"idle" | "recording" | "working" | "done" | "error">("idle");
     const [left, setLeft] = useState(SECONDS);
     const [chain, setChain] = useState("");
@@ -149,7 +150,7 @@ function VoiceLab(props: any) {
     const [variants, setVariants] = useState<Variant[]>([]);
     const [playing, setPlaying] = useState<string | null>(null);
     const audio = useRef<{ ctx: AudioContext; gains: Map<string, GainNode>; sources: AudioBufferSourceNode[]; } | null>(null);
-    const [meter, setMeter] = useState<{ level: number; peak: number; clip: boolean; } | null>(null);
+    const [meter, setMeter] = useState<{ level: number; peak: number; quiet: number; clip: boolean; } | null>(null);
     const meterRef = useRef<{ stop(): void; } | null>(null);
 
     useEffect(() => { navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === "audioinput"))); return () => { stop(); stopMeter(); }; }, []);
@@ -162,7 +163,9 @@ function VoiceLab(props: any) {
     }
 
     /** Live input level, unprocessed, for setting the mixer's knobs: the level, the peak of the last
-     * three seconds, and clipping (held two seconds). The mic is open only while this runs. */
+     * three seconds, clipping (held two seconds), and "quiet": the average level of the quietest
+     * moments of the last five seconds, the noise floor listeners would hear behind you (a peak
+     * alone reads a breath or a chair creak). The mic is open only while this runs. */
     async function startMeter() {
         track("voice_lab_meter");
         const device = deviceId && deviceId !== "default" ? { deviceId: { exact: deviceId } } : {};
@@ -173,13 +176,16 @@ function VoiceLab(props: any) {
             ctx.createMediaStreamSource(stream).connect(an);
             const buf = new Float32Array(an.fftSize);
             let hold = -120, holdAt = 0, clipAt = -1e9;
+            const recent: number[] = [];
             const timer = window.setInterval(() => {
                 an.getFloatTimeDomainData(buf);
-                let pk = 0; for (const v of buf) { const a = Math.abs(v); if (a > pk) pk = a; }
+                let pk = 0, sq = 0; for (const v of buf) { const a = Math.abs(v); if (a > pk) pk = a; sq += v * v; }
                 const d = db(pk), now = performance.now();
+                recent.push(db(Math.sqrt(sq / buf.length))); if (recent.length > 100) recent.shift();
+                const quiet = [...recent].sort((a, b) => a - b)[Math.floor(recent.length * 0.2)];
                 if (d >= hold || now - holdAt > 3000) { hold = d; holdAt = now; }
                 if (pk >= 0.999) clipAt = now;
-                setMeter({ level: d, peak: hold, clip: now - clipAt < 2000 });
+                setMeter({ level: d, peak: hold, quiet, clip: now - clipAt < 2000 });
             }, 50);
             meterRef.current = { stop: () => { clearInterval(timer); stream.getTracks().forEach(t => t.stop()); ctx.close(); } };
         } catch (e) {
@@ -319,7 +325,7 @@ function VoiceLab(props: any) {
                 <p className="dk-lab-dim">Record once, then switch between versions with 1-4 (space plays or stops). Nothing leaves this machine.</p>
                 <div className="dk-lab-row">
                     <span className="dk-lab-k">Input</span>
-                    <select className="dk-lab-select" value={deviceId} onChange={e => setDeviceId(e.currentTarget.value)} disabled={phase === "recording" || phase === "working"}>
+                    <select className="dk-lab-select" value={deviceId} onChange={e => { setDeviceId(e.currentTarget.value); settings.store.labInput = e.currentTarget.value; }} disabled={phase === "recording" || phase === "working"}>
                         {devices.map(d => <option key={d.deviceId} value={d.deviceId}>{d.label || d.deviceId}</option>)}
                     </select>
                 </div>
@@ -334,7 +340,10 @@ function VoiceLab(props: any) {
                             <div className="dk-lab-meter-fill" style={{ width: `${meterPct(meter.level)}%` }} />
                             <div className="dk-lab-meter-hold" style={{ left: `${meterPct(meter.peak)}%` }} />
                         </div>
-                        <span className="dk-lab-meter-num" data-dk-meter={Math.round(meter.peak)}>{meter.clip ? "CLIP" : `${Math.round(meter.peak)} dB`}</span>
+                        <span className="dk-lab-meter-num" data-dk-meter={Math.round(meter.peak)} data-dk-quiet={Math.round(meter.quiet)}
+                            title="peak: your loudest moment in the last 3 seconds; quiet: the background behind you (aim for -60 or lower)">
+                            {meter.clip ? "CLIP" : `peak ${Math.round(meter.peak)} · quiet ${Math.round(meter.quiet)}`}
+                        </span>
                     </>}
                 </div>
                 {chain && <div className="dk-lab-row"><span className="dk-lab-k">Capture</span><span className="dk-lab-dim">{chain}</span></div>}

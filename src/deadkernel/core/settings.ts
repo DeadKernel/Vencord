@@ -37,5 +37,7 @@ export const settings = definePluginSettings({
     installId: { type: OptionType.CUSTOM, default: "" },
     seenNotices: { type: OptionType.CUSTOM, default: [] as string[] },
     /** stock Vencord plugins this build has switched on once (index.tsx DEFAULT_ON) */
-    defaultsOn: { type: OptionType.CUSTOM, default: [] as string[] }
+    defaultsOn: { type: OptionType.CUSTOM, default: [] as string[] },
+    /** the voice lab's input, remembered (a device id) */
+    labInput: { type: OptionType.CUSTOM, default: "" }
 });

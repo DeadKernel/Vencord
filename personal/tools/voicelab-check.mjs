@@ -41,6 +41,8 @@ try {
 	await sleep(1200);
 	const metered = await js(`return Number(document.querySelector("[data-dk-meter]")?.dataset.dkMeter ?? NaN)`);
 	check("the live meter reads the input level (about -9 dB here)", metered >= -12 && metered <= -6, String(metered));
+	const quiet = await js(`return Number(document.querySelector("[data-dk-quiet]")?.dataset.dkQuiet ?? NaN)`);
+	check("…and the quiet level (a steady tone: close to its average, about -13 dB)", quiet <= -6 && quiet >= -20, String(quiet));
 	await js(`document.querySelector('[data-dk-action="lab-meter"]').click()`);
 	await sleep(200);
 	check("…and stops (mic closed)", await js(`return !document.querySelector("[data-dk-meter]")`));
