@@ -55,6 +55,9 @@ try {
 	for (const r of result.rows) console.log(`      ${r.text}`);
 	const sent = Object.fromEntries(result.rows.map(r => [r.key, Number(/sent (\d+) kbps/.exec(r.text)?.[1] ?? 0)]));
 	const top = Object.fromEntries(result.rows.map(r => [r.key, Number(/up to ([\d.]+) kHz/.exec(r.text)?.[1] ?? 0)]));
+	// steady tones change by at most ~0.1 between samples; a dropped or repeated chunk jumps far more
+	const jumps = await js(`return (window.__dkVoiceLabLast ?? []).map(v => { let mx = 0; for (let i = 1; i < v.pcm.length; i++) { const d = Math.abs(v.pcm[i] - v.pcm[i - 1]); if (d > mx) mx = d; } return v.key + " " + mx.toFixed(3); })`);
+	check("no dropouts: the recordings have no jumps between samples", jumps.length === 4 && jumps.every(j => Number(j.split(" ")[1]) < 0.2), jumps.join(", "));
 	check("High fidelity actually sends far more than Discord-now", sent.hifi > sent.now * 1.5, JSON.stringify(sent));
 	check("Max sends more than High fidelity", sent.max >= sent.hifi, JSON.stringify(sent));
 	check("the analysis sees the 12 kHz tone in the raw recording", top.raw >= 11.5, JSON.stringify(top));

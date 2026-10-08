@@ -19,6 +19,8 @@ import { track } from "./telemetry";
 import style from "./voicelab.css?managed";
 
 const SECONDS = 8;
+/** recorded before the countdown and dropped: the encoders' and connections' start-up */
+const WARMUP = 1;
 const RATE = 48000;
 
 interface Variant {
@@ -65,16 +67,27 @@ function analyse(pcm: Float32Array): Stats {
     return { peak: db(peak), noise: db(noise), topHz: Math.round(top * RATE / N), clipped };
 }
 
-/** Records a track's samples (all channels) for `seconds`, through the given context. */
-function recorder(ctx: AudioContext, stream: MediaStream, channels: number) {
+// The recorder runs on the audio thread (an AudioWorklet): a ScriptProcessor on Discord's busy main
+// thread dropped or repeated whole 4096-sample chunks now and then, heard as hiccups.
+const RECORDER = `registerProcessor("dk-voice-lab-recorder", class extends AudioWorkletProcessor {
+    process(inputs) { const i = inputs[0]; if (i && i.length) this.port.postMessage(i.map(c => c.slice(0))); return true; }
+});`;
+const worklets = new WeakSet<AudioContext>();
+
+/** Records a track's samples (all channels) until the returned function is called. */
+async function recorder(ctx: AudioContext, stream: MediaStream, channels: number) {
+    if (!worklets.has(ctx)) {
+        await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([RECORDER], { type: "application/javascript" })));
+        worklets.add(ctx);
+    }
     const src = ctx.createMediaStreamSource(stream);
-    const node = ctx.createScriptProcessor(4096, channels, channels);
+    const node = new AudioWorkletNode(ctx, "dk-voice-lab-recorder", { numberOfInputs: 1, numberOfOutputs: 1, channelCount: channels, channelCountMode: "explicit" });
     const chunks: Float32Array[][] = [...Array(channels)].map(() => []);
-    node.onaudioprocess = e => { for (let c = 0; c < channels; c++) chunks[c].push(new Float32Array(e.inputBuffer.getChannelData(Math.min(c, e.inputBuffer.numberOfChannels - 1)))); };
+    node.port.onmessage = e => { const { data } = e; for (let c = 0; c < channels; c++) chunks[c].push(data[Math.min(c, data.length - 1)]); };
     src.connect(node);
     const sink = ctx.createGain(); sink.gain.value = 0; node.connect(sink); sink.connect(ctx.destination);
     return () => {
-        node.disconnect(); src.disconnect();
+        node.port.onmessage = null; node.disconnect(); src.disconnect();
         return chunks.map(list => { const out = new Float32Array(list.reduce((n, c) => n + c.length, 0)); let o = 0; for (const c of list) { out.set(c, o); o += c.length; } return out; });
     };
 }
@@ -203,8 +216,10 @@ function VoiceLab(props: any) {
         track("voice_lab_record");
         stop();
         stopMeter();
-        setError(""); setVariants([]); setPhase("recording"); setLeft(SECONDS);
-        const ctx = new AudioContext({ sampleRate: RATE });
+        setError(""); setVariants([]); setPhase("recording"); setLeft(SECONDS + 1);
+        // "playback": larger buffers. The lab needs no low latency, and a tight one let a 10 ms capture
+        // packet slip now and then under load
+        const ctx = new AudioContext({ sampleRate: RATE, latencyHint: "playback" });
         const loops: Awaited<ReturnType<typeof opusLoop>>[] = [];
         const streams: MediaStream[] = [];
         try {
@@ -223,16 +238,19 @@ function VoiceLab(props: any) {
                 { key: "max", label: "Max", detail: `no processing · ${rawChannels > 1 ? "stereo" : "mono"} 510 kbps`, track: rawTrack, kbps: 510, stereo: rawChannels > 1, dtx: false }
             ];
             for (const p of plan) loops.push(await opusLoop(p.track, p));
-            const rec = {
-                raw: recorder(ctx, raw, Math.min(2, rawChannels)),
-                ...Object.fromEntries(plan.map((p, i) => [p.key, recorder(ctx, new MediaStream([loops[i].track]), p.stereo ? 2 : 1)]))
-            } as Record<string, () => Float32Array[]>;
+            const recs = await Promise.all([
+                recorder(ctx, raw, Math.min(2, rawChannels)),
+                ...plan.map((p, i) => recorder(ctx, new MediaStream([loops[i].track]), p.stereo ? 2 : 1))
+            ]);
+            const rec = Object.fromEntries([["raw", recs[0]], ...plan.map((p, i) => [p.key, recs[i + 1]])]) as Record<string, () => Float32Array[]>;
+            await new Promise(r => setTimeout(r, WARMUP * 1000));
             const t0 = await Promise.all(loops.map(l => l.sent()));
             for (let i = SECONDS; i > 0; i--) { setLeft(i); await new Promise(r => setTimeout(r, 1000)); }
             const t1 = await Promise.all(loops.map(l => l.sent()));
             setPhase("working");
             await new Promise(r => setTimeout(r, 300)); // let the encoded audio catch up
-            const pcm = Object.fromEntries(Object.entries(rec).map(([k, f]) => [k, f()]));
+            // every recorder started together: drop the same warm-up from each, and the stop's last tenth
+            const pcm = Object.fromEntries(Object.entries(rec).map(([k, f]) => [k, f().map(c => c.subarray(WARMUP * RATE, Math.max(WARMUP * RATE, c.length - RATE / 10)))]));
             const rawPcm = pcm.raw;
             const out: Variant[] = [{ key: "raw", label: "Raw", detail: "your interface, uncompressed", pcm: rawPcm }];
             plan.forEach((p, i) => {
@@ -243,6 +261,8 @@ function VoiceLab(props: any) {
             for (const v of out) { v.pcm = v.pcm.map(c => c.subarray(0, len)); v.stats = analyse(v.pcm[0]); }
             setVariants(out);
             setPhase("done");
+            // for personal/tools/voicelab-check.mjs: the last recording, to check for dropouts
+            (window as any).__dkVoiceLabLast = out.map(v => ({ key: v.key, pcm: v.pcm[0] }));
         } catch (e) {
             setError(String((e as Error)?.message ?? e));
             setPhase("error");
@@ -348,7 +368,7 @@ function VoiceLab(props: any) {
                 </div>
                 {chain && <div className="dk-lab-row"><span className="dk-lab-k">Capture</span><span className="dk-lab-dim">{chain}</span></div>}
                 <button className="dk-lab-rec" data-dk-action="lab-record" disabled={phase === "recording" || phase === "working"} onClick={record}>
-                    {phase === "recording" ? `Recording · ${left}s · speak normally` : phase === "working" ? "Encoding…" : phase === "done" ? "Record again" : `Record ${SECONDS} seconds`}
+                    {phase === "recording" ? (left > SECONDS ? "Starting…" : `Recording · ${left}s · speak normally`) : phase === "working" ? "Encoding…" : phase === "done" ? "Record again" : `Record ${SECONDS} seconds`}
                 </button>
                 {error && <p className="dk-lab-error">{error}</p>}
                 {variants.map((v, i) => (
