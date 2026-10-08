@@ -68,7 +68,11 @@ try {
 	check("switching versions marks the one you hear", await js(`return document.querySelector('[data-dk-variant="now"]').hasAttribute("data-on") && !document.querySelector('[data-dk-variant="hifi"]').hasAttribute("data-on")`));
 } finally {
 	await js(`if (window.__dkRealGUM) { navigator.mediaDevices.getUserMedia = window.__dkRealGUM; delete window.__dkRealGUM; } (window.__dkFakeCtx ?? []).forEach(c => c.close()); delete window.__dkFakeCtx; return 1`).catch(() => {});
-	await js(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); return 1`).catch(() => {});
+	// never leave anything playing: Stop (the playback loops), then close the lab with a real Escape
+	await js(`[...document.querySelectorAll(".dk-lab .dk-lab-btn")].find(b => b.textContent.trim() === "Stop")?.click(); return 1`).catch(() => {});
+	for (const type of ["rawKeyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 }).catch(() => {});
+	await sleep(400);
+	check("the lab is closed and nothing is playing", await js(`return !document.querySelector(".dk-lab") && !document.querySelector("[data-dk-variant][data-on]")`).catch(() => false));
 	const restored = await js(`return navigator.mediaDevices.getUserMedia.toString().includes("native code")`).catch(() => false);
 	check("the real microphone is restored", restored);
 	await send("Emulation.setFocusEmulationEnabled", { enabled: false });
