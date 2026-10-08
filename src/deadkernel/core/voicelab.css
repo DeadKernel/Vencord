@@ -1,0 +1,116 @@
+/* Voice lab (VoiceLab.tsx): single-line rows, mono, the theme's tokens */
+.dk-lab {
+    display: grid;
+    gap: 8px;
+    padding-bottom: 8px;
+    font-family: var(--hl-font, inherit);
+    color: var(--hl-text, var(--text-default));
+}
+
+.dk-lab p {
+    margin: 0;
+}
+
+.dk-lab-dim {
+    font-size: 12px;
+    color: var(--hl-text-2, var(--text-muted));
+}
+
+.dk-lab-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.dk-lab-k {
+    flex: none;
+    width: 64px;
+    font-size: 12px;
+    color: var(--hl-text-2, var(--text-muted));
+}
+
+.dk-lab-select {
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--hl-border, var(--border-subtle));
+    background: var(--hl-bg, var(--background-base-lowest));
+    color: inherit;
+    font: inherit;
+}
+
+.dk-lab-rec,
+.dk-lab-btn {
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--hl-accent, var(--brand-500));
+    background: var(--hl-accent-08, transparent);
+    color: var(--hl-accent, var(--brand-500));
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dk-lab-rec:disabled {
+    cursor: default;
+    opacity: 0.8;
+}
+
+.dk-lab-variant {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--hl-border, var(--border-subtle));
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dk-lab-variant:hover {
+    background: var(--hl-hover, var(--background-mod-subtle));
+}
+
+.dk-lab-variant[data-on] {
+    border-color: var(--hl-accent, var(--brand-500));
+    background: var(--hl-accent-08, transparent);
+}
+
+.dk-lab-key {
+    flex: none;
+    width: 14px;
+    color: var(--hl-text-2, var(--text-muted));
+}
+
+.dk-lab-name {
+    flex: none;
+    font-weight: 600;
+}
+
+.dk-lab-detail {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dk-lab-stats {
+    flex: none;
+}
+
+.dk-lab-error {
+    color: var(--hl-pink, var(--text-danger));
+}
+
+.dk-lab-verdict {
+    display: grid;
+    gap: 4px;
+    padding-top: 4px;
+    font-size: 13px;
+}

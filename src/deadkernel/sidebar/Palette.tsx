@@ -18,6 +18,7 @@ useState, useStateFromStores
 import type { ComponentType, KeyboardEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
+import { openVoiceLab } from "../core/VoiceLab";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import {
     addFavorite, broadcastServers, DirectItem, getFavorites, isFavorite, joinVoice, labelFor, markRead, openAddServer, openChannel, openFriends, openRequests,
@@ -224,6 +225,7 @@ function actionLines(query: string): Line[] {
                 { key: "a-focus-on", label: "Focus until I end it", where: "only favourites notify", icon: glyph("moon"), run: () => setFocus("on") }
             ]),
         ...lookActions(),
+        { key: "a-lab", label: "Voice lab", where: "hear how you sound on Discord", icon: glyph("voice"), run: openVoiceLab },
         { key: "a-settings", label: "Settings", icon: glyph("settings"), run: () => SettingsRouter.openUserSettings() }
     ];
     const q = query.trim().toLowerCase();
