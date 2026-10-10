@@ -1337,3 +1337,15 @@ html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*=
     background: var(--hl-accent-08, var(--background-mod-subtle)) !important;
     box-shadow: inset 0 0 0 1px var(--dk-accent);
 }
+
+/* a live icon you can click: watch that stream (joins the call first if needed) */
+.dk-sb-live[role="button"],
+.dk-vc-live[role="button"] {
+    cursor: pointer;
+}
+
+.dk-sb-live[role="button"]:hover,
+.dk-vc-live[role="button"]:hover {
+    color: var(--dk-strong);
+    background: color-mix(in srgb, var(--dk-teal) 18%, transparent);
+}

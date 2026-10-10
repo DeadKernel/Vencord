@@ -322,7 +322,8 @@ export function userPresence(userId: string): Presence {
     return (PresenceStore.getStatus(userId) ?? "offline") as Presence;
 }
 
-export type Meta = { text: string; live: boolean; since?: number; stream?: boolean; };
+/** `streamer`: someone in this call who's streaming (not you), for "watch" */
+export type Meta = { text: string; live: boolean; since?: number; stream?: boolean; streamer?: string; };
 
 /** Streaming right now: Discord's voice flag or a stream it knows of; your own stream is only
  * in "your active stream", not in the stream list it keeps for others. */
@@ -340,7 +341,9 @@ export function presenceWord(channel: Channel): Meta | null {
     if (inCall) {
         const since = channel.guild_id ? callStart(channel) : undefined;
         const stream = people.some(isStreaming);
-        return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true, ...(since && { since }), ...(stream && { stream }) };
+        const me = UserStore.getCurrentUser()?.id;
+        const streamer = people.find(u => u !== me && isStreaming(u));
+        return { text: channel.type === 3 ? `voice · ${inCall}` : channel.type === 1 ? "in call" : `${inCall} in call`, live: true, ...(since && { since }), ...(stream && { stream }), ...(streamer && { streamer }) };
     }
     if (channel.type !== 1) return null;
     const uid = channel.recipients[0];
@@ -527,6 +530,30 @@ export function joinVoice(channel: Channel) {
         needSubscriptionToAccess: false,
         locked: false
     });
+}
+
+/** Discord's "watch this stream" (what clicking someone's stream in its call view does). It does
+ * nothing unless you're in that voice channel; its channel list joins you first, and so do we. */
+const watchStreamAction = findByCodeLazy('type:"STREAM_WATCH",streamKey');
+
+/** Watch someone's stream from anywhere: join their call if you're not in it, wait until you're
+ * connected, watch, and open the call view, where the stream shows. */
+export async function watchStream(userId: string) {
+    const vs: any = VoiceStateStore.getVoiceStateForUser(userId);
+    const known: any = ApplicationStreamingStore.getAnyStreamForUser(userId);
+    const channelId = known?.channelId ?? vs?.channelId;
+    const channel = channelId ? ChannelStore.getChannel(channelId) : null;
+    if (!channel) return;
+    track("watch_stream");
+    const stream = known ?? { streamType: channel.guild_id ? "guild" : "call", guildId: channel.guild_id ?? null, channelId, ownerId: userId };
+    if (!VoiceStateStore.isInChannel(channelId)) {
+        joinVoice(channel);
+        for (let i = 0; i < 50 && !VoiceStateStore.isInChannel(channelId); i++) await new Promise(r => setTimeout(r, 200));
+        if (!VoiceStateStore.isInChannel(channelId)) return;
+        await new Promise(r => setTimeout(r, 600)); // the call's connection settles before a stream is asked for
+    }
+    watchStreamAction(stream);
+    NavigationRouter.transitionTo(`/channels/${channel.guild_id ?? "@me"}/${channelId}`);
 }
 
 const CallActions = findByPropsLazy("stopRinging", "call");

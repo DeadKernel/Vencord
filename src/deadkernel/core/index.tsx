@@ -32,8 +32,9 @@ const timers: number[] = [];
 
 /** Stock Vencord plugins this build switches on, once each: turned off later, they stay off.
  * (Patches apply from the next start.) CallTimer: how long you've been in a call, in the
- * Voice Connected panel. */
-const DEFAULT_ON = ["CallTimer"];
+ * Voice Connected panel. FakeNitro: above all, streaming at the quality you pick (Discord
+ * otherwise holds non-Nitro streams to 720p 30fps); also Nitro emoji and stickers as links. */
+const DEFAULT_ON = ["CallTimer", "FakeNitro"];
 
 function applyDefaults() {
     const done = [...settings.store.defaultsOn];

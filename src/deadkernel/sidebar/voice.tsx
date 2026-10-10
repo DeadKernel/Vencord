@@ -9,8 +9,10 @@
 
 import { classes } from "@utils/misc";
 import { ApplicationStreamingStore, ChannelActionCreators, ChannelStore, RelationshipStore, UserStore, useStateFromStores, VoiceStateStore } from "@webpack/common";
+import type { MouseEvent } from "react";
 
-import { isStreaming, openChannel } from "./data";
+import { isStreaming, openChannel, watchStream } from "./data";
+import { openVoiceUserMenu } from "./discordMenus";
 import { Icon } from "./icons";
 import { personDragProps } from "./move";
 
@@ -50,7 +52,10 @@ export function Flags({ uid }: { uid: string; }) {
     const f: VoiceFlags = JSON.parse(useStateFromStores([VoiceStateStore, ApplicationStreamingStore], () => JSON.stringify(voiceFlags(uid)), [uid]));
     return (
         <>
-            {f.live && <span className="dk-vc-live" title="Streaming"><Icon name="screen" size={16} title="Streaming" /></span>}
+            {f.live && (uid === UserStore.getCurrentUser()?.id
+                ? <span className="dk-vc-live" title="You're streaming"><Icon name="screen" size={16} title="You're streaming" /></span>
+                : <span className="dk-vc-live" role="button" tabIndex={-1} data-dk-action="watch" title="Watch the stream"
+                    onClick={e => { e.stopPropagation(); watchStream(uid); }}><Icon name="screen" size={16} title="Watch the stream" /></span>)}
             {f.video && <span className="dk-vc-flag" title="Camera on"><Icon name="camera" size={16} title="Camera on" /></span>}
             {(f.deaf || f.muted) && <span className="dk-vc-flag dk-vc-off" title={f.deaf ? "Deafened" : "Muted"}>
                 <Icon name={f.deaf ? "deafened" : "micOff"} size={16} title={f.deaf ? "Deafened" : "Muted"} />
@@ -61,7 +66,10 @@ export function Flags({ uid }: { uid: string; }) {
 
 function Member({ uid, className, channelId }: { uid: string; className: string; channelId: string; }) {
     const user = useStateFromStores([UserStore], () => UserStore.getUser(uid), [uid]);
-    const drag = personDragProps(uid, ChannelStore.getChannel(channelId));
+    const channel = ChannelStore.getChannel(channelId);
+    const drag = personDragProps(uid, channel);
+    // Discord's own menu for a person in a call: their volume, mute, and the rest
+    const menu = (e: MouseEvent) => openVoiceUserMenu(e, uid, channel, [{ id: "message", label: "Message", action: () => openDm(uid) }]);
     const friend = RelationshipStore.isFriend(uid);
     if (!user) return null;
     const name = nameOf(uid);
@@ -74,8 +82,8 @@ function Member({ uid, className, channelId }: { uid: string; className: string;
     );
     // friends open your DM with them; strangers in a community's voice channel aren't a click target
     return friend
-        ? <button className={classes("dk-sb-row", className)} title={`Message ${name}`} onClick={() => openDm(uid)} data-dk-nav {...drag}>{body}</button>
-        : <div className={classes("dk-sb-row", className)} title={name} {...drag}>{body}</div>;
+        ? <button className={classes("dk-sb-row", className)} title={`Message ${name}`} onClick={() => openDm(uid)} onContextMenu={menu} data-dk-nav {...drag}>{body}</button>
+        : <div className={classes("dk-sb-row", className)} title={name} onContextMenu={menu} {...drag}>{body}</div>;
 }
 
 /** The people in a call, indented under its row. Long calls show the first `max` and a count. */

@@ -23,7 +23,7 @@ import {
 moveServer, navState, noteRoute, openAddServer, openChannel, openFriends, openGuild, openQuickSwitcher, openRequests, openVoiceChat, PrivateChannelReadStateStore,
     removeFavorite, rowMeta, sameList, selectDirectGrouped, selectMentionChannels, selectMessages, selectRequestCount, settings, SortedGuildStoreTyped,
     suppressBroadcasts, useFavorites,
-userPresence } from "./data";
+userPresence, watchStream } from "./data";
 import { openGuildMenu } from "./discordMenus";
 import { focusLeft, focusOn, setFocus } from "./focus";
 import { Icon, IconSlot } from "./icons";
@@ -111,7 +111,10 @@ function Row(p: RowProps) {
             {p.where && <span className="dk-sb-where">{p.where}</span>}
             <span className="dk-sb-trail">
                 {p.draft && <span className="dk-sb-draft" title="Unsent draft"><Icon name="pencil" size={14} /></span>}
-                {p.meta?.stream && <span className="dk-sb-live" title="Someone's streaming"><Icon name="screen" size={14} /></span>}
+                {p.meta?.stream && (p.meta.streamer
+                    ? <span className="dk-sb-live" role="button" tabIndex={-1} data-dk-action="watch" title="Watch the stream"
+                        onClick={e => { e.stopPropagation(); watchStream(p.meta!.streamer!); }}><Icon name="screen" size={14} /></span>
+                    : <span className="dk-sb-live" title="You're streaming"><Icon name="screen" size={14} /></span>)}
                 {p.meta && (p.meta.since
                     ? <CallTimer since={p.meta.since} className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={`${p.meta.text} · going for`} />
                     : <span className={classes("dk-sb-meta", p.meta.live && "dk-live")} title={p.meta.text}>{p.meta.text}</span>)}

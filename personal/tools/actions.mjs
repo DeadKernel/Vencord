@@ -434,6 +434,20 @@ try {
 	await sleep(1300);
 	check("…and it ticks", await js(`return ${homeTimer}?.textContent`) !== before);
 	check("a call with someone streaming says so on its row (Discord's LIVE)", await js(`return [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].some(r => r.querySelector(".dk-sb-live"))`));
+	// right-click a person in the call: Discord's own menu, with their volume
+	const memberSel = `[...document.querySelectorAll('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-member')][0]`;
+	await js(`const el = ${memberSel}; const r = el.getBoundingClientRect(); el.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: r.left + 30, clientY: r.top + 8 }))`);
+	check("right-clicking someone in a call opens Discord's menu with their volume", await until(`document.querySelector('[role="menu"]') && /volume/i.test(document.querySelector('[role="menu"]').textContent)`, 4000),
+		await js(`return document.querySelector('[role="menu"]')?.textContent.slice(0, 120) ?? "no menu"`));
+	for (const type of ["rawKeyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+	await sleep(300);
+	// their live icon watches the stream: joins the call first (recorded, not done)
+	await rec();
+	const watch = `document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] [data-dk-action="watch"]')`;
+	check("a streaming person's live icon is a watch button", await js(`return !!${watch}`));
+	await js(`${watch}?.click()`);
+	await sleep(300);
+	check("…which joins their call first, as Discord's own list does", recHas(await rec(), "join"));
 	// drag someone from the call to another voice channel in the same server (Discord's Move Members)
 	const moved = await js(`
 		const C = ${C}, vc = C.ChannelStore.getChannel(${JSON.stringify(t.voice)});

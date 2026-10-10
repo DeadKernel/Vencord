@@ -161,7 +161,11 @@ await surface("Inbox", async () => { await key("i", "KeyI", 2, 73); }, `document
 
 // ── modals ──
 await surface("Keyboard shortcuts", async () => { await key("/", "Slash", 2, 191); }, `[...document.querySelectorAll('[role="dialog"]')].at(-1)`);
-await surface("Image viewer", () => js(`[...document.querySelectorAll('[class*="messageListItem"] [class*="imageWrapper_"] img, [class*="messageListItem"] [class*="clickableWrapper_"]')].at(-1)?.click()`), dialog);
+// only if the stand-in channel has an image in view: which one it is depends on his servers' activity
+// (a video embed's thumbnail plays inline instead, so those don't count)
+const image = `[...document.querySelectorAll('[class*="messageListItem"] [class*="imageWrapper_"] img, [class*="messageListItem"] [class*="clickableWrapper_"]')].filter(e => !e.closest('[class*="embedVideo"]')).at(-1)`;
+if (await js(`return !!${image}`)) await surface("Image viewer", () => js(`${image}?.click()`), dialog);
+else console.log("skip  Image viewer: no image in view in the stand-in channel");
 await surface("Server menu", () => js(`const t = document.querySelector(".dk-col-title"); const r = t.getBoundingClientRect(); t.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.left + 20, clientY: r.bottom }))`), `document.querySelector('[role="menu"]')`);
 await surface("Screen share picker (12 sources)", () => js(`
 	const c = document.createElement("canvas"); c.width = 320; c.height = 180; const g = c.getContext("2d"); const screens = [];

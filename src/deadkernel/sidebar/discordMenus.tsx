@@ -13,7 +13,7 @@
 import { canonicalizeMatch } from "@utils/patches";
 import { Channel } from "@vencord/discord-types";
 import { DefaultExtractAndLoadChunksRegex as L, extractAndLoadChunks, findModuleFactory, wreq } from "@webpack";
-import { ContextMenuApi, GuildStore } from "@webpack/common";
+import { ContextMenuApi, GuildStore, UserStore } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
 import { track } from "../core/telemetry";
@@ -72,4 +72,45 @@ export function openChannelMenu(e: MouseEvent, channel: Channel, fallback: Conte
                 : MENUS.text;
     track("channel_menu");
     open(e, loader, { channel, guild }, fallback);
+}
+
+// A person in a voice call: Discord's call panel and channel list load the menu (volume, mute, and
+// the rest) right before naming it for analytics ("GuildChannelUserContextMenu"; a DM call's is
+// "UserGenericContextMenu"). Found by walking back from that name to the nearest chunk loader, with
+// plain linear patterns: appending a condition to the shared loader regex backtracked so badly on
+// these large modules that it froze the page.
+const userMenus = new Map<string, ComponentType<any> | null>();
+
+async function loadNear(marker: string): Promise<ComponentType<any> | null> {
+    if (userMenus.has(marker)) return userMenus.get(marker)!;
+    let component: ComponentType<any> | null = null;
+    try {
+        const source = Object.values(wreq.m).map(String).find(s => s.includes(`"${marker}"`) && s.includes("showMediaItems:!0"));
+        const at = source?.indexOf(`"${marker}"`) ?? -1;
+        const before = at > 0 ? source!.slice(Math.max(0, at - 8000), at) : "";
+        const load = [...before.matchAll(/Promise\.all\(\[([^\]]*)\]\)\.then\([\w$]+\.bind\([\w$]+,"?(\d+)"?\)\)/g)].at(-1);
+        if (load) {
+            const chunks = [...load[1].matchAll(/\.e\("?([\w]+)"?\)/g)].map(m => m[1]);
+            await Promise.all(chunks.map(c => wreq.e(c as any)));
+            component = wreq(Number(load[2]) as any)?.default ?? null;
+        }
+    } catch {
+        component = null;
+    }
+    userMenus.set(marker, component);
+    return component;
+}
+
+/** Discord's menu for a person in a voice call (their volume, mute, and the rest). A DM call gets
+ * the plain user menu with the same media items. Falls back to ours if it can't be found. */
+export function openVoiceUserMenu(e: MouseEvent, userId: string, channel: Channel | undefined, fallback: ContextItem[]) {
+    const user = UserStore.getUser(userId);
+    if (!user) return;
+    track("voice_user_menu");
+    const guildId = channel?.guild_id;
+    const props = guildId ? { user, guildId, channel, showMediaItems: true } : { user, showMediaItems: true };
+    ContextMenuApi.openContextMenuLazy(e as any, async () => {
+        const Menu = await loadNear(guildId ? "GuildChannelUserContextMenu" : "UserGenericContextMenu");
+        return Menu ? (p: any) => <Menu {...p} {...props} onClose={ContextMenuApi.closeContextMenu} /> : renderMenu(fallback);
+    });
 }

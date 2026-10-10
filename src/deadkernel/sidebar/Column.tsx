@@ -21,8 +21,8 @@ import { CallTimer, requestStartTimes, useCallStart } from "./calltimer";
 import {
     addFavorite, ChannelListStore, getFavorites, guildChannelIds, isFavorite, isStreaming,
 joinVoice, markRead, openChannel, openThread, removeFavorite, settings,
-    snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites
-} from "./data";
+    snowflakeTime, suppressBroadcasts, toggleCategory, useFavorites,
+    watchStream } from "./data";
 import { openChannelMenu, openGuildMenu } from "./discordMenus";
 import { Icon, IconName, IconSlot } from "./icons";
 import { ContextItem } from "./menu";
@@ -143,7 +143,13 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
                     <IconSlot name={glyph(channel)} />
                     <span className="dk-sb-name">{channel.name}</span>
                     <span className="dk-sb-trail">
-                        {voice && users.some(isStreaming) && <span className="dk-sb-live" title="Someone's streaming"><Icon name="screen" size={14} /></span>}
+                        {voice && users.some(isStreaming) && (() => {
+                            const me = UserStore.getCurrentUser()?.id, streamer = users.find(u => u !== me && isStreaming(u));
+                            return streamer
+                                ? <span className="dk-sb-live" role="button" tabIndex={-1} data-dk-action="watch" title="Watch the stream"
+                                    onClick={e => { e.stopPropagation(); watchStream(streamer); }}><Icon name="screen" size={14} /></span>
+                                : <span className="dk-sb-live" title="You're streaming"><Icon name="screen" size={14} /></span>;
+                        })()}
                         {voice && users.length > 0 && (since
                             ? <CallTimer since={since} className="dk-sb-meta dk-live" title={`${users.length} in call · going for`} />
                             : <span className="dk-sb-meta dk-live">· {users.length}</span>)}
