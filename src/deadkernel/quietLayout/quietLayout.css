@@ -229,8 +229,12 @@
     display: none !important;
 }
 
-[data-dk-layout~="quietSidebar"] #channels [class*="containerDefault_"]:not(:hover, :focus-within) :is([class*="iconItem_"], [aria-label="Create Channel"]) {
-    opacity: 0 !important;
+[data-dk-layout~="quietSidebar"] #channels [class*="containerDefault_"] :is([class*="iconItem_"], [aria-label="Create Channel"]) {
+    opacity: var(--dk-channel-tools, 0) !important;
+}
+
+[data-dk-layout~="quietSidebar"] #channels [class*="containerDefault_"]:is(:hover, :focus-within) {
+    --dk-channel-tools: 1;
 }
 
 /* No profile panel beside DMs */
@@ -532,4 +536,10 @@
 
 [data-dk-layout~="quietScrollbars"] [class*="scroller"]:hover {
     scrollbar-color: var(--hl-bg-hover, var(--scrollbar-thin-thumb)) transparent !important;
+}
+
+/* scrollbar-color inherits: without this, hovering the message list recomputed every element in it
+   (about a thousand) just to pass the colour down. Its children set their own, so it stops there */
+[data-dk-layout~="quietScrollbars"] [class*="scroller"] > [class] {
+    scrollbar-color: auto;
 }

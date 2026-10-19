@@ -158,6 +158,11 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     scrollbar-color: var(--hl-bg-hover, var(--scrollbar-thin-thumb)) transparent;
 }
 
+/* (it inherits: the rows set their own, so a hover doesn't recompute the whole sidebar) */
+.dk-sb-scroll > * {
+    scrollbar-color: auto;
+}
+
 .dk-sb-section {
     margin-top: 8px;
 }
