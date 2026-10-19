@@ -7,9 +7,10 @@
 /* Promotions and paid features */
 
 /* a :has() runs on every element matching what's in front of it, and is re-run when anything inside
-   one changes: so each one here starts with something only its few targets have (messages are li
-   too, and there are hundreds of role=button). Scrolling a channel restyled twice as much without */
-[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] li[class*="channel"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]),
+   one changes: so each one here starts with something only its few targets have, or at least
+   rules out messages (they're li too; there are hundreds of role=button). Scrolling a channel
+   restyled twice as much without */
+[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] li:not([id^="chat-messages-"]):has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]),
 [data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] [class*="channel_"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]) {
     display: none !important;
 }
@@ -20,7 +21,7 @@
 }
 
 [data-dk-hide~="boosts"] #channels [role="button"][class*="container_"]:has([class*="boostCountText_"]),
-[data-dk-hide~="boosts"] #channels li:is([class*="containerDefault_"], :not([class])):has([id^="skill-trees-"]),
+[data-dk-hide~="boosts"] #channels li:not([id^="chat-messages-"]):has([id^="skill-trees-"]),
 [data-dk-hide~="boosts"] [class*="tooltipPremiumFooterContainer_"] {
     display: none !important;
 }
@@ -98,11 +99,11 @@
     display: none !important;
 }
 
-[data-dk-hide~="guide"] #channels li:is([class*="containerDefault_"], :not([class])):has([data-list-item-id^="channels___channels-"], [data-list-item-id^="channels___guild-home"], [data-list-item-id^="channels___server-guide"]) {
+[data-dk-hide~="guide"] #channels li:not([id^="chat-messages-"]):has([data-list-item-id^="channels___channels-"], [data-list-item-id^="channels___guild-home"], [data-list-item-id^="channels___server-guide"]) {
     display: none !important;
 }
 
-[data-dk-hide~="events"] #channels li:is([class*="containerDefault_"], :not([class])):has([data-list-item-id^="channels___upcoming-events-"]) {
+[data-dk-hide~="events"] #channels li:not([id^="chat-messages-"]):has([data-list-item-id^="channels___upcoming-events-"]) {
     display: none !important;
 }
 

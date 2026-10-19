@@ -48,10 +48,9 @@ await sleep(1500);
 for (let i = 0; i < runs; i++) {
 	await send("Page.enable");
 	const { identifier } = await send("Page.addScriptToEvaluateOnNewDocument", { source: probe });
+	// the injected script belongs to this session: keep it open across the reload
 	await send("Page.reload", { ignoreCache: false });
-	ws.close();
 	await sleep(1500);
-	({ ws, send } = await connect());
 	let t = {};
 	for (let k = 0; k < 60 && !(t.shell && t.sidebar && t.messages && t.vencord); k++) { await sleep(500); t = (await send("Runtime.evaluate", { expression: "window.__dkStartup ?? {}", returnByValue: true }))?.result?.value ?? {}; }
 	await send("Page.removeScriptToEvaluateOnNewDocument", { identifier }).catch(() => { });
