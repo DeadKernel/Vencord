@@ -5,23 +5,27 @@
 /* stylelint-disable no-descending-specificity */
 
 /* Promotions and paid features */
-[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] li:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]),
+
+/* a :has() runs on every element matching what's in front of it, and is re-run when anything inside
+   one changes: so each one here starts with something only its few targets have (messages are li
+   too, and there are hundreds of role=button). Scrolling a channel restyled twice as much without */
+[data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] li[class*="channel"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]),
 [data-dk-hide~="nitroShopQuests"] [class*="privateChannels_"] [class*="channel_"]:has(a[href="/store"], a[href="/shop"], a[href="/quest-home"]) {
     display: none !important;
 }
 
-[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Send a gift"]),
+[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > [class*="container_"]:has(> [aria-label="Send a gift"]),
 [data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Send a gift"] {
     display: none !important;
 }
 
-[data-dk-hide~="boosts"] #channels [role="button"]:has([class*="boostCountText_"]),
-[data-dk-hide~="boosts"] #channels li:has([id^="skill-trees-"]),
+[data-dk-hide~="boosts"] #channels [role="button"][class*="container_"]:has([class*="boostCountText_"]),
+[data-dk-hide~="boosts"] #channels li:is([class*="containerDefault_"], :not([class])):has([id^="skill-trees-"]),
 [data-dk-hide~="boosts"] [class*="tooltipPremiumFooterContainer_"] {
     display: none !important;
 }
 
-[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Apps"]),
+[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > .app-launcher-entrypoint,
 [data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Apps"],
 [data-dk-hide~="apps"] [class*="channelAppLauncher_"] {
     display: none !important;
@@ -64,9 +68,9 @@
 }
 
 /* Server rail and title bar */
-[data-dk-hide~="addServer"] [class*="listItem_"]:has([data-list-item-id="guildsnav___create-join-button"]),
-[data-dk-hide~="discover"] [class*="listItem_"]:has([data-list-item-id="guildsnav___guild-discover-button"]),
-[data-dk-hide~="downloadApps"] [class*="listItem_"]:has([data-list-item-id="guildsnav___app-download-button"]),
+[data-dk-hide~="addServer"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:has([data-list-item-id="guildsnav___create-join-button"]),
+[data-dk-hide~="discover"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:has([data-list-item-id="guildsnav___guild-discover-button"]),
+[data-dk-hide~="downloadApps"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:has([data-list-item-id="guildsnav___app-download-button"]),
 [data-dk-hide~="downloadApps"] [data-list-item-id="guildsnav___app-download-button"] {
     display: none !important;
 }
@@ -94,13 +98,11 @@
     display: none !important;
 }
 
-[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___channels-"]),
-[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___guild-home"]),
-[data-dk-hide~="guide"] #channels li:has([data-list-item-id^="channels___server-guide"]) {
+[data-dk-hide~="guide"] #channels li:is([class*="containerDefault_"], :not([class])):has([data-list-item-id^="channels___channels-"], [data-list-item-id^="channels___guild-home"], [data-list-item-id^="channels___server-guide"]) {
     display: none !important;
 }
 
-[data-dk-hide~="events"] #channels li:has([data-list-item-id^="channels___upcoming-events-"]) {
+[data-dk-hide~="events"] #channels li:is([class*="containerDefault_"], :not([class])):has([data-list-item-id^="channels___upcoming-events-"]) {
     display: none !important;
 }
 
@@ -129,7 +131,7 @@
     display: none !important;
 }
 
-[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Open sticker picker"]),
+[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > .expression-picker-chat-input-button:has(> [aria-label="Open sticker picker"]),
 [data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Open sticker picker"] {
     display: none !important;
 }
@@ -140,11 +142,7 @@
 }
 
 /* a date divider whose day only had hidden notices */
-[data-dk-hide~="systemNoise"][data-dk-hide~="threadNotices"] [role="separator"][class*="divider_"]:is(
-    :has(+ li[data-dk-msg] + [role="separator"]),
-    :has(+ li[data-dk-msg] + li[data-dk-msg] + [role="separator"]),
-    :has(+ li[data-dk-msg] + li[data-dk-msg] + li[data-dk-msg] + [role="separator"])
-) {
+[data-dk-hide~="systemNoise"][data-dk-hide~="threadNotices"] [role="separator"][data-dk-msg="empty"] {
     display: none !important;
 }
 
@@ -186,19 +184,15 @@
 
 /* Settings */
 [data-dk-hide~="billingSettings"] li[class*="section_"]:has(> [class*="sectionList_"] [data-list-item-id="settings-sidebar___nitro_panel"]),
-[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___nitro_panel"]),
-[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___premium_guild_subscriptions_panel"]),
-[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___subscriptions_panel"]),
-[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___gift_panel"]),
-[data-dk-hide~="billingSettings"] li:has(> [data-list-item-id="settings-sidebar___billing_panel"]) {
+[data-dk-hide~="billingSettings"] li[class*="itemContainer_"]:has(> :is([data-list-item-id="settings-sidebar___nitro_panel"], [data-list-item-id="settings-sidebar___premium_guild_subscriptions_panel"], [data-list-item-id="settings-sidebar___subscriptions_panel"], [data-list-item-id="settings-sidebar___gift_panel"], [data-list-item-id="settings-sidebar___billing_panel"])) {
     display: none !important;
 }
 
-[data-dk-hide~="familyCenter"] [role="listitem"]:has(> [data-list-item-id="settings-sidebar___account_family_center_category"]) {
+[data-dk-hide~="familyCenter"] [role="listitem"]:not([class]):has(> [data-list-item-id="settings-sidebar___account_family_center_category"]) {
     display: none !important;
 }
 
-[data-dk-hide~="patchHelper"] li:has(> [data-list-item-id="settings-sidebar___vencord_patch_helper_panel"]) {
+[data-dk-hide~="patchHelper"] li[class*="itemContainer_"]:has(> [data-list-item-id="settings-sidebar___vencord_patch_helper_panel"]) {
     display: none !important;
 }
 

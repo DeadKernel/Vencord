@@ -152,7 +152,8 @@ await surface("GIF picker", async () => {
 await surface("Composer + menu", () => js(`document.querySelector('[aria-label="More message options"]')?.click()`), `document.querySelector('[role="menu"]')`);
 
 // ── people ──
-await surface("Profile popout", () => press(`[...document.querySelectorAll('[id^="message-username"] > span[role="button"]')].at(-1)`), layer);
+// (scrolled into view first: Discord keeps each channel's scroll position, which may be up in its history)
+await surface("Profile popout", async () => { await js(`[...document.querySelectorAll('[id^="message-username"] > span[role="button"]')].at(-1)?.scrollIntoView({ block: "center" })`); await sleep(300); await press(`[...document.querySelectorAll('[id^="message-username"] > span[role="button"]')].at(-1)`); }, layer);
 await surface("Status menu", () => js(`document.querySelector('[aria-label="Manage profile and status"]')?.click()`), layer);
 
 // ── channel popouts ──

@@ -117,6 +117,30 @@ function tagMessages(root: ParentNode) {
     root.querySelectorAll?.('li[id^="chat-messages-"]:not([data-dk-msg])').forEach(tagMessage);
 }
 
+/** A date separator with only hidden messages (joins, boosts, thread notices) before the next one
+ * goes too: data-dk-msg="empty". Done here, not with :has() in CSS, which made every new message
+ * restyle its neighbours while scrolling. */
+let separatorsQueued = false;
+function tagSeparators() {
+    separatorsQueued = false;
+    for (const sep of document.querySelectorAll('[data-list-id="chat-messages"] > [role="separator"]')) {
+        let hidden = 0, shown = 0, next = sep.nextElementSibling;
+        for (; next && next.getAttribute("role") !== "separator"; next = next.nextElementSibling) {
+            if (next.tagName !== "LI") continue;
+            if (next.hasAttribute("data-dk-msg")) hidden++; else shown++;
+        }
+        const empty = !!next && hidden > 0 && shown === 0;
+        if (empty !== (sep.getAttribute("data-dk-msg") === "empty")) {
+            if (empty) sep.setAttribute("data-dk-msg", "empty"); else sep.removeAttribute("data-dk-msg");
+        }
+    }
+}
+function queueSeparators() {
+    if (separatorsQueued) return;
+    separatorsQueued = true;
+    requestAnimationFrame(tagSeparators);
+}
+
 function tagDms() {
     dmTagQueued = false;
     const selected = SelectedChannelStore.getChannelId();
@@ -165,19 +189,20 @@ export default definePlugin({
         addGlobalContextMenuPatch(menuPatch);
         tagMessages(document);
         queueDmTags();
+        queueSeparators();
         // added nodes only: watching every class change on the page ran on nearly every hover.
         // DM rows retag when the list changes, or when read states do (a row turning unread)
         observer = new MutationObserver(records => {
-            let dm = false;
+            let dm = false, messages = false;
             const list = dmListEl?.isConnected ? dmListEl : null;
             for (const r of records) for (const n of r.addedNodes) {
                 if (!(n instanceof Element)) continue;
-                if (n.matches('li[id^="chat-messages-"]')) tagMessage(n);
-                else if (n.firstElementChild) tagMessages(n);
+                if (n.matches('li[id^="chat-messages-"]')) { tagMessage(n); messages = true; } else if (n.firstElementChild) { tagMessages(n); messages ||= !!n.querySelector('li[id^="chat-messages-"]'); }
                 if (!dm) dm = list ? list.contains(n) : !!n.querySelector?.('[class*="privateChannels_"]');
                 if (dm && !list) dmListLooked = 0; // the list just appeared
             }
             if (dm) queueDmTags();
+            if (messages) queueSeparators();
         });
         observer.observe(document.body, { childList: true, subtree: true });
         ReadStateStore.addChangeListener(queueDmTags);

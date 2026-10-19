@@ -487,7 +487,7 @@
    stable classes come first, so the page isn't searched for these on every style pass */
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .expression-picker-chat-input-button:has(> :is([aria-label="Open GIF picker"], [aria-label="Open sticker picker"])),
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .app-launcher-entrypoint,
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Send a gift"]) {
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > [class*="container_"]:has(> [aria-label="Send a gift"]) {
     display: none !important;
 }
 

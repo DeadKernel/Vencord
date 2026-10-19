@@ -161,6 +161,14 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   the column open) goes on `<html>` as a data attribute. Rules for Discord's rail live in their own
   sheet, loaded only with the Sidebar off. `personal/tools/perf.mjs` (CPU), `trace.mjs` (style vs.
   layout, with and without our CSS) and `hover-check.mjs` (every hover effect, with a real pointer).
+  Two more of the same kind, found by hovering and scrolling: an *inherited* property changed on
+  hover (`scrollbar-color` for the quiet scrollbars) recomputes everything inside the hovered
+  element, so its children set their own; and a `:has()` runs on every element matching what's in
+  front of it and re-runs when anything inside one changes, so `li:has(…)` (every message is an li)
+  or `div:has(…)` becomes `li[class*="itemContainer_"]:has(…)`: something only its targets have,
+  first. Empty date separators are tagged in JS instead. Hovering's worst frame went from ~20ms to
+  ~5ms; scrolling restyles half as much. What's left is the plain cost of a theme this size on new
+  elements, about 1.5× Discord's; 600 non-matching `[class*=…]` rules measured as free.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
