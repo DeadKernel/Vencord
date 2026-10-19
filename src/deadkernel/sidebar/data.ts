@@ -15,7 +15,7 @@ import {
     ActiveJoinedThreadsStore, ApplicationStreamingStore, ChannelStore, DraftStore, DraftType, FluxDispatcher, GuildChannelStore, GuildMemberCountStore, GuildReadStateStore,
     GuildStore,
     MessageRequestStore, NavigationRouter,
-    PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, TypingStore, UserGuildSettingsStore,
+    PresenceStore, PrivateChannelSortStore, ReadStateStore, RelationshipStore, SelectedChannelStore, showToast, TypingStore, UserGuildSettingsStore,
 UserStore, useStateFromStores, VoiceStateStore
 } from "@webpack/common";
 
@@ -295,7 +295,7 @@ function isBotDm(channel: Channel) {
     return channel.type === 1 && !!UserStore.getUser(channel.recipients[0])?.bot;
 }
 
-/** DMs in Discord's order (latest first), split into recent and older. */
+/** DMs in Discord's order (latest first), split into recent and older; unread ones are in DMs & mentions. */
 export function selectMessages(): { recent: string[]; quiet: string[]; } {
     const cutoff = Date.now() - settings.store.quietDays * 864e5;
     const selected = SelectedChannelStore.getChannelId();
@@ -304,6 +304,8 @@ export function selectMessages(): { recent: string[]; quiet: string[]; } {
         const channel = ChannelStore.getChannel(id);
         if (!channel) continue;
         const unread = ReadStateStore.hasUnread(id);
+        // an unread conversation is up in DMs & mentions until it's read: one person, one place
+        if (unread && id !== selected && !MessageRequestStore.isMessageRequest(id)) continue;
         const last = snowflakeTime(ReadStateStore.lastMessageId(id) ?? channel.lastMessageId);
         if (unread || id === selected || (last > cutoff && !isBotDm(channel))) recent.push(id);
         else quiet.push(id);
@@ -430,6 +432,11 @@ const saveGuildFolders = findByCodeLazy('updateAsync("guildFolders"');
  * Without the save, the next settings sync from Discord put the old order back.
  * `targetId` is a server or folder id; inside an open folder, into it. */
 export function moveServer(sourceId: string, targetId: string, below: boolean) {
+    // a folder dropped on a server inside a folder goes beside that folder: folders don't nest
+    if (!GuildStore.getGuild(sourceId)) {
+        const holder = SortedGuildStoreTyped.getGuildFolders().find(f => f.folderId && f.guildIds.includes(targetId));
+        if (holder) targetId = String(holder.folderId);
+    }
     if (sourceId === targetId) return;
     track("server_move");
     GuildMoveActions.moveById(sourceId, targetId, below, false);
@@ -538,7 +545,11 @@ const watchStreamAction = findByCodeLazy('type:"STREAM_WATCH",streamKey');
 
 /** Watch someone's stream from anywhere: join their call if you're not in it, wait until you're
  * connected, watch, and open the call view, where the stream shows. */
+let watching = 0;
 export async function watchStream(userId: string) {
+    // the latest click wins: a second click, or another stream, cancels the one still joining
+    const mine = ++watching;
+    const from = location.pathname;
     const vs: any = VoiceStateStore.getVoiceStateForUser(userId);
     const known: any = ApplicationStreamingStore.getAnyStreamForUser(userId);
     const channelId = known?.channelId ?? vs?.channelId;
@@ -548,12 +559,18 @@ export async function watchStream(userId: string) {
     const stream = known ?? { streamType: channel.guild_id ? "guild" : "call", guildId: channel.guild_id ?? null, channelId, ownerId: userId };
     if (!VoiceStateStore.isInChannel(channelId)) {
         joinVoice(channel);
-        for (let i = 0; i < 50 && !VoiceStateStore.isInChannel(channelId); i++) await new Promise(r => setTimeout(r, 200));
-        if (!VoiceStateStore.isInChannel(channelId)) return;
+        for (let i = 0; i < 50 && !VoiceStateStore.isInChannel(channelId) && mine === watching; i++) await new Promise(r => setTimeout(r, 200));
+        if (mine !== watching) return;
+        if (!VoiceStateStore.isInChannel(channelId)) {
+            showToast({ text: "Couldn't join the call to watch", variant: "critical" });
+            return;
+        }
         await new Promise(r => setTimeout(r, 600)); // the call's connection settles before a stream is asked for
+        if (mine !== watching) return;
     }
     watchStreamAction(stream);
-    NavigationRouter.transitionTo(`/channels/${channel.guild_id ?? "@me"}/${channelId}`);
+    // opens the call view, unless he went somewhere else while it joined
+    if (location.pathname === from) NavigationRouter.transitionTo(`/channels/${channel.guild_id ?? "@me"}/${channelId}`);
 }
 
 const CallActions = findByPropsLazy("stopRinging", "call");

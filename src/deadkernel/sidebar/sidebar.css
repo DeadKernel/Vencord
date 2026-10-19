@@ -59,7 +59,7 @@ html[data-dk-sidebar] {
 
 /* With the column open, the sidebar keeps the width he dragged it to, except on small windows:
    then both columns together take at most 45% of the window, the sidebar never under 240px */
-html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] {
     --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 100vw * 0.45 - 248px));
 
     width: calc(var(--dk-top-w) + 248px) !important;
@@ -67,17 +67,21 @@ html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
 
 /* a thread, search results or the member list beside the chat: the sidebar gives up width only
    while the chat would otherwise drop under ~720px (room for a ~440px panel); full screen keeps it */
-html[data-dk-sidebar]:has([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"], [class*="membersWrap_"]) [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) {
+
+/* (:has on the sidebar itself, looking at its sibling, the chat: anchored on <html> or a container,
+   a :has() makes the browser restyle everything under it whenever the page changes, and during a
+   channel switch that was most of its time) */
+html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"]:has(~ [class*="page_"] :is([class*="chatLayerWrapper_"] > [class*="floating_"], [class*="searchResultsWrap_"], [class*="membersWrap_"])) {
     --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 100vw * 0.45 - 248px), max(240px, 100vw - 248px - 440px - 720px));
 }
 
 /* the account bar stays under the sidebar, so mute and deafen never move when a column opens */
-html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) > [class*="panels_"] {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] > [class*="panels_"] {
     right: auto !important;
     width: calc(var(--dk-top-w) - 1px) !important;
 }
 
-html[data-dk-sidebar] [class*="sidebar__"]:has(nav.dk-sb[data-mode="server"]) [class*="sidebarList__"] {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] [class*="sidebarList__"] {
     width: calc(var(--dk-top-w) + 248px - var(--custom-guild-list-width) - 1px) !important;
 }
 
@@ -260,7 +264,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     gap: 8px;
     width: 100%;
     height: var(--dk-row-h, 32px);
-    padding: 0 10px 0 12px !important;
+    padding: 0 var(--dk-row-actions-room, 10px) 0 12px !important;
     white-space: nowrap;
     color: var(--dk-text) !important;
     transition: background-color 80ms linear;
@@ -600,7 +604,7 @@ html[data-dk-sb-anim] [class*="sidebarList__"] {
     font-weight: 400 !important;
 }
 
-.dk-col-quiet .dk-sb-row:not(.dk-selected) {
+.dk-col-row.dk-quiet:not(.dk-selected) {
     color: var(--dk-text-2) !important;
 }
 
@@ -648,25 +652,27 @@ html[data-dk-ctrl] .dk-fav-key {
     display: flex;
     align-items: center;
     gap: 2px;
-    opacity: 0;
-    pointer-events: none;
+    opacity: var(--dk-row-actions, 0);
+    pointer-events: var(--dk-row-actions-pointer, none);
     transition: opacity 80ms linear;
 }
 
 /* the row makes room for its actions: its right-hand slot steps aside and the text truncates
-   sooner, so the actions sit on the row itself, not on a patch over it */
-.dk-sb-rowwrap:has(.dk-sb-actions):is(:hover, :has(:focus-visible)) > .dk-sb-row {
-    padding-right: 72px !important;
+   sooner, so the actions sit on the row itself, not on a patch over it. Keyboard focus keeps them
+   up; a mouse click's leftover focus doesn't. (Hover sets properties the row reads: hover in a
+   rule's middle makes the browser restyle far more than the row, see QuietLayout's note.) */
+.dk-sb-rowwrap:is(:hover, :has(:focus-visible)) {
+    --dk-row-actions: 1;
+    --dk-row-actions-pointer: auto;
 }
 
-.dk-sb-rowwrap:has(.dk-sb-actions):is(:hover, :has(:focus-visible)) > .dk-sb-row .dk-sb-trail {
-    visibility: hidden;
+.dk-sb-rowwrap:has(> .dk-sb-actions):is(:hover, :has(:focus-visible)) {
+    --dk-row-actions-room: 72px;
+    --dk-row-trail: hidden;
 }
 
-/* keyboard focus keeps them up; a mouse click's leftover focus doesn't */
-.dk-sb-rowwrap:is(:hover, :has(:focus-visible)) .dk-sb-actions {
-    opacity: 1;
-    pointer-events: auto;
+.dk-sb-rowwrap > .dk-sb-row .dk-sb-trail {
+    visibility: var(--dk-row-trail, visible);
 }
 
 .dk-sb .dk-sb-action {

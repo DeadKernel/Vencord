@@ -45,6 +45,8 @@ interface Entry {
     favId?: string;
     /** asks for a second ↵ first, showing this instead of `where` (changes to his Discord settings across servers) */
     confirm?: string;
+    /** not a place or a person (a game profile, say): listed after those */
+    aside?: boolean;
     run(): void;
 }
 type Line = Entry | { key: string; header: string; };
@@ -119,7 +121,7 @@ function resultEntry(r: SwitcherResult, i: number, mode: string | null): Line | 
             return { key, label: g.name, where: "server", icon: <Square src={guildIcon(g.id)} text={g.name[0]} size="server" />, run: go };
         }
         default:
-            return { key, label: String(r.record?.name ?? r.comparator ?? r.type), where: r.type.toLowerCase().replace(/_/g, " "), icon: glyph("dot"), run: go };
+            return { key, label: String(r.record?.name ?? r.comparator ?? r.type), where: r.type.toLowerCase().replace(/_/g, " "), icon: glyph("dot"), aside: true, run: go };
     }
 }
 
@@ -237,7 +239,7 @@ function resultLines(p: SwitcherProps, text: string): Line[] {
     const lines = p.results.map((r, i) => resultEntry(r, i, p.queryMode)).filter((l): l is Line => !!l);
     if (p.queryMode || lines.some(l => !isEntry(l))) return lines;
     const q = text.trim().toLowerCase();
-    const rank = (e: Entry) => e.label.toLowerCase() === q ? 0 : e.favId && isFavorite(e.favId) ? 1 : 2;
+    const rank = (e: Entry) => e.label.toLowerCase() === q && !e.aside ? 0 : e.favId && isFavorite(e.favId) ? 1 : e.aside ? 3 : 2;
     return (lines as Entry[]).slice().sort((a, b) => rank(a) - rank(b));
 }
 
@@ -276,12 +278,15 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
         [text, switcher, favKey]
     );
     const selectable = lines.flatMap((l, i) => isEntry(l) ? [i] : []);
-    const [sel, setSel] = useState(-1);
-    const current = selectable.includes(sel) ? sel : selectable[0] ?? -1;
+    // the selection is a row's key, not its place: starring it, or results arriving late, don't move it
+    const [selKey, setSelKey] = useState<string | null>(null);
+    const found = selKey === null ? -1 : selectable.find(i => lines[i].key === selKey) ?? -1;
+    const current = found >= 0 ? found : selectable[0] ?? -1;
+    const setSel = (i: number) => setSelKey(lines[i]?.key ?? null);
     const listRef = useRef<HTMLDivElement>(null);
 
-    // a new list starts at its first row
-    useEffect(() => setSel(selectable[0] ?? -1), [lines]);
+    // a new search starts at its first row
+    useEffect(() => setSelKey(null), [text]);
     useEffect(() => {
         listRef.current?.querySelector(".dk-selected")?.scrollIntoView({ block: "nearest" });
     }, [current, lines]);
@@ -291,7 +296,7 @@ export function Palette({ Original, ...modal }: { Original: ComponentType<any>; 
         if (!next.startsWith(">")) QuickSwitcher.search(next);
     };
     const [armed, setArmed] = useState<string | null>(null);
-    useEffect(() => setArmed(null), [lines, current]);
+    useEffect(() => setArmed(null), [text, selKey]);
     useEffect(() => { track("palette_open"); }, []);
     const run = (e: Entry) => {
         if (e.confirm && armed !== e.key) return setArmed(e.key);

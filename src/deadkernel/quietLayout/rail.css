@@ -1,0 +1,60 @@
+/* QuietLayout's server rail rules: Discord's own rail only shows with the Sidebar off, so this sheet
+   is only switched on then (index.ts). Even rules that never match cost the whole page: the browser
+   builds its invalidation sets from every rule loaded. */
+
+/* stylelint-disable no-descending-specificity */
+
+/* Square server icons; the selected / unread indicator becomes a thin square edge */
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"] foreignObject[mask],
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="folderGroup_"] foreignObject[mask] {
+    mask: none !important;
+}
+
+/* voice / screen-share markers on server icons: square, in the panel colour */
+[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="upperBadge_"] > * {
+    border-radius: 0 !important;
+}
+
+[data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] :is(img, [class*="icon_"], [class*="childWrapper_"]),
+[data-dk-layout~="squareRail"] [class*="folderIconWrapper_"],
+[data-dk-layout~="squareRail"] [class*="expandedFolderBackground_"] {
+    border-radius: 0 !important;
+}
+
+[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"] {
+    width: 3px !important;
+    border-radius: 0 !important;
+    background: var(--hl-text-2, var(--interactive-normal)) !important;
+}
+
+[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"][class*="selected_"] {
+    background: var(--hl-accent, var(--text-brand)) !important;
+}
+
+/* Grey rail: servers are grey until hovered or selected; a pink dot is the only mention signal.
+   Home and unread-DM avatars (wrapped one level deeper) keep their colour. */
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
+    filter: grayscale(1);
+    opacity: 0.4;
+    transition: filter 120ms, opacity 120ms;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]):is(:hover, :has([class*="selected_"])) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
+    filter: none;
+    opacity: 1;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:not(:has([data-list-item-id="guildsnav___home"])) [class*="lowerBadge_"] [class*="numberBadge_"] {
+    width: 8px !important;
+    min-width: 8px !important;
+    height: 8px !important;
+    min-height: 0 !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    margin: 0 2px 2px 0;
+}
+
+[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="overlay_"] > [class*="item_"]:not([class*="selected_"]) {
+    display: none !important;
+}

@@ -38,7 +38,7 @@ function wrapUserClass() {
 }
 
 export function startAnimatedImages() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (undo.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // already wrapped
     wrap(IconUtils, "getUserAvatarURL", at(1)); // (user, canAnimate, size)
     wrap(IconUtils, "getUserAvatarSource", at(1)); // (user, canAnimate, size)
     wrap(IconUtils, "getGuildMemberAvatarURL", at(1)); // (member, canAnimate)
@@ -52,6 +52,6 @@ export function startAnimatedImages() {
 
 export function stopAnimatedImages() {
     FluxDispatcher.unsubscribe("CONNECTION_OPEN", wrapUserClass);
-    undo.splice(0).forEach(f => f());
+    undo.splice(0).reverse().forEach(f => f()); // last wrapped, first unwrapped
     userClassDone = false;
 }

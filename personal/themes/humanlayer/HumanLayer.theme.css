@@ -718,13 +718,15 @@ select {
 [class*="channelTextArea__74017"] [class*="scrollableContainer_"],
 [class*="channelTextArea_"] > [class*="scrollableContainer_"] {
 	background: var(--hl-bg-raised) !important;
-	border: 1px solid var(--hl-border) !important;
+	border: 1px solid var(--hl-composer-focus, var(--hl-border)) !important;
 	border-radius: 0 !important;
 	transition: border-color 80ms;
 }
 
-[class*="channelTextArea_"]:focus-within [class*="scrollableContainer_"] {
-	border-color: var(--hl-accent) !important;
+/* (the focus sets a property the box reads: a ":focus-within [class*=...]" rule makes every focus
+   change restyle the focused element's whole subtree, see QuietLayout's note) */
+[class*="channelTextArea_"]:focus-within {
+	--hl-composer-focus: var(--hl-accent);
 }
 
 [class*="channelTextArea_"] [role="textbox"] {

@@ -297,7 +297,7 @@ function DirectSection() {
                     <ConversationRow id={item.id} />
                     <RowActions actions={actionsFor(ChannelStore.getChannel(item.id), { triage: true })} />
                 </div>
-                : <div key={item.guildId} className="dk-sb-rowwrap">
+                : GuildStore.getGuild(item.guildId) && <div key={item.guildId} className="dk-sb-rowwrap">
                     <ServerMentionRow guildId={item.guildId} channelIds={item.channelIds} mentions={item.mentions} />
                     <RowActions actions={serverTriage(item.guildId, item.channelIds)} />
                 </div>)}
@@ -540,8 +540,14 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
     const columnRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => { noteRoute(routeGuildId, selectedChannelId); }, [routeGuildId, selectedChannelId]);
-    // the column keeps its last server while it closes
-    useEffect(() => { if (drilled) setColumnGuild(drilled); }, [drilled]);
+    // the column keeps its last server while it closes, then goes: closed, it would keep every row's
+    // subscriptions (and Discord's whole channel list, if shown) running out of sight
+    useEffect(() => {
+        if (drilled) { setColumnGuild(drilled); return; }
+        const t = window.setTimeout(() => setColumnGuild(null), 320);
+        return () => clearTimeout(t);
+    }, [drilled]);
+    const shown = drilled ?? columnGuild;
     useEffect(() => {
         const el = scroller.current;
         if (!el) return;
@@ -550,6 +556,11 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
     }, []);
     useWidthTransition(drilled);
     useInert(columnRef, !drilled);
+    // on <html>, so the layout's CSS needn't search the page with :has() for the column
+    useEffect(() => {
+        document.documentElement.dataset.dkSbMode = drilled ? "server" : "top";
+        return () => void delete document.documentElement.dataset.dkSbMode;
+    }, [!!drilled]);
 
     return (
         <nav className="dk-sb" aria-label="Sidebar" data-mode={drilled ? "server" : "top"} onKeyDown={onNavKey}>
@@ -565,13 +576,13 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                 </div>
             </div>
             <div className="dk-layer dk-layer-column" ref={columnRef}>
-                {columnGuild && (
+                {shown && (
                     <Column
-                        key={columnGuild}
-                        guildId={columnGuild}
-                        selectedChannelId={columnGuild === routeGuildId ? selectedChannelId : null}
+                        key={shown}
+                        guildId={shown}
+                        selectedChannelId={shown === routeGuildId ? selectedChannelId : null}
                         GuildSidebar={GuildSidebar}
-                        onBack={() => backOut(columnGuild)}
+                        onBack={() => backOut(shown)}
                     />
                 )}
             </div>

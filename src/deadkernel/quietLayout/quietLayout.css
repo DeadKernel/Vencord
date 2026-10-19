@@ -4,33 +4,6 @@
 
 /* stylelint-disable no-descending-specificity */
 
-/* Square server icons; the selected / unread indicator becomes a thin square edge */
-[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"] foreignObject[mask],
-[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="folderGroup_"] foreignObject[mask] {
-    mask: none !important;
-}
-
-/* voice / screen-share markers on server icons: square, in the panel colour */
-[data-dk-layout~="squareRail"] nav[aria-label="Servers sidebar"] [class*="upperBadge_"] > * {
-    border-radius: 0 !important;
-}
-
-[data-dk-layout~="squareRail"] [data-list-item-id^="guildsnav___"] :is(img, [class*="icon_"], [class*="childWrapper_"]),
-[data-dk-layout~="squareRail"] [class*="folderIconWrapper_"],
-[data-dk-layout~="squareRail"] [class*="expandedFolderBackground_"] {
-    border-radius: 0 !important;
-}
-
-[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"] {
-    width: 3px !important;
-    border-radius: 0 !important;
-    background: var(--hl-text-2, var(--interactive-normal)) !important;
-}
-
-[data-dk-layout~="squareRail"] [class*="listItem_"] [class*="overlay_"] > [class*="item_"][class*="selected_"] {
-    background: var(--hl-accent, var(--text-brand)) !important;
-}
-
 /* One colour for names */
 [data-dk-layout~="plainNames"] :is([class*="cozyMessage_"], [class*="compact_"], [class*="repliedMessage_"], [class*="member_"], [class*="threadMessageAccessory"]) [class*="username_"],
 [data-dk-layout~="plainNames"] [class*="member_"] [class*="name_"] {
@@ -90,40 +63,14 @@
 }
 
 /* Nothing moves by itself */
-[data-dk-layout~="stillMotion"] [class*="typing_"] :is(svg, svg *, [class*="dots_"], [class*="dot_"]),
-[data-dk-layout~="stillMotion"] [class*="typingDots_"] *,
-[data-dk-layout~="stillMotion"] [class*="reactions_"] *,
-[data-dk-layout~="stillMotion"] [class*="avatarDecoration"] *,
+
+/* only what Discord animates with CSS: the typing dots and a reaction's shake (GIFs and animated
+   decorations are images; CSS can't stop them). Never "X *": that makes every element on the page
+   walk its ancestors on every style pass, and was the costliest rule we had */
+[data-dk-layout~="stillMotion"] :is([class*="typing_"], [class*="typingDots_"]) [class*="dot_"],
+[data-dk-layout~="stillMotion"] [class*="shakeReaction"],
 [data-dk-layout~="stillMotion"] [class*="shimmer"] {
     animation: none !important;
-}
-
-/* Grey rail: servers are grey until hovered or selected; a pink dot is the only mention signal.
-   Home and unread-DM avatars (wrapped one level deeper) keep their colour. */
-[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
-    filter: grayscale(1);
-    opacity: 0.4;
-    transition: filter 120ms, opacity 120ms;
-}
-
-[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] :is([class*="scroller_"] > [class*="stack_"] > [class*="listItem_"], [class*="folderGroup_"] [class*="listItem_"]):is(:hover, :has([class*="selected_"])) :is(foreignObject, [class*="folderIconWrapper_"], [class*="acronym_"]) {
-    filter: none;
-    opacity: 1;
-}
-
-[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="listItem_"]:not(:has([data-list-item-id="guildsnav___home"])) [class*="lowerBadge_"] [class*="numberBadge_"] {
-    width: 8px !important;
-    min-width: 8px !important;
-    height: 8px !important;
-    min-height: 0 !important;
-    line-height: 0 !important;
-    padding: 0 !important;
-    font-size: 0 !important;
-    margin: 0 2px 2px 0;
-}
-
-[data-dk-layout~="monoRail"] nav[aria-label="Servers sidebar"] [class*="overlay_"] > [class*="item_"]:not([class*="selected_"]) {
-    display: none !important;
 }
 
 /* Bare title bar */
@@ -197,7 +144,14 @@
 }
 
 /* the topic's own text spans set a colour and size; the line is one dim voice */
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] :is([data-text-variant], [data-text-variant] *) {
+
+/* text tags, not "*": a rule ending in * makes every element on the page check its ancestors */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant],
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] span,
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] a,
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] strong,
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] em,
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] code {
     font-size: inherit !important;
     color: inherit !important;
 }
@@ -209,13 +163,17 @@
     color: var(--hl-text-2, var(--text-muted)) !important;
 }
 
+/* Hover and focus here set a custom property on the element itself, read by its children: the
+   browser keeps one invalidation set per :hover (and :focus-within, :has), shared by every rule, and
+   one rule like "X:hover [class*=y]" makes every hover change anywhere restyle the hovered element's
+   whole subtree. Applied to the app's root on each change, it was most of a channel switch's time. */
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] > :not([class*="search"]) {
-    opacity: 0;
+    opacity: var(--dk-header-tools, 0);
     transition: opacity 120ms;
 }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"]:is(:hover, :focus-within) [class*="toolbar_"] > * {
-    opacity: 1;
+[data-dk-layout~="quietHeader"] section[class*="title_"]:is(:hover, :focus-within) {
+    --dk-header-tools: 1;
 }
 
 /* search: an icon until you use it (Ctrl+F or a click), then it opens to full width */
@@ -228,30 +186,38 @@
 }
 
 /* closed, the box is just the icon, centred: the empty editor's padding pushed it right */
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] {
-    justify-content: center;
+
+/* (closed or open is a property of the search box, read with a style query: see the note above) */
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) {
+    --dk-search: closed;
 }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] > [class*="icon_"] {
-    margin: 0 !important;
-}
+@container style(--dk-search: closed) {
+    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
+        justify-content: center;
+    }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) [class*="searchBar_"] [class*="editor_"] {
-    position: absolute !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-    opacity: 0;
+    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] > [class*="icon_"] {
+        margin: 0 !important;
+    }
+
+    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] [class*="editor_"] {
+        position: absolute !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+        opacity: 0;
+    }
 }
 
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
-    width: 32px !important;
+    width: var(--dk-search-w, 32px) !important;
     transition: width 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:focus-within [class*="searchBar_"] {
-    width: 240px !important;
+[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:focus-within {
+    --dk-search-w: 240px;
 }
 
 /* Quiet channel list, continued */
@@ -273,26 +239,27 @@
     display: none !important;
 }
 
-/* Avatars only in DMs: in servers the message is name + text */
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] img[class*="avatar_"],
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] [class*="avatarDecoration"],
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="isSystemMessage_"] [class*="iconContainer_"] {
+/* Avatars only in DMs: in servers the message is name + text. (data-dk-in is set from the selected
+   server: :root:has(...) made the browser restyle the whole page on every change to it) */
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] img[class*="avatar_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] [class*="avatarDecoration"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="isSystemMessage_"] [class*="iconContainer_"] {
     display: none !important;
 }
 
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"][class*="cozy_"] {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"][class*="cozy_"] {
     padding-left: 24px !important;
 }
 
 /* the reply and thread connector lines were drawn for an avatar column that isn't there */
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"]:not([class*="groupStart_"]) [class*="contents_"] > [class*="timestamp_"],
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"] [class*="spine_"],
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="repliedMessageClickableSpine_"] {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"]:not([class*="groupStart_"]) [class*="contents_"] > [class*="timestamp_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] [class*="spine_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="repliedMessageClickableSpine_"] {
     display: none !important;
 }
 
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
-:root[data-dk-layout~="avatarsInDmsOnly"]:has(nav[aria-label$="(server)"]) [class*="repliedMessage_"]::before {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="repliedMessage_"]::before {
     content: none !important;
 }
 
@@ -326,8 +293,12 @@
     margin-right: 8px;
 }
 
-[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="repliedTextPreview_"]:hover [class*="repliedTextContent_"] {
-    color: var(--hl-text, var(--text-default)) !important;
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="repliedTextPreview_"] [class*="repliedTextContent_"] {
+    color: var(--dk-reply-hover, var(--hl-text-2, var(--text-muted))) !important;
+}
+
+[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="repliedTextPreview_"]:hover {
+    --dk-reply-hover: var(--hl-text, var(--text-default));
 }
 
 /* Reactions: 22px hairline chips; "add reaction" only on the message you're pointing at */
@@ -357,8 +328,12 @@
     color: var(--hl-accent, var(--text-brand)) !important;
 }
 
-[data-dk-layout~="quietReactions"] [class*="message_"]:not(:hover, :focus-within) [class*="reactionBtn_"] {
-    opacity: 0 !important;
+[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reactionBtn_"] {
+    opacity: var(--dk-add-reaction, 0) !important;
+}
+
+[data-dk-layout~="quietReactions"] [class*="message_"]:is(:hover, :focus-within) {
+    --dk-add-reaction: 1;
 }
 
 /* Member list: small square-ish avatars, names at body size, no animated nameplates, group headers
@@ -366,11 +341,11 @@
    leave blank space at the end. */
 [data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"] [class*="childContainer_"] {
     border-radius: 0 !important;
-    background: none !important;
+    background: var(--dk-member-hover, none) !important;
 }
 
-[data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"]:hover [class*="childContainer_"] {
-    background: var(--hl-hover, var(--background-mod-subtle)) !important;
+[data-dk-layout~="quietMembers"] [class*="members_"] [class*="member_"]:hover {
+    --dk-member-hover: var(--hl-hover, var(--background-mod-subtle));
 }
 
 /* nameplates: an animated video plus a coloured gradient behind the name */
@@ -400,12 +375,12 @@
 
 /* Timestamps on hover */
 [data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"] h3 [class*="timestamp_"] {
-    opacity: 0;
+    opacity: var(--dk-timestamp, 0);
     transition: opacity 80ms;
 }
 
-[data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"]:hover h3 [class*="timestamp_"] {
-    opacity: 1;
+[data-dk-layout~="hoverTimestamps"] [class*="cozyMessage_"]:hover {
+    --dk-timestamp: 1;
 }
 
 /* Reading width */
@@ -430,7 +405,7 @@
     max-width: 360px !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has([class*="topLine_"]) [class*="bottomLine_"],
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] ~ [class*="bottomLine_"],
 [data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="spine_"]:has(+ [class*="container_"] > [class*="topLine_"]) {
     display: none !important;
 }
@@ -468,15 +443,19 @@
 [data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] :is([class*="name_"], [class*="cta_"]) {
     font-size: 12px !important;
     font-weight: 400 !important;
-    color: var(--hl-text-2, var(--text-muted)) !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:hover > [class*="topLine_"] [class*="name_"] {
-    color: var(--hl-text, var(--text-default)) !important;
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] [class*="name_"] {
+    color: var(--dk-thread-name, var(--hl-text-2, var(--text-muted))) !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:hover > [class*="topLine_"] [class*="cta_"] {
-    color: var(--hl-accent, var(--text-link)) !important;
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] [class*="cta_"] {
+    color: var(--dk-thread-cta, var(--hl-text-2, var(--text-muted))) !important;
+}
+
+[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:hover {
+    --dk-thread-name: var(--hl-text, var(--text-default));
+    --dk-thread-cta: var(--hl-accent, var(--text-link));
 }
 
 /* Flat composer: a hairline across the chat, no box and no inset */
@@ -494,27 +473,27 @@
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="scrollableContainer_"] {
     background: transparent !important;
     border: 0 !important;
-    border-top: 1px solid var(--hl-border, var(--border-subtle)) !important;
+    border-top: 1px solid var(--hl-composer-focus, var(--hl-border, var(--border-subtle))) !important; /* the theme sets it while focused */
     box-shadow: none !important;
 }
 
 /* emoji is the one button on the right: GIFs and stickers are tabs inside its picker */
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > :is(
-    [aria-label="Send a gift"], :has([aria-label="Send a gift"]),
-    [aria-label="Open GIF picker"], :has([aria-label="Open GIF picker"]),
-    [aria-label="Open sticker picker"], :has([aria-label="Open sticker picker"]),
-    [class*="app-launcher-entrypoint"]
-) {
+
+/* each button sits in a wrapper of its own: :has() looks at the wrapper's children only, and the
+   stable classes come first, so the page isn't searched for these on every style pass */
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .expression-picker-chat-input-button:has(> :is([aria-label="Open GIF picker"], [aria-label="Open sticker picker"])),
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .app-launcher-entrypoint,
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Send a gift"]) {
     display: none !important;
 }
 
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] :is([class*="buttons_"], [class*="attachWrapper_"]) {
-    opacity: 0.35;
+    opacity: var(--dk-composer-tools, 0.35);
     transition: opacity 120ms;
 }
 
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:is(:hover, :focus-within) :is([class*="buttons_"], [class*="attachWrapper_"]) {
-    opacity: 1;
+[data-dk-layout~="flatComposer"] [class*="channelTextArea_"]:is(:hover, :focus-within) {
+    --dk-composer-tools: 1;
 }
 
 /* The account panel is a bar across the bottom of the sidebar, not a floating card */

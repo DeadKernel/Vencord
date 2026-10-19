@@ -5,9 +5,12 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
+import { disableStyle, enableStyle } from "@api/Styles";
 import definePlugin, { OptionType, PluginNative } from "@utils/types";
+import { SelectedGuildStore } from "@webpack/common";
 
 import style from "./quietLayout.css?managed";
+import railStyle from "./rail.css?managed";
 
 // Structure, not colour: the theme owns the look, Declutter owns what's hidden. Each option
 // toggles a token in data-dk-layout on <html>; quietLayout.css keys off those tokens.
@@ -66,6 +69,18 @@ function apply() {
     document.documentElement.dataset.dkLayout = (Object.keys(Options) as Key[]).filter(k => settings.store[k]).join(" ");
 }
 
+/** Discord's server rail only shows with the Sidebar off (or switched back live): its rules load only then */
+let railObserver: MutationObserver | null = null;
+function applyRail() {
+    if ("dkSidebar" in document.documentElement.dataset) disableStyle(railStyle);
+    else enableStyle(railStyle);
+}
+
+/** In a server or in DMs, for the stylesheet (avatars only in DMs) */
+function applyPlace() {
+    document.documentElement.dataset.dkIn = SelectedGuildStore.getGuildId() ? "server" : "dm";
+}
+
 // ── Scale: the whole app zooms with the window's height, in 5% steps, through Electron's own
 // zoom (native.ts). CSS zoom on <html> broke Discord's popout placement (menus landed zoom-times
 // too far right and down). Heights are logical pixels: innerHeight × the zoom in effect. ──
@@ -81,6 +96,8 @@ function zoomFor(height: number) {
 }
 
 async function applyScale() {
+    // the zoom in effect now: Ctrl +/- or Discord's own zoom setting may have changed it since
+    current = await Native.getZoom().catch(() => current);
     const auto = settings.store.scaleWithWindow ? zoomFor(window.innerHeight * current) : 1;
     const zoom = Math.round(auto * (settings.store.extraScale ?? 100) / 100 * 20) / 20;
     if (zoom === current) return;
@@ -104,7 +121,11 @@ export default definePlugin({
 
     async start() {
         apply();
-        current = await Native.getZoom().catch(() => 1);
+        applyPlace();
+        SelectedGuildStore.addChangeListener(applyPlace);
+        applyRail();
+        railObserver = new MutationObserver(applyRail);
+        railObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-dk-sidebar"] });
         await applyScale();
         window.addEventListener("resize", onResize);
     },
@@ -112,6 +133,11 @@ export default definePlugin({
         window.removeEventListener("resize", onResize);
         cancelAnimationFrame(frame);
         delete document.documentElement.dataset.dkLayout;
+        SelectedGuildStore.removeChangeListener(applyPlace);
+        railObserver?.disconnect();
+        railObserver = null;
+        disableStyle(railStyle);
+        delete document.documentElement.dataset.dkIn;
         current = 1;
         Native.setZoom(1);
     }

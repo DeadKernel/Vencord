@@ -10,7 +10,7 @@
     display: none !important;
 }
 
-[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Send a gift"]),
+[data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Send a gift"]),
 [data-dk-hide~="gift"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Send a gift"] {
     display: none !important;
 }
@@ -21,7 +21,7 @@
     display: none !important;
 }
 
-[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Apps"]),
+[data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Apps"]),
 [data-dk-hide~="apps"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Apps"],
 [data-dk-hide~="apps"] [class*="channelAppLauncher_"] {
     display: none !important;
@@ -129,7 +129,7 @@
     display: none !important;
 }
 
-[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > div:has([aria-label="Open sticker picker"]),
+[data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > div:has(> [aria-label="Open sticker picker"]),
 [data-dk-hide~="stickers"] [class*="channelTextArea_"] [class*="buttons_"] > [aria-label="Open sticker picker"] {
     display: none !important;
 }
@@ -149,7 +149,9 @@
 }
 
 /* Profiles */
-[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) {
+[data-dk-hide~="profileThemes"] .user-profile-popout,
+[data-dk-hide~="profileThemes"] .user-profile-sidebar,
+[data-dk-hide~="profileThemes"] [class*="user-profile-modal"] {
     --profile-gradient-primary-color: var(--hl-bg-raised, var(--background-base-low)) !important;
     --profile-gradient-secondary-color: var(--hl-bg-raised, var(--background-base-low)) !important;
     --profile-gradient-overlay-color: transparent !important;
@@ -162,7 +164,8 @@
     background-color: var(--hl-bg-hover, var(--background-base-lower)) !important;
 }
 
-[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) [class*="banner_"] :is(img, video) {
+[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) [class*="banner_"] img,
+[data-dk-hide~="profileThemes"] :is(.user-profile-popout, .user-profile-sidebar, [class*="user-profile-modal"]) [class*="banner_"] video {
     display: none !important;
 }
 

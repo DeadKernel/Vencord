@@ -147,6 +147,20 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   helper windows (NVIDIA Broadcast, Razer) at about a second each, and the preview step captured
   everything again. Now names and icons open it in ~0.3s and thumbnails fill in
   (`personal/tools/picker-timing.mjs`).
+- **Channel switches twice as fast, 2026-10-19.** Our CSS made a channel switch take ~160ms against
+  ~57ms with it off: Chrome restyled 7× as many elements. Not slow selectors but invalidation.
+  Chrome keeps one invalidation set per `:has`, `:hover` and `:focus-within`, shared by every rule,
+  built from what follows that pseudo-class. One rule like `X:hover [class*="y_"]` or
+  `X:has(…) [class*="y_"]` puts "every element with a class" in it, so each hover change, or each
+  time Discord's own `:has()` on the app root re-checks (thousands of times a switch), restyled
+  the whole app. Rules for things never on screen count too: the browser builds the sets from every
+  rule loaded. Now ~80ms. **The rule for our CSS:** never put `:hover`, `:focus-within` or `:has()`
+  in the middle of a selector followed by `[class*=…]` or `*`. Set a custom property on the
+  hovered element and read it below (`opacity: var(--dk-x, 0)`), or a style query for several
+  properties; anchor `:has()` on the element being styled; state that's known in JS (in a server,
+  the column open) goes on `<html>` as a data attribute. Rules for Discord's rail live in their own
+  sheet, loaded only with the Sidebar off. `personal/tools/perf.mjs` (CPU), `trace.mjs` (style vs.
+  layout, with and without our CSS) and `hover-check.mjs` (every hover effect, with a real pointer).
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 

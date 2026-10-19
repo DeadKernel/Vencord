@@ -321,6 +321,38 @@ try {
 		check("· N unfolds that category's quiet channels", await until(`document.querySelectorAll(".dk-col .dk-sb-row").length > ${before}`, 800));
 		await js(`${quietBtn}.click()`);
 	}
+	// everything unfolded: a quiet voice channel someone joins brightens in place, it doesn't jump.
+	// The someone: a member of this server who isn't a friend and isn't in voice, set in Discord's
+	// local voice store only (nothing is sent), and taken out again at once
+	await js(`document.querySelector('.dk-col [data-dk-action="all-quiet"][aria-expanded="false"]')?.click()`);
+	await sleep(300);
+	const colOrder = () => js(`return [...document.querySelectorAll(".dk-col .dk-col-row")].map(r => r.dataset.dkId).join(",")`);
+	const jump = await js(`
+		const C = ${C}, me = C.UserStore.getCurrentUser().id;
+		const row = [...document.querySelectorAll(".dk-col .dk-col-row.dk-quiet")].find(r => [2, 13].includes(C.ChannelStore.getChannel(r.dataset.dkId)?.type));
+		const vc = row && C.ChannelStore.getChannel(row.dataset.dkId);
+		const who = vc && C.GuildMemberStore.getMemberIds(vc.guild_id).find(u => u !== me && !C.RelationshipStore.isFriend(u) && !C.VoiceStateStore.getVoiceStateForUser(u) && C.UserStore.getUser(u));
+		if (!who) return { skipped: !vc ? "no quiet voice channel here" : "no member to stand in" };
+		window.__dkJump = { u: who, g: vc.guild_id, vc: vc.id };
+		return { vc: vc.id };`);
+	if (jump.skipped) console.log(`skip  a channel coming alive stays in place: ${jump.skipped}`);
+	else {
+		const was = await colOrder();
+		await js(`const j = window.__dkJump; ${C}.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: j.u, channelId: j.vc, guildId: j.g, sessionId: "dk-test-jump", selfMute: false, selfDeaf: false, selfVideo: false, selfStream: true, mute: false, deaf: false, suppress: false }] })`);
+		await until(`!document.querySelector('.dk-col .dk-col-row[data-dk-id="${jump.vc}"]')?.classList.contains("dk-quiet")`, 1000);
+		const now = await colOrder();
+		const bright = await js(`return document.querySelector('.dk-col .dk-col-row[data-dk-id="${jump.vc}"]')?.classList.contains("dk-quiet") === false`);
+		const live = await js(`return !!document.querySelector('.dk-col .dk-col-row[data-dk-id="${jump.vc}"] [data-dk-action="watch"]')`);
+		await js(`const j = window.__dkJump; ${C}.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: j.u, channelId: null, guildId: j.g, sessionId: "dk-test-jump" }] }); delete window.__dkJump;`);
+		check("unfolded, a voice channel someone joins brightens in place instead of jumping", now === was && bright, `${was} → ${now}, bright ${bright}`);
+		check("…and someone streaming there gets the LIVE watch button on its row", live);
+	}
+	await js(`document.querySelector('.dk-col [data-dk-action="all-quiet"][aria-expanded="true"]')?.click()`);
+	// a closed column is gone, not just hidden (its rows would keep listening to Discord out of sight)
+	await js(`document.querySelector(".dk-col-back").click()`);
+	check("a closed column unmounts once it has slid away", await until(`!document.querySelector(".dk-col")`, 1500));
+	await js(`document.querySelector(".dk-crumb")?.click()`);
+	await until(`document.querySelector(".dk-col")`, 800);
 
 	// ── 9. Palette ›actions (Discord side effects recorded) ──
 	const runAction = async (label, twice = false) => {
@@ -336,6 +368,33 @@ try {
 		await until(`!document.querySelector(".dk-pal")`, 2000);
 		return rec();
 	};
+	// the palette's selection is a row, not a position: starring it (Shift+Enter) keeps it selected
+	await js(`Vencord.Webpack.mapMangledModule('type:"QUICKSWITCHER_SEARCH"', { show: Vencord.Webpack.filters.byCode('"KEYBIND"') }).show("KEYBIND", "")`);
+	await until(`document.activeElement?.closest(".dk-pal")`, 2000);
+	const key = async (k, code, vk, modifiers = 0) => { for (const type of ["rawKeyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: k, code, windowsVirtualKeyCode: vk, modifiers }); await sleep(120); };
+	// a search, so starring re-ranks the row (favourites first) instead of moving it between sections
+	await send("Input.insertText", { text: "general" });
+	await until(`document.querySelectorAll(".dk-pal-row").length > 3`, 1500);
+	// Discord's results can arrive in more than one batch: wait until the list holds still
+	for (let i = 0, last = ""; i < 20; i++) { await sleep(250); const now = await js(`return [...document.querySelectorAll(".dk-pal-row")].map(r => r.id).join()`); if (now === last) break; last = now; }
+	for (let i = 0; i < 2; i++) await key("ArrowDown", "ArrowDown", 40);
+	const picked = await js(`return document.querySelector(".dk-pal-row.dk-selected")?.id ?? ""`);
+	await key("Enter", "Enter", 13, 8);
+	await sleep(200);
+	const after = await js(`return document.querySelector(".dk-pal-row.dk-selected")?.id ?? ""`);
+	await key("Enter", "Enter", 13, 8); // and unstar
+	await sleep(200);
+	check("starring a row in Ctrl K keeps it selected", picked && after === picked, `${picked} → ${after}`);
+	await key("Escape", "Escape", 27);
+	await until(`!document.querySelector(".dk-pal")`, 1000);
+	// one person, one place: an unread conversation is in DMs & mentions, not again under Messages
+	check("an unread DM is listed once (DMs & mentions), not again under Messages", await js(`
+		const ids = sel => new Set([...document.querySelectorAll(sel)].map(e => e.dataset.dkId).filter(Boolean));
+		const sections = [...document.querySelectorAll(".dk-layer-top .dk-sb-section")];
+		const direct = sections.find(s => s.textContent.startsWith("DMs & mentions")), messages = sections.find(s => s.querySelector(".dk-sb-label")?.textContent.startsWith("Messages"));
+		if (!direct || !messages) return true;
+		const a = [...direct.querySelectorAll("[data-dk-id]")].map(e => e.dataset.dkId), b = new Set([...messages.querySelectorAll("[data-dk-id]")].map(e => e.dataset.dkId));
+		return !a.some(id => b.has(id));`));
 	await rec();
 	check("› Mute server goes through Discord's notification settings", recHas(await runAction("Mute server"), "guildNotif"));
 	check("› Stop pings here sets suppress everyone and roles", recHas(await runAction("Stop @everyone and role pings here"), "guildNotif"));
@@ -428,12 +487,15 @@ try {
 		window.__dkStart = { g: vc.guild_id, id: vc.id, was: S.getStartTime(vc) ?? null };
 		${C}.FluxDispatcher.dispatch({ type: "VOICE_CHANNEL_START_TIME_UPDATE", guildId: vc.guild_id, id: vc.id, voiceStartTime: Math.floor((Date.now() - 75000) / 1000) });`); // Discord sends seconds
 	const homeTimer = `document.querySelector('.dk-home-callblock[data-dk-id="${t.voice}"] [data-dk-timer]')`;
-	check("the call shows how long it's been going, on Home and in the sidebar", await until(`/^1:1[0-9]$/.test(${homeTimer}?.textContent ?? "") && [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].every(r => r.querySelector("[data-dk-timer]"))`, 2500),
+	check("the call shows how long it's been going, on Home and in the sidebar", await until(`/^1:1[0-9]$/.test(${homeTimer}?.textContent ?? "") && [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].filter(r => r.offsetParent).every(r => r.querySelector("[data-dk-timer]"))`, 2500),
 		await js(`return (${homeTimer}?.textContent ?? "none") + " / " + ([...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].map(r => r.querySelector("[data-dk-timer]")?.textContent ?? "none").join(",") || "no row")`));
 	const before = await js(`return ${homeTimer}?.textContent`);
 	await sleep(1300);
 	check("…and it ticks", await js(`return ${homeTimer}?.textContent`) !== before);
-	check("a call with someone streaming says so on its row (Discord's LIVE)", await js(`return [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].some(r => r.querySelector(".dk-sb-live"))`));
+	// its row in the sidebar, if one is on screen here (a favourite; the server's column is closed on Home)
+	const liveRows = await js(`return [...document.querySelectorAll('.dk-sb-row[data-dk-id="${t.voice}"]')].filter(r => r.offsetParent).map(r => !!r.querySelector(".dk-sb-live"))`);
+	if (liveRows.length) check("a call with someone streaming says so on its row (Discord's LIVE)", liveRows.every(Boolean), JSON.stringify(liveRows));
+	else console.log("skip  LIVE on the call's sidebar row: no row for it on screen (not a favourite)");
 	// right-click a person in the call: Discord's own menu, with their volume
 	const memberSel = `[...document.querySelectorAll('.dk-home-callblock[data-dk-id="${t.voice}"] .dk-home-member')][0]`;
 	await js(`const el = ${memberSel}; const r = el.getBoundingClientRect(); el.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: r.left + 30, clientY: r.top + 8 }))`);
@@ -537,6 +599,7 @@ try {
 
 } finally {
 	await js(`if (window.__dkStart) { const v = window.__dkStart; ${C}.FluxDispatcher.dispatch({ type: "VOICE_CHANNEL_START_TIME_UPDATE", guildId: v.g, id: v.id, voiceStartTime: v.was ? Math.floor(v.was / 1000) : undefined }); delete window.__dkStart; }`).catch(() => {});
+	await js(`if (window.__dkJump) { const j = window.__dkJump; ${C}.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: [{ userId: j.u, channelId: null, guildId: j.g, sessionId: "dk-test-jump" }] }); delete window.__dkJump; }`).catch(() => {});
 	await js(`if (window.__dkVoice) { const v = window.__dkVoice; ${C}.FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: v.ids.map(u => ({ userId: u, channelId: null, guildId: v.g, sessionId: "dk-test-" + u })) }); delete window.__dkVoice; }`).catch(() => {});
 	// ── restore: recorders off, settings back, compare ──
 	await js(`window.__dk?.restore.forEach(f => f()); delete window.__dk;`).catch(() => {});

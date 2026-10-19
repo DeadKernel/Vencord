@@ -155,14 +155,16 @@ export const digestDmIds = (): string[] =>
     PrivateChannelSortStore.getPrivateChannelIds().filter((id: string) => ReadStateStore.hasUnread(id)).slice(0, DM_PREVIEWS);
 
 function useUnreadDms(): Item[] {
-    const ids = useStateFromStores([PrivateChannelSortStore, ReadStateStore], () => digestDmIds().join(","));
+    // with each one's latest message: a second message in a DM that's already unread loads again
+    const key = useStateFromStores([PrivateChannelSortStore, ReadStateStore], () => digestDmIds().map(id => `${id}:${ReadStateStore.lastMessageId(id) ?? ""}`).join(","));
+    const ids = key.split(",").map(k => k.split(":")[0]).filter(Boolean).join(",");
     const [, bump] = useState(0);
     useEffect(() => {
         const l = () => bump(n => n + 1);
         dmListeners.add(l);
         return () => void dmListeners.delete(l);
     }, []);
-    useEffect(() => { if (ids) ids.split(",").forEach(loadDm); }, [ids]);
+    useEffect(() => { if (ids) ids.split(",").forEach(loadDm); }, [key]);
     return ids ? ids.split(",").map(id => {
         const cached = dmCache.get(id)?.item;
         return cached && { ...cached, count: ReadStateStore.getMentionCount(id) };

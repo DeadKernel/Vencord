@@ -16,9 +16,18 @@ import { useEffect, useState, useStateFromStores } from "@webpack/common";
 let startStore: any = null;
 let requestChannelInfo: ((guildId: string) => void) | null = null;
 
+/** find walks every module: while something isn't there yet (or Discord renamed it), look again at
+ * most every few seconds, not on every render of every row */
+const lastMiss = new Map<string, number>();
+function findOnce<T>(name: string, have: T | null, look: () => T | null): T | null {
+    if (have || Date.now() - (lastMiss.get(name) ?? 0) < 5000) return have;
+    const found = look();
+    if (!found) lastMiss.set(name, Date.now());
+    return found;
+}
+
 export function voiceStartStore() {
-    startStore ??= find(filters.byStoreName("VoiceChannelStartTimeStore"), { isIndirect: true });
-    return startStore;
+    return startStore = findOnce("store", startStore, () => find(filters.byStoreName("VoiceChannelStartTimeStore"), { isIndirect: true }));
 }
 
 /** When the call in this server voice channel started (ms), if Discord knows. */
@@ -33,7 +42,7 @@ export function callStart(channel: any): number | undefined {
 /** Discord's own request for a server's voice start times (and statuses), once per server. */
 export function requestStartTimes(guildIds: Iterable<string>) {
     const store = voiceStartStore();
-    requestChannelInfo ??= find(filters.byCode('"voice_start_time"'), { isIndirect: true });
+    requestChannelInfo = findOnce("request", requestChannelInfo, () => find(filters.byCode('"voice_start_time"'), { isIndirect: true }));
     if (!store || typeof requestChannelInfo !== "function") return;
     for (const id of new Set(guildIds)) if (id && !store.hasRequestedStartTimes(id)) requestChannelInfo(id);
 }
@@ -46,7 +55,7 @@ const lastAsked = new Map<string, number>();
 export function refreshStartTime(guildId: string | undefined) {
     if (!guildId || Date.now() - (lastAsked.get(guildId) ?? 0) < 60_000) return;
     lastAsked.set(guildId, Date.now());
-    socketHolder ??= find(filters.byProps("getSocket"), { isIndirect: true });
+    socketHolder = findOnce("socket", socketHolder, () => find(filters.byProps("getSocket"), { isIndirect: true }));
     socketHolder?.getSocket()?.requestChannelInfo?.(guildId, ["status", "voice_start_time"]);
 }
 

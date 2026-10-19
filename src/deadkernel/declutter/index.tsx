@@ -135,8 +135,19 @@ function tagDms() {
     }
 }
 
+/** Discord's DM list, if it's on screen (with the Sidebar on, it never is) */
+let dmListEl: Element | null = null;
+let dmListLooked = 0;
+function dmList() {
+    if (dmListEl?.isConnected) return dmListEl;
+    // not there: look again at most once a second (read states change with every message)
+    if (performance.now() - dmListLooked < 1000) return null;
+    dmListLooked = performance.now();
+    return dmListEl = document.querySelector('[class*="privateChannels_"]');
+}
+
 function queueDmTags() {
-    if (dmTagQueued) return;
+    if (dmTagQueued || !dmList()) return;
     dmTagQueued = true;
     requestAnimationFrame(tagDms);
 }
@@ -154,18 +165,22 @@ export default definePlugin({
         addGlobalContextMenuPatch(menuPatch);
         tagMessages(document);
         queueDmTags();
+        // added nodes only: watching every class change on the page ran on nearly every hover.
+        // DM rows retag when the list changes, or when read states do (a row turning unread)
         observer = new MutationObserver(records => {
-            for (const r of records) {
-                if ((r.target as Element).closest?.('[class*="privateChannels_"]')) queueDmTags();
-                for (const n of r.addedNodes) {
-                    if (!(n instanceof Element)) continue;
-                    if (n.matches('li[id^="chat-messages-"]')) tagMessage(n);
-                    else if (n.firstElementChild) tagMessages(n);
-                    if (n.matches('[class*="privateChannels_"], [class*="privateChannels_"] *') || n.querySelector?.('[class*="privateChannels_"]')) queueDmTags();
-                }
+            let dm = false;
+            const list = dmListEl?.isConnected ? dmListEl : null;
+            for (const r of records) for (const n of r.addedNodes) {
+                if (!(n instanceof Element)) continue;
+                if (n.matches('li[id^="chat-messages-"]')) tagMessage(n);
+                else if (n.firstElementChild) tagMessages(n);
+                if (!dm) dm = list ? list.contains(n) : !!n.querySelector?.('[class*="privateChannels_"]');
+                if (dm && !list) dmListLooked = 0; // the list just appeared
             }
+            if (dm) queueDmTags();
         });
-        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+        observer.observe(document.body, { childList: true, subtree: true });
+        ReadStateStore.addChangeListener(queueDmTags);
     },
 
     stop() {
@@ -173,6 +188,7 @@ export default definePlugin({
         removeGlobalContextMenuPatch(menuPatch);
         observer?.disconnect();
         observer = null;
+        ReadStateStore.removeChangeListener(queueDmTags);
         document.querySelectorAll("[data-dk-msg]").forEach(e => e.removeAttribute("data-dk-msg"));
         document.querySelectorAll("[data-dk-dm]").forEach(e => e.removeAttribute("data-dk-dm"));
     }

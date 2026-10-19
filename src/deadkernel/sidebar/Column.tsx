@@ -33,7 +33,7 @@ const DAY = 864e5;
 const RECENT_MESSAGE = 30 * DAY;
 const RECENT_OPEN = 60 * DAY;
 
-interface CategoryView { id: string; name: string | null; collapsed: boolean; live: string[]; quiet: string[]; }
+interface CategoryView { id: string; name: string | null; collapsed: boolean; live: string[]; quiet: string[]; order: string[]; }
 interface ColumnView { favorites: string[]; voice: string[]; categories: CategoryView[]; quiet: number; ok: boolean; }
 
 const isVoice = (c?: Channel | null) => c?.type === 2 || c?.type === 13;
@@ -61,14 +61,14 @@ function selectColumn(guildId: string): string {
             const rows = Object.values(category.channels as Record<string, any>)
                 .filter(row => row.renderLevel >= 3 && row.record)
                 .sort((a, b) => (isVoice(a.record) ? 1 : 0) - (isVoice(b.record) ? 1 : 0) || a.position - b.position);
-            const cat: CategoryView = { id: category.id ?? "none", name: category.record?.name ?? null, collapsed: !!category.isCollapsed, live: [], quiet: [] };
+            const cat: CategoryView = { id: category.id ?? "none", name: category.record?.name ?? null, collapsed: !!category.isCollapsed, live: [], quiet: [], order: [] };
             for (const row of rows) {
                 const { id } = row.record;
                 if (favs.has(id) || pins.has(id)) { view.favorites.push(id); continue; }
                 const people = isVoice(row.record) ? occupants(id) : [];
                 if (people.some(uid => RelationshipStore.isFriend(uid))) { view.voice.push(id); continue; }
-                if (live(id, row.record)) cat.live.push(id);
-                else cat.quiet.push(id);
+                (live(id, row.record) ? cat.live : cat.quiet).push(id);
+                cat.order.push(id);
             }
             view.quiet += cat.quiet.length;
             if (cat.live.length || cat.quiet.length) view.categories.push(cat);
@@ -108,7 +108,7 @@ function glyph(channel: Channel): IconName {
     return "hash";
 }
 
-function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) {
+function ChannelRow({ id, threads = true, quiet = false }: { id: string; threads?: boolean; quiet?: boolean; }) {
     const channel = useStateFromStores([ChannelStore], () => ChannelStore.getChannel(id), [id]);
     const unread = useStateFromStores([ReadStateStore], () => ReadStateStore.hasUnread(id), [id]);
     const mentions = useStateFromStores([ReadStateStore], () => ReadStateStore.getMentionCount(id), [id]);
@@ -131,7 +131,7 @@ function ChannelRow({ id, threads = true }: { id: string; threads?: boolean; }) 
         <>
             <div className="dk-sb-rowwrap">
                 <button
-                    className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread")}
+                    className={classes("dk-sb-row", "dk-col-row", unread && !voice && "dk-unread", selected && "dk-selected", channel.isThread?.() && "dk-thread", quiet && "dk-quiet")}
                     onClick={open}
                     data-dk-id={id}
                     {...(voice ? drop : {})}
@@ -175,6 +175,7 @@ function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean
     const toggleQuiet = () => { if (!open) track("quiet_unfold"); setQuietOpen(!open); };
     const showRows = !cat.collapsed || !hasLive;
     const n = cat.quiet.length;
+    const liveSet = new Set(cat.live);
     return (
         <section className="dk-sb-section dk-col-category" data-collapsed={(hasLive && cat.collapsed) || undefined} data-quiet={!hasLive || undefined}>
             {cat.name && (
@@ -191,8 +192,10 @@ function CategoryBlock({ cat, allQuiet }: { cat: CategoryView; allQuiet: boolean
                     )}
                 </div>
             )}
-            {showRows && hasLive && <div className="dk-sb-rows">{cat.live.map(id => <ChannelRow key={id} id={id} />)}</div>}
-            {open && <div className="dk-sb-rows dk-col-quiet">{cat.quiet.map(id => <ChannelRow key={id} id={id} />)}</div>}
+            {open
+                // unfolded: one list in Discord's order, so a channel that comes alive (someone joins) brightens in place
+                ? <div className="dk-sb-rows">{cat.order.filter(id => showRows || !liveSet.has(id)).map(id => <ChannelRow key={id} id={id} quiet={!liveSet.has(id)} />)}</div>
+                : showRows && hasLive && <div className="dk-sb-rows">{cat.live.map(id => <ChannelRow key={id} id={id} />)}</div>}
         </section>
     );
 }

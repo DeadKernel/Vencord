@@ -17,6 +17,7 @@ import { track } from "../core/telemetry";
 
 const GuildActions = findByPropsLazy("setChannel", "setServerMute");
 
+const MIME = "application/x-dk-voice-user";
 let dragging: { userId: string; guildId: string; } | null = null;
 
 const can = (perm: bigint, channel: any) => {
@@ -48,7 +49,7 @@ export function personDragProps(userId: string, channel: any) {
         onDragStart: (e: DragEvent) => {
             e.stopPropagation(); // not the favourite row around it
             e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("application/x-dk-voice-user", userId);
+            e.dataTransfer.setData(MIME, userId);
             dragging = { userId, guildId: channel.guild_id };
             document.documentElement.dataset.dkMoving = "";
         },
@@ -63,11 +64,14 @@ export function personDragProps(userId: string, channel: any) {
 /** On a voice channel's row: takes a dragged person when Discord would, and says so while over it. */
 export function useVoiceDrop(channel: any) {
     const [over, setOver] = useState(false);
-    const accepts = () => !!dragging && !!channel && dragging.guildId === channel.guild_id && canMoveInto(channel, dragging.userId);
+    // only a drag that carries a person: if their row unmounted mid-drag, dragEnd never came and
+    // `dragging` is stale, and must not hijack the next favourite being reordered
+    const accepts = (e: DragEvent) => !!dragging && !!channel && e.dataTransfer.types.includes(MIME)
+        && dragging.guildId === channel.guild_id && canMoveInto(channel, dragging.userId);
     return {
         "data-dk-voice-drop": over || undefined,
         onDragOver: (e: DragEvent) => {
-            if (!accepts()) return;
+            if (!accepts(e)) return;
             e.preventDefault();
             e.stopPropagation();
             e.dataTransfer.dropEffect = "move";
@@ -78,7 +82,7 @@ export function useVoiceDrop(channel: any) {
         },
         onDrop: (e: DragEvent) => {
             setOver(false);
-            if (!accepts()) return;
+            if (!accepts(e)) return;
             e.preventDefault();
             e.stopPropagation();
             track("voice_move");

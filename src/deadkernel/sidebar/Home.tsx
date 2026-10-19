@@ -17,7 +17,7 @@ import type { ComponentType } from "react";
 
 import { track } from "../core/telemetry";
 import { CallTimer, requestStartTimes, useCallStart } from "./calltimer";
-import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime } from "./data";
+import { activityOf, ago, getFavorites, joinVoice, labelFor, openChannel, openVoiceChat, snowflakeTime, useFavorites } from "./data";
 import { digestDmIds, ForYou } from "./digest";
 import { Icon, IconSlot } from "./icons";
 import { useVoiceDrop } from "./move";
@@ -41,6 +41,8 @@ function Avatar({ uid, size = 24, status }: { uid: string; size?: number; status
 // under it, everyone in it, friends first, with who's live or on camera. ──
 
 function useCalls() {
+    // favourites rank calls, and aren't a Discord store: recompute when they change
+    const favKey = useFavorites().map(f => f.id).join(",");
     return useStateFromStores([VoiceStateStore, RelationshipStore, SelectedChannelStore], () => {
         const calls = new Map<string, string[]>();
         for (const uid of RelationshipStore.getFriendIDs()) {
@@ -49,13 +51,16 @@ function useCalls() {
             if (!calls.has(cid)) calls.set(cid, []);
             calls.get(cid)!.push(uid);
         }
+        // yours shows even with no friends in it: it's where Leave and the timer are
+        const mine = SelectedChannelStore.getVoiceChannelId();
+        if (mine && !calls.has(mine)) calls.set(mine, []);
         // yours first, then calls in channels or with people you've favourited, then the biggest
         const fav = new Set(getFavorites().map(f => f.id));
         const favPeople = new Set(getFavorites().map(f => ChannelStore.getChannel(f.id)).filter(c => c?.type === 1).map(c => c!.recipients[0]));
         const score = ([cid, friends]: [string, string[]]) =>
             (VoiceStateStore.isInChannel(cid) ? 1000 : 0) + (fav.has(cid) || friends.some(u => favPeople.has(u)) ? 100 : 0) + friends.length;
         return JSON.stringify([...calls].sort((a, b) => score(b) - score(a)));
-    });
+    }, [favKey]);
 }
 
 function CallBlock({ channelId, friends }: { channelId: string; friends: string[]; }) {
@@ -66,7 +71,7 @@ function CallBlock({ channelId, friends }: { channelId: string; friends: string[
     const drop = useVoiceDrop(channel?.guild_id ? channel : null);
     if (!channel) return null;
     const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
-    const count = `${everyone} in call${friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
+    const count = `${everyone} in call${friends.length && friends.length < everyone ? ` · ${friends.length} friend${friends.length === 1 ? "" : "s"}` : ""}`;
     return (
         <div className="dk-home-callblock" data-dk-id={channelId} {...(channel.guild_id ? drop : {})}>
             <div className="dk-home-row dk-home-call">

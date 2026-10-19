@@ -117,6 +117,12 @@ async function opusLoop(trackIn: MediaStreamTrack, o: { kbps: number; stereo: bo
     p.encodings = [{ ...(p.encodings?.[0] ?? {}), maxBitrate: o.kbps * 1000 }];
     await sender.setParameters(p).catch(() => {});
     const out = await got;
+    // a deep jitter buffer: on a loaded machine the receiver ran dry now and then and concealed a
+    // 10ms frame, a click in "Discord now" that was the lab's, not Discord's. Latency doesn't matter here
+    for (const r of b.getReceivers() as any[]) {
+        if ("jitterBufferTarget" in r) r.jitterBufferTarget = 150;
+        else if ("playoutDelayHint" in r) r.playoutDelayHint = 0.15;
+    }
     // Chromium only flows remote audio into Web Audio once it's attached to a media element
     const el = new Audio(); el.muted = true; el.srcObject = new MediaStream([out]); el.play().catch(() => {});
     const sent = async () => {
@@ -165,8 +171,15 @@ function VoiceLab(props: any) {
     const audio = useRef<{ ctx: AudioContext; gains: Map<string, GainNode>; sources: AudioBufferSourceNode[]; } | null>(null);
     const [meter, setMeter] = useState<{ level: number; peak: number; quiet: number; clip: boolean; } | null>(null);
     const meterRef = useRef<{ stop(): void; } | null>(null);
+    // closing the lab mid-prompt or mid-recording must still close the mic
+    const closed = useRef(false);
+    const starting = useRef(false);
+    const alive = () => { if (closed.current) throw new Error("closed"); };
 
-    useEffect(() => { navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === "audioinput"))); return () => { stop(); stopMeter(); }; }, []);
+    useEffect(() => {
+        navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === "audioinput")));
+        return () => { closed.current = true; stop(); stopMeter(); };
+    }, []);
     useEffect(() => { if (meterRef.current) { stopMeter(); startMeter(); } }, [deviceId]);
 
     function stopMeter() {
@@ -180,10 +193,13 @@ function VoiceLab(props: any) {
      * moments of the last five seconds, the noise floor listeners would hear behind you (a peak
      * alone reads a breath or a chair creak). The mic is open only while this runs. */
     async function startMeter() {
+        if (meterRef.current || starting.current) return; // a second click while the mic opens
+        starting.current = true;
         track("voice_lab_meter");
         const device = deviceId && deviceId !== "default" ? { deviceId: { exact: deviceId } } : {};
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: { ...device, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+            if (closed.current) { stream.getTracks().forEach(t => t.stop()); return; }
             const ctx = new AudioContext({ sampleRate: RATE });
             const an = ctx.createAnalyser(); an.fftSize = 2048;
             ctx.createMediaStreamSource(stream).connect(an);
@@ -203,6 +219,8 @@ function VoiceLab(props: any) {
             meterRef.current = { stop: () => { clearInterval(timer); stream.getTracks().forEach(t => t.stop()); ctx.close(); } };
         } catch (e) {
             setError(String((e as Error)?.message ?? e));
+        } finally {
+            starting.current = false;
         }
     }
 
@@ -225,8 +243,10 @@ function VoiceLab(props: any) {
         try {
             const device = deviceId && deviceId !== "default" ? { deviceId: { exact: deviceId } } : {};
             const raw = await navigator.mediaDevices.getUserMedia({ audio: { ...device, echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, sampleRate: { ideal: RATE } } });
+            streams.push(raw);
             const processed = await navigator.mediaDevices.getUserMedia({ audio: { ...device, echoCancellation: ec, noiseSuppression: ns, autoGainControl: agc } });
-            streams.push(raw, processed);
+            streams.push(processed);
+            alive();
             const s = raw.getAudioTracks()[0].getSettings() as any;
             const ps = processed.getAudioTracks()[0].getSettings() as any;
             const rawChannels = s.channelCount ?? 1;
@@ -245,7 +265,8 @@ function VoiceLab(props: any) {
             const rec = Object.fromEntries([["raw", recs[0]], ...plan.map((p, i) => [p.key, recs[i + 1]])]) as Record<string, () => Float32Array[]>;
             await new Promise(r => setTimeout(r, WARMUP * 1000));
             const t0 = await Promise.all(loops.map(l => l.sent()));
-            for (let i = SECONDS; i > 0; i--) { setLeft(i); await new Promise(r => setTimeout(r, 1000)); }
+            for (let i = SECONDS; i > 0; i--) { alive(); setLeft(i); await new Promise(r => setTimeout(r, 1000)); }
+            alive();
             const t1 = await Promise.all(loops.map(l => l.sent()));
             setPhase("working");
             await new Promise(r => setTimeout(r, 300)); // let the encoded audio catch up
@@ -264,6 +285,7 @@ function VoiceLab(props: any) {
             // for personal/tools/voicelab-check.mjs: the last recording, to check for dropouts
             (window as any).__dkVoiceLabLast = out.map(v => ({ key: v.key, pcm: v.pcm[0] }));
         } catch (e) {
+            if (closed.current) return;
             setError(String((e as Error)?.message ?? e));
             setPhase("error");
         } finally {
