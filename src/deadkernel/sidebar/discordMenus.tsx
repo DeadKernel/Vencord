@@ -12,7 +12,7 @@
 
 import { canonicalizeMatch } from "@utils/patches";
 import { Channel } from "@vencord/discord-types";
-import { DefaultExtractAndLoadChunksRegex as L, extractAndLoadChunks, findModuleFactory, wreq } from "@webpack";
+import { DefaultExtractAndLoadChunksRegex as L, extractAndLoadChunks, findModuleFactory, parseChunkIds, wreq } from "@webpack";
 import { ContextMenuApi, GuildStore, UserStore } from "@webpack/common";
 import type { ComponentType, MouseEvent } from "react";
 
@@ -88,10 +88,11 @@ async function loadNear(marker: string): Promise<ComponentType<any> | null> {
         const source = Object.values(wreq.m).map(String).find(s => s.includes(`"${marker}"`) && s.includes("showMediaItems:!0"));
         const at = source?.indexOf(`"${marker}"`) ?? -1;
         const before = at > 0 ? source!.slice(Math.max(0, at - 8000), at) : "";
-        const load = [...before.matchAll(/Promise\.all\(\[([^\]]*)\]\)\.then\([\w$]+\.bind\([\w$]+,"?(\d+)"?\)\)/g)].at(-1);
+        // ids are quoted strings on older builds and bare numbers (sometimes 79e4-style) since rspack;
+        // parseChunkIds keeps each as Discord's chunk loader expects it (a string id for a number misses)
+        const load = [...before.matchAll(/Promise\.all\(\[([^\]]*)\]\)\.then\([\w$]+\.bind\([\w$]+,"?([^),"]+)"?(?:,[^)]+?)?\)\)/g)].at(-1);
         if (load) {
-            const chunks = [...load[1].matchAll(/\.e\("?([\w]+)"?\)/g)].map(m => m[1]);
-            await Promise.all(chunks.map(c => wreq.e(c as any)));
+            await Promise.all(parseChunkIds(load[1]).map(c => wreq.e(c as any)));
             component = wreq(Number(load[2]) as any)?.default ?? null;
         }
     } catch {

@@ -105,7 +105,8 @@ export default definePlugin({
         {
             find: '"QUICK_SWITCHER_MODAL_KEY"',
             replacement: {
-                match: /(\(0,\i\.openModal\)\((\i)=>\(0,(\i)\.jsx\)\()(\i)(,\{\.\.\.\2\}\))/,
+                // openModal is a mangled name (a.qf) since Discord's rspack builds; the modalKey after it pins the call
+                match: /(\(0,\i\.\i\)\((\i)=>\(0,(\i)\.jsx\)\()(\i)(,\{\.\.\.\2\}\))(?=,\{modalKey:)/,
                 replace: "$1$self.PaletteArea,{...$2,Original:$4})"
             }
         },
