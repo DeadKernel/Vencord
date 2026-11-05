@@ -18,6 +18,8 @@ import { join } from "path";
 // The viewer in a frame inside Discord's page (the call stage, the lobby): frames only. Discord's page
 // gets its policy when it loads, so this can't wait for the app to say where its viewer is.
 CspPolicies["sightline.padwal.dev"] = ["frame-src"];
+// Its Cloudflare Pages previews (a branch's viewer before it ships), for trying a viewer change in Accord.
+CspPolicies["*.sightline-abp.pages.dev"] = ["frame-src"];
 
 const PIPE = process.platform === "win32" ? "\\\\.\\pipe\\sightline" : join(homedir(), ".sightline.sock");
 /** bridge.rs PROTOCOL */

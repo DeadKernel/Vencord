@@ -17,7 +17,7 @@ import type { Message } from "@vencord/discord-types";
 import { GoLiveButton, openGoLive } from "./golive";
 import style from "./sightline.css?managed";
 import { Native, setState, settings, SightlineState, watchHere, watchLinks } from "./state";
-import { startWatch, stopWatch } from "./watch";
+import { startWatch, stopWatch, test as watchTest } from "./watch";
 
 const WatchHere = ErrorBoundary.wrap(function WatchHere({ message }: { message: Message; }) {
     const links = watchLinks(message.content);
@@ -56,6 +56,7 @@ export default definePlugin({
     GoLiveButton: ErrorBoundary.wrap(GoLiveButton, { noop: true }),
     /** for tests (personal/tools) */
     openGoLive,
+    watchTest,
 
     renderMessageAccessory: props => <WatchHere message={props.message} />,
 

@@ -68,15 +68,20 @@ function onMessage(e: MessageEvent) {
     emit();
 }
 
+// Tests (personal/tools): a room to listen in without being in a voice channel.
+let testRoom: string | null = null;
+
 function Lobby() {
-    const channelId = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getVoiceChannelId());
+    useWatch();
+    const voice = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getVoiceChannelId());
+    const channelId = testRoom ? `test:${testRoom}` : voice;
     const [room, setRoom] = useState<string | null>(null);
     useEffect(() => {
         live = new Map();
         emit();
         if (!channelId) return void setRoom(null);
         let stale = false;
-        roomFor(channelId).then(r => !stale && setRoom(r));
+        (testRoom ? Promise.resolve(testRoom) : roomFor(channelId)).then(r => !stale && setRoom(r));
         return () => void (stale = true);
     }, [channelId]);
     if (!room) return null;
@@ -102,7 +107,7 @@ function useStageBox() {
 function Stage() {
     useWatch();
     const voice = useStateFromStores([SelectedChannelStore], () => SelectedChannelStore.getVoiceChannelId());
-    useEffect(() => { if (!voice && stage) setStage(null); }, [voice]);
+    useEffect(() => { if (!voice && !testRoom && stage) setStage(null); }, [voice]);
     const box = useStageBox();
     if (!stage) return null;
     const url = viewerUrl(stage.room, { focus: stage.discord });
@@ -131,6 +136,13 @@ function popOut(room: string) {
 function Root_() {
     return <><Lobby /><Stage /></>;
 }
+
+/** For tests: listen in `room` as if in its voice channel, and open a member's stream there. */
+export const test = {
+    listen(room: string | null) { testRoom = room; emit(); },
+    watch(room: string, discord: string) { setStage({ room, discord }); },
+    live: () => [...live.keys()]
+};
 
 let root: Root | null = null;
 let host: HTMLDivElement | null = null;
