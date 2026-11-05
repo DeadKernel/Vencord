@@ -41,10 +41,21 @@ jobs:
                   if [ "$NEW" = 0 ]; then echo "Up to date with upstream Vencord."; exit 0; fi
                   git log --format='- %s' HEAD..FETCH_HEAD | head -30 > "$RUNNER_TEMP/upstream.txt"
                   if ! git merge --no-edit -m "Fold in upstream Vencord ($NEW commits)" FETCH_HEAD; then
-                      echo "::error::Upstream Vencord conflicts with DeadKernel in:"
-                      git diff --name-only --diff-filter=U
-                      git merge --abort
-                      exit 1
+                      # AGENTS.md is upstream's with our section added at the end (personal/agents-section.md).
+                      # Upstream rewrites it now and then, which blocked every sync from 2026-10-30 to 11-05.
+                      # When it's the only conflict: upstream's version, our section again.
+                      if [ "$(git diff --name-only --diff-filter=U)" = "AGENTS.md" ]; then
+                          git show FETCH_HEAD:AGENTS.md > AGENTS.md
+                          { echo; cat personal/agents-section.md; } >> AGENTS.md
+                          git add AGENTS.md
+                          git commit --no-edit -q
+                          echo "::notice::AGENTS.md: took upstream's and added the DeadKernel section back"
+                      else
+                          echo "::error::Upstream Vencord conflicts with DeadKernel in:"
+                          git diff --name-only --diff-filter=U
+                          git merge --abort
+                          exit 1
+                      fi
                   fi
 
             - uses: pnpm/action-setup@v6
