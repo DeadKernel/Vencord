@@ -9,10 +9,15 @@
 // web page can reach it. Opens friends' streams in a window of their own, with its own session and
 // no access to Discord's.
 
+import { CspPolicies } from "@main/csp";
 import { BrowserWindow, IpcMainInvokeEvent, session, shell, WebContents } from "electron";
 import { connect, Socket } from "net";
 import { homedir } from "os";
 import { join } from "path";
+
+// The viewer in a frame inside Discord's page (the call stage, the lobby): frames only. Discord's page
+// gets its policy when it loads, so this can't wait for the app to say where its viewer is.
+CspPolicies["sightline.padwal.dev"] = ["frame-src"];
 
 const PIPE = process.platform === "win32" ? "\\\\.\\pipe\\sightline" : join(homedir(), ".sightline.sock");
 /** bridge.rs PROTOCOL */

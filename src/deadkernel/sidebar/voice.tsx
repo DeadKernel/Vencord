@@ -11,6 +11,7 @@ import { classes } from "@utils/misc";
 import { ApplicationStreamingStore, ChannelActionCreators, ChannelStore, RelationshipStore, UserStore, useStateFromStores, VoiceStateStore } from "@webpack/common";
 import type { MouseEvent } from "react";
 
+import { useSightlineLive, watchMember } from "../sightline/watch";
 import { isStreaming, openChannel, watchStream } from "./data";
 import { openVoiceUserMenu } from "./discordMenus";
 import { Icon } from "./icons";
@@ -50,8 +51,15 @@ export function openDm(uid: string) {
 /** Streaming, camera, muted or deafened, as Discord's own call UI shows them: small icons, live in teal. */
 export function Flags({ uid }: { uid: string; }) {
     const f: VoiceFlags = JSON.parse(useStateFromStores([VoiceStateStore, ApplicationStreamingStore], () => JSON.stringify(voiceFlags(uid)), [uid]));
+    // Live on Sightline in our voice channel (sightline/watch.tsx): Discord's red LIVE, opening the stage
+    const sightline = useSightlineLive(uid);
+    const me = uid === UserStore.getCurrentUser()?.id;
     return (
         <>
+            {sightline && (me
+                ? <span className="dk-vc-sightline" title="You're live on Sightline">LIVE</span>
+                : <span className="dk-vc-sightline" role="button" tabIndex={-1} data-dk-action="watch-sightline" title="Watch on Sightline"
+                    onClick={e => { e.stopPropagation(); void watchMember(uid); }}>LIVE</span>)}
             {f.live && (uid === UserStore.getCurrentUser()?.id
                 ? <span className="dk-vc-live" title="You're streaming"><Icon name="screen" size={16} title="You're streaming" /></span>
                 : <span className="dk-vc-live" role="button" tabIndex={-1} data-dk-action="watch" title="Watch the stream"
