@@ -17,7 +17,7 @@ import { join } from "path";
 const PIPE = process.platform === "win32" ? "\\\\.\\pipe\\sightline" : join(homedir(), ".sightline.sock");
 /** bridge.rs PROTOCOL */
 const PROTOCOL = 1;
-const COMMANDS = new Set(["state", "sources", "thumb", "goLive", "stop", "clip", "join", "show"]);
+const COMMANDS = new Set(["state", "sources", "thumb", "goLive", "switch", "stop", "clip", "join", "show"]);
 
 type Reply = { ok: true; result: unknown; } | { ok: false; error: string; };
 

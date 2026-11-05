@@ -21,6 +21,9 @@ export interface SightlineState {
     live: { label: string; source: string; startedAt: number; } | null;
 }
 
+/** One thing the app can share (Sightline's `Pick`). */
+export interface SightlineSource { spec: string; kind: string; label: string; detail: string; }
+
 export const settings = definePluginSettings({
     // the viewer's address, remembered from the app so friends' links still open here while it's closed
     viewer: { type: OptionType.STRING, description: "Sightline's viewer address (set by the app)", default: "", hidden: true }
@@ -64,6 +67,12 @@ export async function ask(cmd: string, args?: Record<string, unknown>): Promise<
         busy = false;
         emit();
     }
+}
+
+/** What the app could share, without the busy state or toasts of `ask` (for menus filled ahead of time). */
+export async function listSources(): Promise<SightlineSource[]> {
+    const r = await Native?.call("sources").catch(() => null);
+    return r?.ok ? r.result as SightlineSource[] : [];
 }
 
 export function watchHere(url: string) {

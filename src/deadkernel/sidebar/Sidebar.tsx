@@ -15,7 +15,7 @@ import {
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
-import { ask, useSightline } from "../sightline/state";
+import { ask, listSources, SightlineSource, useSightline } from "../sightline/state";
 import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import { callStart, CallTimer, refreshStartTime, requestStartTimes, voiceStartStore } from "./calltimer";
@@ -483,6 +483,10 @@ function FocusRow() {
 // rather than going live at once: sharing the wrong window is worse than one more click.
 function SightlineRow() {
     const [s, busy] = useSightline();
+    // Filled ahead of time: a menu opened after an await has lost its click (React clears the event).
+    const [sources, setSources] = useState<SightlineSource[]>([]);
+    const liveSource = s?.live?.source;
+    useEffect(() => { if (liveSource) listSources().then(setSources); }, [liveSource]);
     if (!s) return null;
     const icon = <IconSlot name="screen" />;
     const show = () => ask("show");
@@ -494,12 +498,19 @@ function SightlineRow() {
         !!link && !!SelectedChannelStore.getChannelId() && { id: "sl-insert", label: "Put watch link in the message box", action: () => insertTextIntoChatInputBox(link + " ") }
     ];
     if (s.live) {
-        const menu = (e: MouseEvent) => openMenu(e, [
-            ...linkItems,
-            { id: "sl-clip", label: "Save the last 30 seconds", action: () => ask("clip", { seconds: 30 }) },
+        const current = s.live.source;
+        // Share something else: a click switches, no stop. The list refreshes for next time.
+        const menu = (e: MouseEvent) => {
+            listSources().then(setSources);
+            const others = sources.filter(x => x.spec !== current && x.kind !== "pattern").slice(0, 8);
+            openMenu(e, [
+                ...others.map((x, i) => ({ id: `sl-switch-${i}`, label: `Share ${x.label.length > 40 ? x.label.slice(0, 39) + "…" : x.label}`, action: () => void ask("switch", { source: x.spec }) })),
+                ...linkItems,
+                { id: "sl-clip", label: "Save the last 30 seconds", action: () => void ask("clip", { seconds: 30 }) },
             { id: "sl-open", label: "Open Sightline", action: show },
-            { id: "sl-stop", label: "Stop streaming", danger: true, action: () => ask("stop") }
-        ]);
+            { id: "sl-stop", label: "Stop streaming", danger: true, action: () => void ask("stop") }
+            ]);
+        };
         return <Row icon={icon} label="Live on Sightline" where={s.live.label} meta={{ text: "live", live: true, since: s.live.startedAt }}
             onClick={menu} onContextMenu={menu} dataId="sightline" />;
     }
