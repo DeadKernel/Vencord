@@ -1,0 +1,21 @@
+/* "Watch here" under a Sightline link: one quiet text button, like the theme's links */
+.dk-sl-watch {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.dk-sl-watch-btn {
+    padding: 2px 8px;
+    border: 1px solid var(--border-subtle, rgb(255 255 255 / 12%));
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-link, var(--text-default));
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.dk-sl-watch-btn:hover {
+    background: var(--background-modifier-hover);
+}

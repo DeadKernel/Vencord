@@ -1,6 +1,6 @@
 # DeadKernel: plan
 
-Last updated 2026-10-06. One of two independent tracks; the other is Sightline (private
+Last updated 2026-11-05. One of two independent tracks; the other is Sightline (private
 repo `DeadKernel/sightline`, see its `docs/PLAN.md`). Each gets built regardless of how
 the other goes.
 
@@ -169,6 +169,26 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   first. Empty date separators are tagged in JS instead. Hovering's worst frame went from ~20ms to
   ~5ms; scrolling restyles half as much. What's left is the plain cost of a theme this size on new
   elements, about 1.5× Discord's; 600 non-matching `[class*=…]` rules measured as free.
+- **Sync unblocked, 2026-11-05.** The daily sync failed every day from 10-30: upstream rewrote
+  `AGENTS.md` and our section at its end conflicted, so nothing merged. That week Discord's web client
+  moved to a new bundler (rspack) and upstream fixed 13 plugins and webpack's finders for it on 11-04.
+  Merged by hand; `dk-sync.yml` now resolves an `AGENTS.md`-only conflict itself (upstream's file plus
+  `personal/agents-section.md`). **Lesson:** a failing sync is silent from the client's side. Discord
+  breaking things and us missing upstream's fixes look the same.
+- **Discord is rebuilding its apps in Rust, 2026-11-05.** The CTO confirmed it: desktop drops Electron
+  for GPUI, and mobile keeps native UI with Rust shared underneath. No date. Nothing said about the web
+  client or mods. Accord loads discord.com's web client, not Discord's desktop app, so nothing changes
+  while that exists. If the web client ever becomes Rust drawn on a canvas, CSS and React patches stop
+  working. Keep Discord-specific code thin, and keep anything that can live outside Discord outside it.
+- **Sightline, 2026-11-05.** The `Sightline` plugin (`src/deadkernel/sightline/`) talks to Sightline's tray
+  app over a named pipe (`\\.\pipe\sightline`, only his Windows user can open it; Sightline's
+  `app/src-tauri/src/bridge.rs`, branch `ws/discord-bridge`), from its `native.ts` in the main process,
+  so Vesktop needed no change. A sidebar row under Focus shows only while the app runs: a click opens
+  Go live / Choose what to share… / Copy watch link / Put watch link in the message box (never sends),
+  and Clip / Stop while live. Clicking doesn't go live at once, because sharing the wrong window is
+  worse than one more click. "Watch here" under Sightline links opens the viewer in its own window with
+  its own session (`persist:dk-sightline`), sandboxed, only the viewer's origin, and no camera or mic.
+  The viewer's address comes from the app and is remembered in the plugin's settings, never committed.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
@@ -194,8 +214,10 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
 
 ## Later: meeting Sightline
 
-- A "Go live with Sightline" button and a viewer panel, talking to Sightline's desktop app
-  over a localhost API. Sightline's app owns native notifications, hotkeys and the overlay.
+- A "Go live with Sightline" button and a viewer panel, talking to Sightline's desktop app.
+  Built 2026-11-05 as a sidebar row and a viewer window, over a named pipe rather than a localhost
+  port (see Decisions). Left: the bot, the viewer docked in the client, live badges on call members.
+  Sightline's app owns native notifications, hotkeys and the overlay.
 - Friends need nothing from this client: a Discord bot posts a Watch link that opens in any
   browser.
 - Phone: a companion app talking to an always-on host running Discord's web client with

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { copyWithToast, insertTextIntoChatInputBox } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import {
@@ -14,6 +15,7 @@ import {
 import type { ComponentType, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import { track } from "../core/telemetry";
+import { ask, useSightline } from "../sightline/state";
 import { actionsFor, RowActions, serverTriage } from "./actions";
 import { channelIcon, guildIcon, Square } from "./avatars";
 import { callStart, CallTimer, refreshStartTime, requestStartTimes, voiceStartStore } from "./calltimer";
@@ -84,7 +86,7 @@ interface RowProps {
     muted?: boolean;
     selected?: boolean;
     unavailable?: boolean;
-    onClick(): void;
+    onClick(e: MouseEvent): void;
     onContextMenu?(e: MouseEvent): void;
     /** the channel or server id, for tests (personal/tools/actions.mjs) */
     dataId?: string;
@@ -477,6 +479,39 @@ function FocusRow() {
     );
 }
 
+// Sightline (src/deadkernel/sightline): shown only while its app runs. A click opens the choices
+// rather than going live at once: sharing the wrong window is worse than one more click.
+function SightlineRow() {
+    const [s, busy] = useSightline();
+    if (!s) return null;
+    const icon = <IconSlot name="screen" />;
+    const show = () => ask("show");
+    if (s.incompatible) return <Row icon={icon} label="Sightline" where="needs an update" unavailable onClick={show} dataId="sightline" />;
+    if (!s.room) return <Row icon={icon} label="Sightline" where="join a room to go live" onClick={show} dataId="sightline" />;
+    const { link } = s;
+    const linkItems: ContextItem[] = [
+        !!link && { id: "sl-copy", label: "Copy watch link", action: () => void copyWithToast(link, "Watch link copied") },
+        !!link && !!SelectedChannelStore.getChannelId() && { id: "sl-insert", label: "Put watch link in the message box", action: () => insertTextIntoChatInputBox(link + " ") }
+    ];
+    if (s.live) {
+        const menu = (e: MouseEvent) => openMenu(e, [
+            ...linkItems,
+            { id: "sl-clip", label: "Save the last 30 seconds", action: () => ask("clip", { seconds: 30 }) },
+            { id: "sl-open", label: "Open Sightline", action: show },
+            { id: "sl-stop", label: "Stop streaming", danger: true, action: () => ask("stop") }
+        ]);
+        return <Row icon={icon} label="Live on Sightline" where={s.live.label} meta={{ text: "live", live: true, since: s.live.startedAt }}
+            onClick={menu} onContextMenu={menu} dataId="sightline" />;
+    }
+    const menu = (e: MouseEvent) => openMenu(e, [
+        s.ready && !busy && { id: "sl-live", label: "Go live", action: () => ask("goLive") },
+        { id: "sl-pick", label: "Choose what to share…", action: show },
+        ...linkItems
+    ]);
+    return <Row icon={icon} label={busy ? "Starting…" : "Go live with Sightline"} where={s.ready ? s.room : "checking encoders"}
+        onClick={menu} onContextMenu={menu} dataId="sightline" />;
+}
+
 function HomeRow({ selected }: { selected: boolean; }) {
     return (
         <Row icon={<IconSlot name="home" />} label="Home" selected={selected} onClick={() => { track("home_row"); openFriends(); }} />
@@ -569,6 +604,7 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
                     <JumpRow />
                     <HomeRow selected={!routeGuildId && !selectedChannelId} />
                     <FocusRow />
+                    <SightlineRow />
                     <DirectSection />
                     <FavoritesSection />
                     <MessagesSection />
