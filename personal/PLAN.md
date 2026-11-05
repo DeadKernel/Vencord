@@ -189,6 +189,9 @@ stay easy. Upstream remotes are set up in both clones (`upstream/main`).
   worse than one more click. "Watch here" under Sightline links opens the viewer in its own window with
   its own session (`persist:dk-sightline`), sandboxed, only the viewer's origin, and no camera or mic.
   The viewer's address comes from the app and is remembered in the plugin's settings, never committed.
+  The bridge shipped in Sightline v0.1.1 (2026-11-05), the first public build: installers at
+  github.com/DeadKernel/sightline-releases, and the app updates itself from there. Sightline's
+  `app/release.ps1` makes a release.
 - **Next for milestone 5:** a Slack-style unread view in the sidebar, the "Suggested" block,
   subscription-locked channels, Nitro-locked emoji in pickers.
 
