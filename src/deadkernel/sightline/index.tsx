@@ -14,6 +14,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin from "@utils/types";
 import type { Message } from "@vencord/discord-types";
 
+import { GoLiveButton, openGoLive } from "./golive";
 import style from "./sightline.css?managed";
 import { Native, setState, settings, SightlineState, watchHere, watchLinks } from "./state";
 
@@ -38,6 +39,22 @@ export default definePlugin({
     enabledByDefault: true,
     settings,
     managedStyle: style,
+
+    patches: [
+        // The voice panel's buttons (camera, screen share, activities, soundboard): ours after Discord's
+        // screen share. Same module as upstream CallTimer's find, matched once on stable and canary.
+        {
+            find: '"RTCConnectionMenu"',
+            replacement: {
+                match: /(\(0,(\i)\.jsx\)\(\i,\{channel:(\i),canGoLive:\i,enableActivities:\i,disabled:[^}]+\}\))/,
+                replace: "$1,(0,$2.jsx)($self.GoLiveButton,{channel:$3})"
+            }
+        }
+    ],
+
+    GoLiveButton: ErrorBoundary.wrap(GoLiveButton, { noop: true }),
+    /** for tests (personal/tools) */
+    openGoLive,
 
     renderMessageAccessory: props => <WatchHere message={props.message} />,
 
