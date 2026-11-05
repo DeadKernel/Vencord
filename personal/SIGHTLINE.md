@@ -39,6 +39,16 @@ like it, while the video never touches Discord.
   channel's room feeds the LIVE pills; Watch mounts the embed frame over the call stage. Discord's CSP
   gets the viewer origin for `frame-src` only.
 
+## Status (2026-11-06)
+
+Shipped: Sightline 0.1.3 (bridge `goLive {room, discord}`, presence carries `discord`), the viewer's
+embed and lobby modes on sightline.padwal.dev, and Accord dk-2026.11.06.2 (voice-panel button and
+picker, LIVE pills in our sidebar's voice rows, the stage). Checked end to end in the dev client
+against a preview viewer (lobby reported our own test stream under our Discord id; the stage played
+it); the voice-panel button and the pills inside a real voice channel still need a look with Aditya
+there. Every Accord in a voice channel keeps a hidden lobby frame connected to the room's relay
+(cdn.moq.dev). Not yet: pills in Discord's own member list, Rich Presence (needs a Discord application id).
+
 ## Order
 
 1. Bridge: `goLive {room, discord}`, presence carries `discord`. 2. Viewer embed + lobby modes.
