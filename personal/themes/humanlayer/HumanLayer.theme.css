@@ -11,39 +11,39 @@
    Tweaks: the knobs you are most likely to want to turn
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-	--hl-font: "IBM Plex Mono", ui-monospace, consolas, monospace;
-	--hl-chat-size: 0.9rem;        /* message text; ≈14.4px at 100% zoom, same as humanlayer.dev body copy */
-	--hl-chat-leading: 1.6;
-	--hl-group-gap: 1.5rem;        /* space between message groups (Discord default ≈1.06rem) */
-	--hl-sidebar-row: 32px;        /* channel row height */
-	--hl-label-tracking: 0.05em;   /* uppercase label letter-spacing */
+    --hl-font: "IBM Plex Mono", ui-monospace, consolas, monospace;
+    --hl-chat-size: 0.9rem; /* message text; ≈14.4px at 100% zoom, same as humanlayer.dev body copy */
+    --hl-chat-leading: 1.6;
+    --hl-group-gap: 1.5rem; /* space between message groups (Discord default ≈1.06rem) */
+    --hl-sidebar-row: 32px; /* channel row height */
+    --hl-label-tracking: 0.05em; /* uppercase label letter-spacing */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Tokens: lifted straight from humanlayer.dev [data-theme=poimandres]
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-	--hl-bg: #1b1e28;
-	--hl-bg-raised: #252836;
-	--hl-bg-hover: #303340;
-	--hl-bg-active: #3a3d4a;
-	--hl-border: #303340;
-	--hl-text: #a6accd;
-	--hl-text-2: #949aba;        /* WCAG AA (4.5:1) on page, panels and hovered rows; was #8990b3 */
-	--hl-text-muted: #878ea8;    /* AA on page and panels; was #6b7394 (3.1-3.6:1) */
-	--hl-text-strong: #e4f0fb;
-	--hl-accent: #add7ff;
-	--hl-accent-hover: #5de4c7;
-	--hl-accent-15: color-mix(in srgb, var(--hl-accent) 15%, transparent);
-	--hl-accent-08: color-mix(in srgb, var(--hl-accent) 8%, transparent);
-	--hl-teal: #5de4c7;
-	--hl-yellow: #fffac2;
-	--hl-pink: #d26fa2;          /* AA as text on panels; was #d0679d */
-	--hl-pink-bright: #f087bd;
-	--hl-blue: #89ddff;
-	--hl-shade: #0d0f14;           /* overlays and scrims */
-	--hl-hover: color-mix(in srgb, var(--hl-text) 6%, transparent);
-	--hl-selected: var(--hl-accent-15);
+    --hl-bg: #1b1e28;
+    --hl-bg-raised: #252836;
+    --hl-bg-hover: #303340;
+    --hl-bg-active: #3a3d4a;
+    --hl-border: #303340;
+    --hl-text: #a6accd;
+    --hl-text-2: #949aba; /* WCAG AA (4.5:1) on page, panels and hovered rows; was #8990b3 */
+    --hl-text-muted: #878ea8; /* AA on page and panels; was #6b7394 (3.1-3.6:1) */
+    --hl-text-strong: #e4f0fb;
+    --hl-accent: #add7ff;
+    --hl-accent-hover: #5de4c7;
+    --hl-accent-15: color-mix(in srgb, var(--hl-accent) 15%, transparent);
+    --hl-accent-08: color-mix(in srgb, var(--hl-accent) 8%, transparent);
+    --hl-teal: #5de4c7;
+    --hl-yellow: #fffac2;
+    --hl-pink: #d26fa2; /* AA as text on panels; was #d0679d */
+    --hl-pink-bright: #f087bd;
+    --hl-blue: #89ddff;
+    --hl-shade: #0d0f14; /* overlays and scrims */
+    --hl-hover: color-mix(in srgb, var(--hl-text) 6%, transparent);
+    --hl-selected: var(--hl-accent-15);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -54,180 +54,180 @@
 .theme-darker,
 .theme-midnight,
 .theme-light {
-	/* surfaces */
-	--background-base-lowest: var(--hl-bg);
-	--background-base-lower: var(--hl-bg);
-	--background-base-low: var(--hl-bg-raised);
-	--background-surface-high: var(--hl-bg-raised);
-	--background-surface-higher: var(--hl-bg-raised);
-	--background-surface-highest: var(--hl-bg-hover);
-	--background-accent: var(--hl-bg-active);
-	--background-code: var(--hl-bg-raised);
-	--background-mod-muted: color-mix(in srgb, var(--hl-text) 4%, transparent);
-	--background-mod-subtle: var(--hl-hover);
-	--background-mod-normal: color-mix(in srgb, var(--hl-text) 10%, transparent);
-	--background-mod-strong: color-mix(in srgb, var(--hl-text) 14%, transparent);
-	--background-scrim: color-mix(in srgb, var(--hl-shade) 80%, transparent);
-	--app-frame-background: var(--hl-bg);
-	--app-frame-border: var(--hl-border);
-	--chat-background: var(--hl-bg);
-	--chat-background-default: var(--hl-bg);
-	--chat-border: var(--hl-border);
-	--channeltextarea-background: var(--hl-bg-raised);
-	--custom-channel-members-bg: var(--hl-bg);
-	--panel-bg: var(--hl-bg);
-	--modal-background: var(--hl-bg);
-	--modal-footer-background: var(--hl-bg-raised);
-	--bg-surface-raised: var(--hl-bg-raised);
-	--card-background-default: var(--hl-bg-raised);
-	--card-secondary-bg: var(--hl-bg-raised);
-	--home-background: var(--hl-bg);
+    /* surfaces */
+    --background-base-lowest: var(--hl-bg);
+    --background-base-lower: var(--hl-bg);
+    --background-base-low: var(--hl-bg-raised);
+    --background-surface-high: var(--hl-bg-raised);
+    --background-surface-higher: var(--hl-bg-raised);
+    --background-surface-highest: var(--hl-bg-hover);
+    --background-accent: var(--hl-bg-active);
+    --background-code: var(--hl-bg-raised);
+    --background-mod-muted: color-mix(in srgb, var(--hl-text) 4%, transparent);
+    --background-mod-subtle: var(--hl-hover);
+    --background-mod-normal: color-mix(in srgb, var(--hl-text) 10%, transparent);
+    --background-mod-strong: color-mix(in srgb, var(--hl-text) 14%, transparent);
+    --background-scrim: color-mix(in srgb, var(--hl-shade) 80%, transparent);
+    --app-frame-background: var(--hl-bg);
+    --app-frame-border: var(--hl-border);
+    --chat-background: var(--hl-bg);
+    --chat-background-default: var(--hl-bg);
+    --chat-border: var(--hl-border);
+    --channeltextarea-background: var(--hl-bg-raised);
+    --custom-channel-members-bg: var(--hl-bg);
+    --panel-bg: var(--hl-bg);
+    --modal-background: var(--hl-bg);
+    --modal-footer-background: var(--hl-bg-raised);
+    --bg-surface-raised: var(--hl-bg-raised);
+    --card-background-default: var(--hl-bg-raised);
+    --card-secondary-bg: var(--hl-bg-raised);
+    --home-background: var(--hl-bg);
 
-	/* legacy surface names still used by older modules */
-	--background-primary: var(--hl-bg);
-	--background-secondary: var(--hl-bg);
-	--background-secondary-alt: var(--hl-bg-raised);
-	--background-tertiary: var(--hl-bg);
-	--background-floating: var(--hl-bg-raised);
-	--background-modifier-hover: var(--hl-hover);
-	--background-modifier-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
-	--background-modifier-selected: var(--hl-selected);
-	--background-modifier-accent: var(--hl-border);
+    /* legacy surface names still used by older modules */
+    --background-primary: var(--hl-bg);
+    --background-secondary: var(--hl-bg);
+    --background-secondary-alt: var(--hl-bg-raised);
+    --background-tertiary: var(--hl-bg);
+    --background-floating: var(--hl-bg-raised);
+    --background-modifier-hover: var(--hl-hover);
+    --background-modifier-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
+    --background-modifier-selected: var(--hl-selected);
+    --background-modifier-accent: var(--hl-border);
 
-	/* borders */
-	--border-muted: var(--hl-border);
-	--border-subtle: var(--hl-border);
-	--border-normal: var(--hl-border);
-	--border-strong: var(--hl-bg-active);
-	--border-focus: var(--hl-accent);
-	--card-border-default: var(--hl-border);
+    /* borders */
+    --border-muted: var(--hl-border);
+    --border-subtle: var(--hl-border);
+    --border-normal: var(--hl-border);
+    --border-strong: var(--hl-bg-active);
+    --border-focus: var(--hl-accent);
+    --card-border-default: var(--hl-border);
 
-	/* text */
-	--text-strong: var(--hl-text-strong);
-	--text-default: var(--hl-text);
-	--text-normal: var(--hl-text);
-	--text-subtle: var(--hl-text-2);
-	--text-muted: var(--hl-text-muted);
-	--text-link: var(--hl-accent);
-	--text-brand: var(--hl-accent);
-	--text-code: var(--hl-text);
-	--text-feedback-positive: var(--hl-teal);
-	--text-feedback-warning: var(--hl-yellow);
-	--text-feedback-critical: var(--hl-pink);
-	--text-feedback-info: var(--hl-blue);
-	--header-primary: var(--hl-text-strong);
-	--header-secondary: var(--hl-text-2);
-	--chat-text-muted: var(--hl-text-muted);
-	--channel-text-area-placeholder: var(--hl-text-muted);
-	--input-placeholder-text-default: var(--hl-text-muted);
-	--textbox-markdown-syntax: var(--hl-text-muted);
+    /* text */
+    --text-strong: var(--hl-text-strong);
+    --text-default: var(--hl-text);
+    --text-normal: var(--hl-text);
+    --text-subtle: var(--hl-text-2);
+    --text-muted: var(--hl-text-muted);
+    --text-link: var(--hl-accent);
+    --text-brand: var(--hl-accent);
+    --text-code: var(--hl-text);
+    --text-feedback-positive: var(--hl-teal);
+    --text-feedback-warning: var(--hl-yellow);
+    --text-feedback-critical: var(--hl-pink);
+    --text-feedback-info: var(--hl-blue);
+    --header-primary: var(--hl-text-strong);
+    --header-secondary: var(--hl-text-2);
+    --chat-text-muted: var(--hl-text-muted);
+    --channel-text-area-placeholder: var(--hl-text-muted);
+    --input-placeholder-text-default: var(--hl-text-muted);
+    --textbox-markdown-syntax: var(--hl-text-muted);
 
-	/* icons */
-	--icon-strong: var(--hl-text-strong);
-	--icon-default: var(--hl-text-2);
-	--icon-subtle: var(--hl-text-muted);
-	--icon-muted: var(--hl-text-muted);
-	--icon-brand: var(--hl-accent);
-	--icon-link: var(--hl-accent);
-	--channel-icon: var(--hl-text-muted);
+    /* icons */
+    --icon-strong: var(--hl-text-strong);
+    --icon-default: var(--hl-text-2);
+    --icon-subtle: var(--hl-text-muted);
+    --icon-muted: var(--hl-text-muted);
+    --icon-brand: var(--hl-accent);
+    --icon-link: var(--hl-accent);
+    --channel-icon: var(--hl-text-muted);
 
-	/* interactive rows (channel list, DM list, menus) */
-	--channels-default: var(--hl-text-2);
-	--interactive-normal: var(--hl-text-2);
-	--interactive-hover: var(--hl-text);
-	--interactive-active: var(--hl-accent);
-	--interactive-muted: color-mix(in srgb, var(--hl-text-muted) 60%, transparent);
-	--interactive-text-default: var(--hl-text-2);
-	--interactive-text-hover: var(--hl-text);
-	--interactive-text-active: var(--hl-accent);
-	--interactive-icon-default: var(--hl-text-2);
-	--interactive-icon-hover: var(--hl-text);
-	--interactive-icon-active: var(--hl-accent);
-	--interactive-background-default: transparent;
-	--interactive-background-hover: var(--hl-hover);
-	--interactive-background-active: var(--hl-selected);
-	--interactive-background-selected: var(--hl-selected);
+    /* interactive rows (channel list, DM list, menus) */
+    --channels-default: var(--hl-text-2);
+    --interactive-normal: var(--hl-text-2);
+    --interactive-hover: var(--hl-text);
+    --interactive-active: var(--hl-accent);
+    --interactive-muted: color-mix(in srgb, var(--hl-text-muted) 60%, transparent);
+    --interactive-text-default: var(--hl-text-2);
+    --interactive-text-hover: var(--hl-text);
+    --interactive-text-active: var(--hl-accent);
+    --interactive-icon-default: var(--hl-text-2);
+    --interactive-icon-hover: var(--hl-text);
+    --interactive-icon-active: var(--hl-accent);
+    --interactive-background-default: transparent;
+    --interactive-background-hover: var(--hl-hover);
+    --interactive-background-active: var(--hl-selected);
+    --interactive-background-selected: var(--hl-selected);
 
-	/* inputs */
-	--input-background-default: var(--hl-bg-raised);
-	--input-border-default: var(--hl-border);
-	--input-border-hover: var(--hl-bg-active);
-	--input-border-active: var(--hl-accent);
-	--input-text-default: var(--hl-text);
+    /* inputs */
+    --input-background-default: var(--hl-bg-raised);
+    --input-border-default: var(--hl-border);
+    --input-border-hover: var(--hl-bg-active);
+    --input-border-active: var(--hl-accent);
+    --input-text-default: var(--hl-text);
 
-	/* buttons: HumanLayer primary = accent outline on a 15% accent wash */
-	--control-primary-background-default: var(--hl-accent-15);
-	--control-primary-background-hover: color-mix(in srgb, var(--hl-accent) 22%, transparent);
-	--control-primary-background-active: color-mix(in srgb, var(--hl-accent) 28%, transparent);
-	--control-primary-border-default: var(--hl-accent);
-	--control-primary-border-hover: var(--hl-accent);
-	--control-primary-border-active: var(--hl-accent);
-	--control-primary-text-default: var(--hl-accent);
-	--control-primary-text-hover: var(--hl-text-strong);
-	--control-primary-text-active: var(--hl-text-strong);
-	--control-primary-icon-default: var(--hl-accent);
-	--control-primary-icon-hover: var(--hl-text-strong);
-	--control-primary-icon-active: var(--hl-text-strong);
-	--control-secondary-background-default: transparent;
-	--control-secondary-background-hover: var(--hl-hover);
-	--control-secondary-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
-	--control-secondary-border-default: var(--hl-border);
-	--control-secondary-border-hover: var(--hl-bg-active);
-	--control-secondary-border-active: var(--hl-bg-active);
-	--control-secondary-text-default: var(--hl-text);
-	--control-secondary-text-hover: var(--hl-text-strong);
-	--control-secondary-text-active: var(--hl-text-strong);
-	--control-brand-foreground: var(--hl-accent);
-	--control-brand-foreground-new: var(--hl-accent);
-	--brand-500: var(--hl-accent);
-	--brand-560: var(--hl-accent);
+    /* buttons: HumanLayer primary = accent outline on a 15% accent wash */
+    --control-primary-background-default: var(--hl-accent-15);
+    --control-primary-background-hover: color-mix(in srgb, var(--hl-accent) 22%, transparent);
+    --control-primary-background-active: color-mix(in srgb, var(--hl-accent) 28%, transparent);
+    --control-primary-border-default: var(--hl-accent);
+    --control-primary-border-hover: var(--hl-accent);
+    --control-primary-border-active: var(--hl-accent);
+    --control-primary-text-default: var(--hl-accent);
+    --control-primary-text-hover: var(--hl-text-strong);
+    --control-primary-text-active: var(--hl-text-strong);
+    --control-primary-icon-default: var(--hl-accent);
+    --control-primary-icon-hover: var(--hl-text-strong);
+    --control-primary-icon-active: var(--hl-text-strong);
+    --control-secondary-background-default: transparent;
+    --control-secondary-background-hover: var(--hl-hover);
+    --control-secondary-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
+    --control-secondary-border-default: var(--hl-border);
+    --control-secondary-border-hover: var(--hl-bg-active);
+    --control-secondary-border-active: var(--hl-bg-active);
+    --control-secondary-text-default: var(--hl-text);
+    --control-secondary-text-hover: var(--hl-text-strong);
+    --control-secondary-text-active: var(--hl-text-strong);
+    --control-brand-foreground: var(--hl-accent);
+    --control-brand-foreground-new: var(--hl-accent);
+    --brand-500: var(--hl-accent);
+    --brand-560: var(--hl-accent);
 
-	/* messages */
-	--message-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
-	--message-mentioned-background-default: transparent;
-	--message-mentioned-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
-	--message-highlight-background-default: color-mix(in srgb, var(--hl-teal) 7%, transparent);
-	--message-highlight-background-hover: color-mix(in srgb, var(--hl-teal) 10%, transparent);
-	--mention-foreground: var(--hl-accent);
-	--mention-background: var(--hl-accent-15);
+    /* messages */
+    --message-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
+    --message-mentioned-background-default: transparent;
+    --message-mentioned-background-hover: color-mix(in srgb, var(--hl-text) 3%, transparent);
+    --message-highlight-background-default: color-mix(in srgb, var(--hl-teal) 7%, transparent);
+    --message-highlight-background-hover: color-mix(in srgb, var(--hl-teal) 10%, transparent);
+    --mention-foreground: var(--hl-accent);
+    --mention-background: var(--hl-accent-15);
 
-	/* status */
-	--status-positive: var(--hl-teal);
-	--status-online: var(--hl-teal);
-	--status-warning: var(--hl-yellow);
-	--status-danger: var(--hl-pink);
-	--status-speaking: var(--hl-teal);
+    /* status */
+    --status-positive: var(--hl-teal);
+    --status-online: var(--hl-teal);
+    --status-warning: var(--hl-yellow);
+    --status-danger: var(--hl-pink);
+    --status-speaking: var(--hl-teal);
 
-	/* scrollbars */
-	--scrollbar-auto-thumb: var(--hl-bg-hover);
-	--scrollbar-auto-track: transparent;
-	--scrollbar-thin-thumb: var(--hl-bg-hover);
-	--scrollbar-thin-track: transparent;
+    /* scrollbars */
+    --scrollbar-auto-thumb: var(--hl-bg-hover);
+    --scrollbar-auto-track: transparent;
+    --scrollbar-thin-thumb: var(--hl-bg-hover);
+    --scrollbar-thin-track: transparent;
 
-	/* no shadows, no rounding */
-	--elevation-stroke: 0 0 0 1px var(--hl-border);
-	--elevation-low: none;
-	--elevation-medium: none;
-	--elevation-high: none;
-	--shadow-low: none;
-	--shadow-low-hover: none;
-	--shadow-low-active: none;
-	--shadow-medium: none;
-	--shadow-high: none;
-	--shadow-ledge: none;
-	--shadow-border: 0 0 0 1px var(--hl-border);
-	--shadow-top-ledge: none;
-	--shadow-top-low: none;
-	--shadow-top-high: none;
-	--radius-xs: 0px;
-	--radius-sm: 0px;
-	--radius-md: 0px;
-	--radius-lg: 0px;
-	--radius-xl: 0px;
-	--radius-xxl: 0px;
-	--custom-app-top-bar-item-radius: 0px;
-	--button-border-radius: 0px;
-	--button-border-radius-lg: 0px;
+    /* no shadows, no rounding */
+    --elevation-stroke: 0 0 0 1px var(--hl-border);
+    --elevation-low: none;
+    --elevation-medium: none;
+    --elevation-high: none;
+    --shadow-low: none;
+    --shadow-low-hover: none;
+    --shadow-low-active: none;
+    --shadow-medium: none;
+    --shadow-high: none;
+    --shadow-ledge: none;
+    --shadow-border: 0 0 0 1px var(--hl-border);
+    --shadow-top-ledge: none;
+    --shadow-top-low: none;
+    --shadow-top-high: none;
+    --radius-xs: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-xxl: 0px;
+    --custom-app-top-bar-item-radius: 0px;
+    --button-border-radius: 0px;
+    --button-border-radius-lg: 0px;
 }
 
 /* Feedback, voice, status and syntax colours (Discord's newer semantic variables) */
@@ -235,159 +235,171 @@
 .theme-darker,
 .theme-midnight,
 .theme-light {
-	--background-brand: var(--hl-accent);
-	--badge-background-brand: var(--hl-accent);
-	--badge-text-brand: var(--hl-bg);
-	--interactive-accent-background-default: transparent;
-	--interactive-accent-background-hover: var(--hl-accent-08);
-	--interactive-accent-background-active: var(--hl-accent-15);
-	--interactive-accent-background-selected: var(--hl-accent-15);
+    --background-brand: var(--hl-accent);
+    --badge-background-brand: var(--hl-accent);
+    --badge-text-brand: var(--hl-bg);
+    --interactive-accent-background-default: transparent;
+    --interactive-accent-background-hover: var(--hl-accent-08);
+    --interactive-accent-background-active: var(--hl-accent-15);
+    --interactive-accent-background-selected: var(--hl-accent-15);
 
-	/* notification counts, "new mentions" pills */
-	--background-feedback-notification: var(--hl-pink);
-	--icon-feedback-notification: var(--hl-pink);
+    /* notification counts, "new mentions" pills */
+    --background-feedback-notification: var(--hl-pink);
+    --icon-feedback-notification: var(--hl-pink);
 
-	/* info / success / warning / error surfaces: a light wash in the token colour */
-	--background-feedback-info: var(--hl-accent-08);
-	--background-feedback-positive: color-mix(in srgb, var(--hl-teal) 8%, transparent);
-	--background-feedback-warning: color-mix(in srgb, var(--hl-yellow) 8%, transparent);
-	--background-feedback-critical: color-mix(in srgb, var(--hl-pink) 10%, transparent);
-	--border-feedback-info: var(--hl-accent);
-	--border-feedback-positive: var(--hl-teal);
-	--border-feedback-warning: var(--hl-yellow);
-	--border-feedback-critical: var(--hl-pink);
-	--icon-feedback-info: var(--hl-accent);
-	--icon-feedback-positive: var(--hl-teal);
-	--icon-feedback-warning: var(--hl-yellow);
-	--icon-feedback-critical: var(--hl-pink);
-	--notice-background-info: var(--hl-bg-raised);
-	--notice-background-positive: var(--hl-bg-raised);
-	--notice-background-warning: var(--hl-bg-raised);
-	--notice-background-critical: var(--hl-bg-raised);
-	--notice-text-info: var(--hl-accent);
-	--notice-text-positive: var(--hl-teal);
-	--notice-text-warning: var(--hl-yellow);
-	--notice-text-critical: var(--hl-pink);
-	--status-positive-background: var(--hl-teal);
-	--status-positive-text: var(--hl-bg);
-	--status-warning-background: var(--hl-yellow);
-	--status-warning-text: var(--hl-bg);
-	--input-border-error-default: var(--hl-pink);
-	--input-background-error-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
-	--input-icon-default: var(--hl-text-2);
-	--message-automod-background-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
-	--message-automod-background-hover: color-mix(in srgb, var(--hl-pink) 10%, transparent);
+    /* info / success / warning / error surfaces: a light wash in the token colour */
+    --background-feedback-info: var(--hl-accent-08);
+    --background-feedback-positive: color-mix(in srgb, var(--hl-teal) 8%, transparent);
+    --background-feedback-warning: color-mix(in srgb, var(--hl-yellow) 8%, transparent);
+    --background-feedback-critical: color-mix(in srgb, var(--hl-pink) 10%, transparent);
+    --border-feedback-info: var(--hl-accent);
+    --border-feedback-positive: var(--hl-teal);
+    --border-feedback-warning: var(--hl-yellow);
+    --border-feedback-critical: var(--hl-pink);
+    --icon-feedback-info: var(--hl-accent);
+    --icon-feedback-positive: var(--hl-teal);
+    --icon-feedback-warning: var(--hl-yellow);
+    --icon-feedback-critical: var(--hl-pink);
+    --notice-background-info: var(--hl-bg-raised);
+    --notice-background-positive: var(--hl-bg-raised);
+    --notice-background-warning: var(--hl-bg-raised);
+    --notice-background-critical: var(--hl-bg-raised);
+    --notice-text-info: var(--hl-accent);
+    --notice-text-positive: var(--hl-teal);
+    --notice-text-warning: var(--hl-yellow);
+    --notice-text-critical: var(--hl-pink);
+    --status-positive-background: var(--hl-teal);
+    --status-positive-text: var(--hl-bg);
+    --status-warning-background: var(--hl-yellow);
+    --status-warning-text: var(--hl-bg);
+    --input-border-error-default: var(--hl-pink);
+    --input-background-error-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
+    --input-icon-default: var(--hl-text-2);
+    --message-automod-background-default: color-mix(in srgb, var(--hl-pink) 6%, transparent);
+    --message-automod-background-hover: color-mix(in srgb, var(--hl-pink) 10%, transparent);
 
-	/* destructive buttons: pink outline on a pink wash, same shape as primary */
-	--control-critical-primary-background-default: color-mix(in srgb, var(--hl-pink) 15%, transparent);
-	--control-critical-primary-background-hover: color-mix(in srgb, var(--hl-pink) 22%, transparent);
-	--control-critical-primary-background-active: color-mix(in srgb, var(--hl-pink) 28%, transparent);
-	--control-critical-primary-border-default: var(--hl-pink);
-	--control-critical-primary-border-hover: var(--hl-pink);
-	--control-critical-primary-border-active: var(--hl-pink);
-	--control-critical-primary-text-default: var(--hl-pink-bright);
-	--control-critical-primary-text-hover: var(--hl-text-strong);
-	--control-critical-primary-text-active: var(--hl-text-strong);
-	--control-critical-primary-icon-default: var(--hl-pink-bright);
-	--control-critical-primary-icon-hover: var(--hl-text-strong);
-	--control-critical-primary-icon-active: var(--hl-text-strong);
-	--control-critical-secondary-text-default: var(--hl-pink-bright);
-	--control-critical-secondary-text-hover: var(--hl-pink-bright);
-	--control-critical-secondary-text-active: var(--hl-pink-bright);
-	--control-critical-secondary-icon-default: var(--hl-pink-bright);
-	--control-critical-secondary-icon-hover: var(--hl-pink-bright);
-	--control-critical-secondary-icon-active: var(--hl-pink-bright);
-	--button-danger-background-disabled: color-mix(in srgb, var(--hl-pink) 15%, transparent);
+    /* destructive buttons: pink outline on a pink wash, same shape as primary */
+    --control-critical-primary-background-default: color-mix(
+        in srgb,
+        var(--hl-pink) 15%,
+        transparent
+    );
+    --control-critical-primary-background-hover: color-mix(
+        in srgb,
+        var(--hl-pink) 22%,
+        transparent
+    );
+    --control-critical-primary-background-active: color-mix(
+        in srgb,
+        var(--hl-pink) 28%,
+        transparent
+    );
+    --control-critical-primary-border-default: var(--hl-pink);
+    --control-critical-primary-border-hover: var(--hl-pink);
+    --control-critical-primary-border-active: var(--hl-pink);
+    --control-critical-primary-text-default: var(--hl-pink-bright);
+    --control-critical-primary-text-hover: var(--hl-text-strong);
+    --control-critical-primary-text-active: var(--hl-text-strong);
+    --control-critical-primary-icon-default: var(--hl-pink-bright);
+    --control-critical-primary-icon-hover: var(--hl-text-strong);
+    --control-critical-primary-icon-active: var(--hl-text-strong);
+    --control-critical-secondary-text-default: var(--hl-pink-bright);
+    --control-critical-secondary-text-hover: var(--hl-pink-bright);
+    --control-critical-secondary-text-active: var(--hl-pink-bright);
+    --control-critical-secondary-icon-default: var(--hl-pink-bright);
+    --control-critical-secondary-icon-hover: var(--hl-pink-bright);
+    --control-critical-secondary-icon-active: var(--hl-pink-bright);
+    --button-danger-background-disabled: color-mix(in srgb, var(--hl-pink) 15%, transparent);
 
-	/* "connected" (voice) buttons in teal */
-	--control-connected-background-default: color-mix(in srgb, var(--hl-teal) 15%, transparent);
-	--control-connected-background-hover: color-mix(in srgb, var(--hl-teal) 22%, transparent);
-	--control-connected-background-active: color-mix(in srgb, var(--hl-teal) 28%, transparent);
-	--control-connected-border-default: var(--hl-teal);
-	--control-connected-border-hover: var(--hl-teal);
-	--control-connected-border-active: var(--hl-teal);
-	--control-connected-text-default: var(--hl-teal);
-	--control-connected-text-hover: var(--hl-text-strong);
-	--control-connected-text-active: var(--hl-text-strong);
-	--control-connected-icon-default: var(--hl-teal);
-	--control-connected-icon-hover: var(--hl-text-strong);
-	--control-connected-icon-active: var(--hl-text-strong);
-	--control-secondary-icon-default: var(--hl-text);
-	--control-secondary-icon-hover: var(--hl-text-strong);
-	--control-secondary-icon-active: var(--hl-text-strong);
-	--control-icon-only-icon-default: var(--hl-text-2);
-	--control-icon-only-icon-hover: var(--hl-text-strong);
-	--control-icon-only-icon-active: var(--hl-accent);
-	--control-icon-only-background-hover: var(--hl-hover);
-	--control-icon-only-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
+    /* "connected" (voice) buttons in teal */
+    --control-connected-background-default: color-mix(in srgb, var(--hl-teal) 15%, transparent);
+    --control-connected-background-hover: color-mix(in srgb, var(--hl-teal) 22%, transparent);
+    --control-connected-background-active: color-mix(in srgb, var(--hl-teal) 28%, transparent);
+    --control-connected-border-default: var(--hl-teal);
+    --control-connected-border-hover: var(--hl-teal);
+    --control-connected-border-active: var(--hl-teal);
+    --control-connected-text-default: var(--hl-teal);
+    --control-connected-text-hover: var(--hl-text-strong);
+    --control-connected-text-active: var(--hl-text-strong);
+    --control-connected-icon-default: var(--hl-teal);
+    --control-connected-icon-hover: var(--hl-text-strong);
+    --control-connected-icon-active: var(--hl-text-strong);
+    --control-secondary-icon-default: var(--hl-text);
+    --control-secondary-icon-hover: var(--hl-text-strong);
+    --control-secondary-icon-active: var(--hl-text-strong);
+    --control-icon-only-icon-default: var(--hl-text-2);
+    --control-icon-only-icon-hover: var(--hl-text-strong);
+    --control-icon-only-icon-active: var(--hl-accent);
+    --control-icon-only-background-hover: var(--hl-hover);
+    --control-icon-only-background-active: color-mix(in srgb, var(--hl-text) 10%, transparent);
 
-	/* voice + presence */
-	--background-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
-	--border-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
-	--icon-voice-muted: var(--hl-pink);
-	--icon-voice-connected: var(--hl-teal);
-	--icon-voice-speaking: var(--hl-teal);
-	--icon-voice-disconnected: var(--hl-pink);
-	--text-voice-connected: var(--hl-teal);
-	--text-voice-speaking: var(--hl-teal);
-	--text-voice-disconnected: var(--hl-pink);
-	--icon-status-online: var(--hl-teal);
-	--icon-status-idle: var(--hl-yellow);
-	--icon-status-dnd: var(--hl-pink);
-	--icon-status-offline: var(--hl-text-muted);
-	--text-status-online: var(--hl-teal);
-	--text-status-idle: var(--hl-yellow);
-	--text-status-dnd: var(--hl-pink);
-	--text-status-offline: var(--hl-text-muted);
+    /* voice + presence */
+    --background-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
+    --border-voice-muted: color-mix(in srgb, var(--hl-pink) 15%, transparent);
+    --icon-voice-muted: var(--hl-pink);
+    --icon-voice-connected: var(--hl-teal);
+    --icon-voice-speaking: var(--hl-teal);
+    --icon-voice-disconnected: var(--hl-pink);
+    --text-voice-connected: var(--hl-teal);
+    --text-voice-speaking: var(--hl-teal);
+    --text-voice-disconnected: var(--hl-pink);
+    --icon-status-online: var(--hl-teal);
+    --icon-status-idle: var(--hl-yellow);
+    --icon-status-dnd: var(--hl-pink);
+    --icon-status-offline: var(--hl-text-muted);
+    --text-status-online: var(--hl-teal);
+    --text-status-idle: var(--hl-yellow);
+    --text-status-dnd: var(--hl-pink);
+    --text-status-offline: var(--hl-text-muted);
 
-	/* profiles, spoilers */
-	--user-profile-border: var(--hl-border);
-	--user-profile-toolbar-background: var(--hl-bg-raised);
-	--user-profile-toolbar-border: var(--hl-border);
-	--user-profile-overlay-background: var(--hl-bg-raised);
-	--user-profile-overlay-background-hover: var(--hl-bg-hover);
-	--user-profile-background-hover: var(--hl-hover);
-	--user-profile-activity-toolbar-background: var(--hl-bg-raised);
-	--user-profile-note-background-focus: var(--hl-bg);
-	--spoiler-hidden-background: var(--hl-bg-active);
-	--spoiler-hidden-background-hover: var(--hl-bg-hover);
-	--spoiler-revealed-background: var(--hl-bg-raised);
+    /* profiles, spoilers */
+    --user-profile-border: var(--hl-border);
+    --user-profile-toolbar-background: var(--hl-bg-raised);
+    --user-profile-toolbar-border: var(--hl-border);
+    --user-profile-overlay-background: var(--hl-bg-raised);
+    --user-profile-overlay-background-hover: var(--hl-bg-hover);
+    --user-profile-background-hover: var(--hl-hover);
+    --user-profile-activity-toolbar-background: var(--hl-bg-raised);
+    --user-profile-note-background-focus: var(--hl-bg);
+    --spoiler-hidden-background: var(--hl-bg-active);
+    --spoiler-hidden-background-hover: var(--hl-bg-hover);
+    --spoiler-revealed-background: var(--hl-bg-raised);
 
-	/* code highlighting in the Poimandres palette */
-	--text-code-keyword: var(--hl-blue);
-	--text-code-builtin: var(--hl-blue);
-	--text-code-operator: var(--hl-text-2);
-	--text-code-string: var(--hl-teal);
-	--text-code-regexp: var(--hl-teal);
-	--text-code-number: var(--hl-teal);
-	--text-code-comment: var(--hl-text-muted);
-	--text-code-title: var(--hl-accent);
-	--text-code-section: var(--hl-accent);
-	--text-code-type: var(--hl-accent);
-	--text-code-property: var(--hl-text-2);
-	--text-code-attribute: var(--hl-text-2);
-	--text-code-variable: var(--hl-text);
-	--text-code-tag: var(--hl-pink-bright);
-	--text-code-decorator: var(--hl-yellow);
-	--text-code-escape: var(--hl-yellow);
-	--text-code-namespace: var(--hl-text-2);
-	--text-code-link: var(--hl-accent);
-	--text-code-bullet: var(--hl-text-muted);
-	--text-code-addition: var(--hl-teal);
-	--text-code-deletion: var(--hl-pink);
-	--text-code-error: var(--hl-pink);
-	--background-code-addition: color-mix(in srgb, var(--hl-teal) 8%, transparent);
-	--background-code-deletion: color-mix(in srgb, var(--hl-pink) 10%, transparent);
+    /* code highlighting in the Poimandres palette */
+    --text-code-keyword: var(--hl-blue);
+    --text-code-builtin: var(--hl-blue);
+    --text-code-operator: var(--hl-text-2);
+    --text-code-string: var(--hl-teal);
+    --text-code-regexp: var(--hl-teal);
+    --text-code-number: var(--hl-teal);
+    --text-code-comment: var(--hl-text-muted);
+    --text-code-title: var(--hl-accent);
+    --text-code-section: var(--hl-accent);
+    --text-code-type: var(--hl-accent);
+    --text-code-property: var(--hl-text-2);
+    --text-code-attribute: var(--hl-text-2);
+    --text-code-variable: var(--hl-text);
+    --text-code-tag: var(--hl-pink-bright);
+    --text-code-decorator: var(--hl-yellow);
+    --text-code-escape: var(--hl-yellow);
+    --text-code-namespace: var(--hl-text-2);
+    --text-code-link: var(--hl-accent);
+    --text-code-bullet: var(--hl-text-muted);
+    --text-code-addition: var(--hl-teal);
+    --text-code-deletion: var(--hl-pink);
+    --text-code-error: var(--hl-pink);
+    --background-code-addition: color-mix(in srgb, var(--hl-teal) 8%, transparent);
+    --background-code-deletion: color-mix(in srgb, var(--hl-pink) 10%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Type
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-	--font-primary: var(--hl-font) !important;
-	--font-display: var(--hl-font) !important;
-	--font-headline: var(--hl-font) !important;
-	--font-code: var(--hl-font) !important;
+    --font-primary: var(--hl-font) !important;
+    --font-display: var(--hl-font) !important;
+    --font-headline: var(--hl-font) !important;
+    --font-code: var(--hl-font) !important;
 }
 
 body,
@@ -395,61 +407,61 @@ input,
 textarea,
 button,
 select {
-	font-family: var(--hl-font);
-	letter-spacing: -0.01em;
+    font-family: var(--hl-font);
+    letter-spacing: -0.01em;
 }
 
 ::selection {
-	background: color-mix(in srgb, var(--hl-accent) 25%, transparent);
-	color: var(--hl-text-strong);
+    background: color-mix(in srgb, var(--hl-accent) 25%, transparent);
+    color: var(--hl-text-strong);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    App frame: flat panes split by 1px hairlines
    ═══════════════════════════════════════════════════════════════════════════ */
 [class*="bar_c38106"] {
-	background: var(--hl-bg);
-	border-bottom: 1px solid var(--hl-border);
+    background: var(--hl-bg);
+    border-bottom: 1px solid var(--hl-border);
 }
 
 [class*="sidebarList_"] {
-	background: var(--hl-bg-raised) !important;
-	border: 0 !important;
-	border-right: 1px solid var(--hl-border) !important;
-	border-radius: 0 !important;
+    background: var(--hl-bg-raised) !important;
+    border: 0 !important;
+    border-right: 1px solid var(--hl-border) !important;
+    border-radius: 0 !important;
 }
 
 [class*="sidebarListRounded_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 [class*="chat_f75fb0"] {
-	background: var(--hl-bg);
+    background: var(--hl-bg);
 }
 
 [class*="membersWrap_"] {
-	border-left: 1px solid var(--hl-border);
+    border-left: 1px solid var(--hl-border);
 }
 
 [class*="membersWrap_"],
 [class*="members_c8ffbb"] {
-	background: var(--hl-bg) !important;
+    background: var(--hl-bg) !important;
 }
 
 /* Channel header bar */
 [class*="subtitleContainer_"] > section[class*="title_"],
 [class*="chat_"] > section[class*="title_"] {
-	background: var(--hl-bg);
-	border-bottom: 1px solid var(--hl-border);
-	box-shadow: none;
+    background: var(--hl-bg);
+    border-bottom: 1px solid var(--hl-border);
+    box-shadow: none;
 }
 
 /* User panel at the bottom of the sidebar: square, flush, divided by a hairline */
 [class*="panels__"] {
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	border: 1px solid var(--hl-border) !important;
-	background: var(--hl-bg-raised) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid var(--hl-border) !important;
+    background: var(--hl-bg-raised) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -459,80 +471,82 @@ select {
 /* Category headers become small tracked uppercase labels */
 [class*="containerDefault__29444"] [class*="name__29444"],
 [class*="containerDefault_"] [class*="mainContent_"] [class*="name_"] {
-	font-size: 11px;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: var(--hl-label-tracking);
-	color: var(--hl-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--hl-label-tracking);
+    color: var(--hl-text-muted);
 }
 
 [class*="containerDefault__29444"] {
-	padding-top: 20px;
+    padding-top: 20px;
 }
 
 [class*="containerDefault_"] [class*="link__2ea32"],
 [class*="containerDefault_"] [class*="link_"][href^="/channels/"] {
-	min-height: var(--hl-sidebar-row);
-	border-radius: 0;
-	padding-inline: 10px;
-	box-shadow: inset 2px 0 0 transparent;
-	transition: background-color 80ms, box-shadow 80ms;
+    min-height: var(--hl-sidebar-row);
+    border-radius: 0;
+    padding-inline: 10px;
+    box-shadow: inset 2px 0 0 transparent;
+    transition:
+        background-color 80ms,
+        box-shadow 80ms;
 }
 
 [class*="containerDefault_"] [class*="name__2ea32"] {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 [class*="modeSelected_"] [class*="link_"] {
-	background: var(--hl-selected) !important;
-	box-shadow: inset 2px 0 0 var(--hl-accent) !important;
+    background: var(--hl-selected) !important;
+    box-shadow: inset 2px 0 0 var(--hl-accent) !important;
 }
 
 [class*="modeSelected_"] [class*="link_"],
 [class*="modeSelected_"] [class*="name_"],
 [class*="modeSelected_"] [class*="icon_"] {
-	color: var(--hl-accent) !important;
+    color: var(--hl-accent) !important;
 }
 
 [class*="modeUnreadImportant_"] [class*="name_"] {
-	color: var(--hl-text-strong) !important;
+    color: var(--hl-text-strong) !important;
 }
 
 [class*="wrapper__2ea32"] [class*="unread__2ea32"] {
-	background: var(--hl-accent);
-	border-radius: 0;
-	width: 2px;
+    background: var(--hl-accent);
+    border-radius: 0;
+    width: 2px;
 }
 
 /* DM list rows share the same treatment */
 [class*="interactive__972a0"],
 [class*="privateChannels_"] [class*="interactive_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 [class*="interactiveSelected_"] {
-	background: var(--hl-selected) !important;
-	box-shadow: inset 2px 0 0 var(--hl-accent) !important;
+    background: var(--hl-selected) !important;
+    box-shadow: inset 2px 0 0 var(--hl-accent) !important;
 }
 
 [class*="interactiveSelected_"],
 [class*="interactiveSelected_"] a,
 [class*="interactiveSelected_"] [class*="name_"] {
-	color: var(--hl-accent) !important;
+    color: var(--hl-accent) !important;
 }
 
 /* Member list group headers */
 [class*="membersGroup_"] {
-	font-size: 11px;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: var(--hl-label-tracking);
-	color: var(--hl-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--hl-label-tracking);
+    color: var(--hl-text-muted);
 }
 
 [class*="member_c8ffbb"] > div,
 [class*="member_c8ffbb"] [class*="layout_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -540,203 +554,203 @@ select {
    ═══════════════════════════════════════════════════════════════════════════ */
 [class*="markup__75297"],
 [class*="messageContent_"] {
-	font-size: var(--hl-chat-size);
-	line-height: var(--hl-chat-leading);
-	color: var(--hl-text);
+    font-size: var(--hl-chat-size);
+    line-height: var(--hl-chat-leading);
+    color: var(--hl-text);
 }
 
 /* Breathing room between authors, tight within a group */
 [class*="cozyMessage_"][class*="groupStart_"] {
-	margin-top: var(--hl-group-gap) !important;
+    margin-top: var(--hl-group-gap) !important;
 }
 
 [class*="cozyMessage_"] [class*="header_c19a55"],
 [class*="cozyMessage_"] h3[class*="header_"] {
-	margin-bottom: 2px;
+    margin-bottom: 2px;
 }
 
 [class*="cozyMessage_"] [class*="username_"] {
-	font-weight: 600;
-	font-size: 0.875rem;
-	letter-spacing: -0.02em;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
 }
 
 [class*="cozyMessage_"] [class*="timestamp_"],
 [class*="cozyMessage_"] [class*="timestamp_"] time {
-	color: var(--hl-text-muted);
-	font-size: 11px;
+    color: var(--hl-text-muted);
+    font-size: 11px;
 }
 
 /* Square avatars in chat (only the plain <img> ones; masked SVG avatars elsewhere stay round) */
 [class*="cozyMessage_"] img[class*="avatar_"] {
-	border-radius: 0;
+    border-radius: 0;
 }
 
 /* A message that mentions you: a 2px pink edge, no wash. Pink means "this needs you" everywhere
    (sidebar counts, the NEW line), so it's the only pink in the list. */
 [class*="message_"][class*="mentioned_"]::before {
-	background: var(--hl-pink) !important;
-	width: 2px !important;
+    background: var(--hl-pink) !important;
+    width: 2px !important;
 }
 
 /* Inline mentions / channel links */
 .mention,
 [class*="mention_"][class*="interactive"] {
-	border-radius: 0;
-	padding: 0 3px;
-	font-weight: 500;
+    border-radius: 0;
+    padding: 0 3px;
+    font-weight: 500;
 }
 
 /* Date separators: hairline with a small tracked label */
 [class*="divider__908e2"] {
-	border-top-color: var(--hl-border) !important;
+    border-top-color: var(--hl-border) !important;
 }
 
 [class*="divider__908e2"] [class*="content__908e2"] {
-	font-size: 11px;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: var(--hl-label-tracking);
-	color: var(--hl-text-muted);
-	background: var(--hl-bg);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--hl-label-tracking);
+    color: var(--hl-text-muted);
+    background: var(--hl-bg);
 }
 
 [class*="divider__908e2"][class*="isUnread_"] {
-	border-top-color: var(--hl-pink) !important;
+    border-top-color: var(--hl-pink) !important;
 }
 
 [class*="divider__908e2"][class*="isUnread_"] [class*="content__908e2"],
 [class*="unreadPillCap_"] {
-	color: var(--hl-pink) !important;
+    color: var(--hl-pink) !important;
 }
 
 [class*="unreadPillCap_"] {
-	background: var(--hl-bg) !important;
-	border-radius: 0;
+    background: var(--hl-bg) !important;
+    border-radius: 0;
 }
 
 /* "New unreads" bar over the channel list, "new mentions" pill in the server rail */
 [class*="containerPadding_"] > [class*="bar_"],
 [class*="unreadMentionsBar_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* Code */
 [class*="markup_"] code {
-	font-family: var(--hl-font);
+    font-family: var(--hl-font);
 }
 
 [class*="markup_"] :not(pre) > code {
-	background: var(--hl-bg-raised);
-	border: 1px solid var(--hl-border);
-	border-radius: 0;
-	padding: 0 4px;
-	font-size: 0.85em;
+    background: var(--hl-bg-raised);
+    border: 1px solid var(--hl-border);
+    border-radius: 0;
+    padding: 0 4px;
+    font-size: 0.85em;
 }
 
 [class*="markup_"] pre,
 [class*="markup_"] pre code,
 [class*="codeContainer_"] {
-	background: var(--hl-bg-raised) !important;
-	border-radius: 0 !important;
+    background: var(--hl-bg-raised) !important;
+    border-radius: 0 !important;
 }
 
 [class*="markup_"] pre code {
-	border: 1px solid var(--hl-border);
+    border: 1px solid var(--hl-border);
 }
 
 [class*="blockquoteDivider_"] {
-	background: var(--hl-bg-active);
-	border-radius: 0;
-	width: 2px;
+    background: var(--hl-bg-active);
+    border-radius: 0;
+    width: 2px;
 }
 
 /* Embeds and attachments */
 
 /* the brand stripe becomes a grey edge: a link preview shouldn't outshout the message */
 [class*="embedFull_"] {
-	background: var(--hl-bg-raised) !important;
-	border-left-color: var(--hl-bg-active) !important;
-	border-radius: 0 !important;
-	border-top: 1px solid var(--hl-border);
-	border-right: 1px solid var(--hl-border);
-	border-bottom: 1px solid var(--hl-border);
+    background: var(--hl-bg-raised) !important;
+    border-left-color: var(--hl-bg-active) !important;
+    border-radius: 0 !important;
+    border-top: 1px solid var(--hl-border);
+    border-right: 1px solid var(--hl-border);
+    border-bottom: 1px solid var(--hl-border);
 }
 
 [class*="imageWrapper_"],
 [class*="imageContainer_"],
 [class*="mosaicItem_"],
 [class*="attachment_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* Reactions: outlined tags, like HumanLayer's status chips */
 [class^="reaction_"],
 [class*=" reaction_"] {
-	border-radius: 0 !important;
-	background: transparent !important;
-	border: 1px solid var(--hl-border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: 1px solid var(--hl-border) !important;
 }
 
 [class^="reaction_"]:hover,
 [class*=" reaction_"]:hover {
-	border-color: var(--hl-bg-active) !important;
-	background: var(--hl-hover) !important;
+    border-color: var(--hl-bg-active) !important;
+    background: var(--hl-hover) !important;
 }
 
 [class*="reactionMe_"] {
-	background: var(--hl-accent-15) !important;
-	border-color: var(--hl-accent) !important;
+    background: var(--hl-accent-15) !important;
+    border-color: var(--hl-accent) !important;
 }
 
 [class*="reactionMe_"] [class*="reactionCount_"] {
-	color: var(--hl-accent) !important;
+    color: var(--hl-accent) !important;
 }
 
 [class*="reactionBtn_"] {
-	border-radius: 0 !important;
-	background: transparent !important;
-	border: 1px solid var(--hl-border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: 1px solid var(--hl-border) !important;
 }
 
 /* Hover toolbar on messages */
 [class*="buttonsInner_"],
 [class*="cozyMessage_"] [class*="buttons_"] > div {
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	border: 1px solid var(--hl-border);
-	background: var(--hl-bg-raised);
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid var(--hl-border);
+    background: var(--hl-bg-raised);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Composer
    ═══════════════════════════════════════════════════════════════════════════ */
 [class*="channelTextArea_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 [class*="channelTextArea__74017"] [class*="scrollableContainer_"],
 [class*="channelTextArea_"] > [class*="scrollableContainer_"] {
-	background: var(--hl-bg-raised) !important;
-	border: 1px solid var(--hl-composer-focus, var(--hl-border)) !important;
-	border-radius: 0 !important;
-	transition: border-color 80ms;
+    background: var(--hl-bg-raised) !important;
+    border: 1px solid var(--hl-composer-focus, var(--hl-border)) !important;
+    border-radius: 0 !important;
+    transition: border-color 80ms;
 }
 
 /* (the focus sets a property the box reads: a ":focus-within [class*=...]" rule makes every focus
    change restyle the focused element's whole subtree, see QuietLayout's note) */
 [class*="channelTextArea_"]:focus-within {
-	--hl-composer-focus: var(--hl-accent);
+    --hl-composer-focus: var(--hl-accent);
 }
 
 [class*="channelTextArea_"] [role="textbox"] {
-	font-size: var(--hl-chat-size);
-	line-height: var(--hl-chat-leading);
+    font-size: var(--hl-chat-size);
+    line-height: var(--hl-chat-leading);
 }
 
 [class*="typing_f75fb0"] {
-	font-size: 11px;
-	color: var(--hl-text-muted);
+    font-size: 11px;
+    color: var(--hl-text-muted);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -746,29 +760,29 @@ button[class*="hasText_"],
 button[class*="lookFilled_"],
 button[class*="lookOutlined_"],
 button[class*="button_a22cb0"]:not([class*="icon_"]) {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* HumanLayer buttons are uppercase and tracked (full-width secondary = search fields, left alone) */
 button[class*="hasText_"]:not([class*="secondary_"][class*="fullWidth_"]),
 button[class*="lookFilled_"][class*="sizeMedium_"],
 button[class*="lookFilled_"][class*="sizeSmall_"] {
-	text-transform: uppercase;
-	letter-spacing: var(--hl-label-tracking);
-	font-size: 12px;
-	font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--hl-label-tracking);
+    font-size: 12px;
+    font-weight: 500;
 }
 
 /* Legacy brand buttons → accent outline */
 button[class*="lookFilled_"][class*="colorBrand_"] {
-	background: var(--hl-accent-15) !important;
-	color: var(--hl-accent) !important;
-	border: 1px solid var(--hl-accent) !important;
+    background: var(--hl-accent-15) !important;
+    color: var(--hl-accent) !important;
+    border: 1px solid var(--hl-accent) !important;
 }
 
 button[class*="lookFilled_"][class*="colorBrand_"]:hover {
-	background: color-mix(in srgb, var(--hl-accent) 22%, transparent) !important;
-	color: var(--hl-text-strong) !important;
+    background: color-mix(in srgb, var(--hl-accent) 22%, transparent) !important;
+    color: var(--hl-text-strong) !important;
 }
 
 input[class*="input_"],
@@ -777,7 +791,7 @@ textarea[class*="input_"],
 [class*="searchBar_"],
 [class*="select_"],
 [class*="container_a16aea"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 [role="menu"],
@@ -786,61 +800,61 @@ textarea[class*="input_"],
 [class*="popout_"],
 [class*="tooltip_"],
 [class*="layer_"] > [class*="menu_"] {
-	border-radius: 0 !important;
-	box-shadow: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 [role="menu"],
 [class*="layer_"] > [class*="menu_"] {
-	background: var(--hl-bg-raised) !important;
-	border: 1px solid var(--hl-border) !important;
+    background: var(--hl-bg-raised) !important;
+    border: 1px solid var(--hl-border) !important;
 }
 
 /* Discord sizes menus for its proportional font; mono labels need more room */
 [role="menu"][class*="fixed_"] {
-	width: 272px !important;
+    width: 272px !important;
 }
 
 [role="menu"] [role="menuitem"],
 [role="menu"] [role="menuitemcheckbox"],
 [role="menu"] [role="menuitemradio"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 [role="menu"] [role="menuitem"]:is(:hover, :focus, [class*="focused_"]) {
-	background: var(--hl-selected) !important;
-	color: var(--hl-accent) !important;
+    background: var(--hl-selected) !important;
+    color: var(--hl-accent) !important;
 }
 
 [role="dialog"][aria-modal="true"] {
-	border: 1px solid var(--hl-border);
+    border: 1px solid var(--hl-border);
 }
 
 [class*="tooltipLayer_"] > [class*="tooltip_"],
 [class*="tooltip_"][class*="tooltipPrimary_"] {
-	background: var(--hl-bg-raised) !important;
-	color: var(--hl-text) !important;
-	border: 1px solid var(--hl-border);
-	font-size: 12px;
+    background: var(--hl-bg-raised) !important;
+    color: var(--hl-text) !important;
+    border: 1px solid var(--hl-border);
+    font-size: 12px;
 }
 
 [class*="tooltipPointer_"] {
-	display: none;
+    display: none;
 }
 
 /* Tags (APP, OFFICIAL) as a dim lowercase word: it's a fact about the sender, not a signal */
 [class*="botTag_"] {
-	background: transparent !important;
-	color: var(--hl-text-2) !important;
-	border: 0;
-	border-radius: 0 !important;
-	padding-inline: 2px !important;
-	font-weight: 400 !important;
-	text-transform: lowercase;
+    background: transparent !important;
+    color: var(--hl-text-2) !important;
+    border: 0;
+    border-radius: 0 !important;
+    padding-inline: 2px !important;
+    font-weight: 400 !important;
+    text-transform: lowercase;
 }
 
 [class*="botTag_"] svg path {
-	fill: var(--hl-text-2);
+    fill: var(--hl-text-2);
 }
 
 /* Notification counters in HumanLayer pink, square */
@@ -848,34 +862,34 @@ textarea[class*="input_"],
 .theme-darker,
 .theme-midnight,
 .theme-light {
-	--badge-notification-background: var(--hl-pink);
+    --badge-notification-background: var(--hl-pink);
 }
 
 [class*="numberBadge_"] {
-	border-radius: 0 !important;
-	color: var(--hl-bg) !important;
-	font-weight: 600;
+    border-radius: 0 !important;
+    color: var(--hl-bg) !important;
+    font-weight: 600;
 }
 
 /* Presence dots in the token colours (Discord hard-codes the fills) */
 rect[mask*="svg-mask-status-online"] {
-	fill: var(--hl-teal);
+    fill: var(--hl-teal);
 }
 
 rect[mask*="svg-mask-status-idle"] {
-	fill: var(--hl-yellow);
+    fill: var(--hl-yellow);
 }
 
 rect[mask*="svg-mask-status-dnd"] {
-	fill: var(--hl-pink);
+    fill: var(--hl-pink);
 }
 
 rect[mask*="svg-mask-status-offline"] {
-	fill: var(--hl-text-muted);
+    fill: var(--hl-text-muted);
 }
 
 rect[mask*="svg-mask-status-streaming"] {
-	fill: var(--hl-accent);
+    fill: var(--hl-accent);
 }
 
 /* Switches: square track and knob (Vencord's and Discord's) */
@@ -883,37 +897,37 @@ rect[mask*="svg-mask-status-streaming"] {
 .vc-switch-input,
 [class*="switch_"][class*="container_"],
 [class*="switch_"] [class*="container_"] {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 .vc-switch-slider rect,
 [class*="switch_"] [class*="slider_"] rect {
-	rx: 0;
-	ry: 0;
+    rx: 0;
+    ry: 0;
 }
 
 /* Round buttons sitting on profile banners */
 [class*="bannerButton_"],
 [class*="overflowButtonContainer_"] button {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* Server header: flat, no glass or glow over the (hidden) banner */
 [class*="headerEllipseBackdrop_"],
 [class*="headerEllipseForeground_"],
 [class*="headerGlass_"] {
-	display: none !important;
+    display: none !important;
 }
 
 /* Keyboard focus rings: square, a 2px accent line instead of Discord's 4px blue glow */
 .focus-rings-ring {
-	border-radius: 0 !important;
-	box-shadow: 0 0 0 2px var(--hl-accent) !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 2px var(--hl-accent) !important;
 }
 
 /* Thin, quiet scrollbars */
 ::-webkit-scrollbar-thumb {
-	border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
 /* What's shown (Nitro, Shop, gift button, boosts, decorations…) is the Declutter plugin's job:
@@ -925,57 +939,57 @@ rect[mask*="svg-mask-status-streaming"] {
 [class*="newMessagesBar_"],
 [class*="bottomBar_"],
 [class*="jumpToPresentButton_"] {
-	border-radius: 0 !important;
-	box-shadow: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 [class*="newMessagesBar_"] {
-	height: 28px !important;
-	background: var(--hl-bg-raised) !important;
-	color: var(--hl-text) !important;
-	border-bottom: 1px solid var(--hl-border) !important;
-	box-shadow: inset 2px 0 0 var(--hl-pink) !important;
-	font-size: 12px;
+    height: 28px !important;
+    background: var(--hl-bg-raised) !important;
+    color: var(--hl-text) !important;
+    border-bottom: 1px solid var(--hl-border) !important;
+    box-shadow: inset 2px 0 0 var(--hl-pink) !important;
+    font-size: 12px;
 }
 
 [class*="newMessagesBar_"] [class*="barButtonAlt_"] {
-	border-radius: 0 !important;
-	background: transparent !important;
-	color: var(--hl-accent) !important;
-	font-weight: 500;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--hl-accent) !important;
+    font-weight: 500;
 }
 
 [class*="bottomBar_"] {
-	background: var(--hl-bg-raised) !important;
-	border: 1px solid var(--hl-border) !important;
-	font-size: 12px;
+    background: var(--hl-bg-raised) !important;
+    border: 1px solid var(--hl-border) !important;
+    font-size: 12px;
 }
 
 [class*="bottomBar_"]::before {
-	content: none !important;
+    content: none !important;
 }
 
 [class*="jumpToPresentButton_"] {
-	background: var(--hl-bg-raised) !important;
-	border: 1px solid var(--hl-border);
+    background: var(--hl-bg-raised) !important;
+    border: 1px solid var(--hl-border);
 }
 
 /* Switching conversations: the new chat settles in (160ms fade and 4px lift) instead of snapping */
 [class*="chatContent_"] {
-	animation: hl-settle 160ms cubic-bezier(0.2, 0, 0, 1);
+    animation: hl-settle 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 @keyframes hl-settle {
-	from {
-		opacity: 0;
-		transform: translateY(4px);
-	}
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	[class*="chatContent_"] {
-		animation: none;
-	}
+    [class*="chatContent_"] {
+        animation: none;
+    }
 }
 
 /* Readable on fills: text on the accent or pink is the page colour. Discord's and Vesktop's white
@@ -984,16 +998,16 @@ rect[mask*="svg-mask-status-streaming"] {
 .vcd-screen-picker-option-radio[data-checked="true"] *,
 [class*="textBadge_"],
 [class*="numberBadge_"] {
-	color: var(--hl-bg) !important;
+    color: var(--hl-bg) !important;
 }
 
 /* Discord's red "NEW" badge: the theme's pink, with page-colour text (white on its red was 3.5:1) */
 [class*="newBadge_"] {
-	background: var(--hl-pink) !important;
-	color: var(--hl-bg) !important;
+    background: var(--hl-pink) !important;
+    color: var(--hl-bg) !important;
 }
 
 /* the profile popout's "What have you been …?" prompt is meant to be read: secondary, not muted */
 [class*="addStatusPrompt_"] {
-	color: var(--hl-text-2) !important;
+    color: var(--hl-text-2) !important;
 }

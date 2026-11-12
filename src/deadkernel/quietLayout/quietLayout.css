@@ -5,7 +5,15 @@
 /* stylelint-disable no-descending-specificity */
 
 /* One colour for names */
-[data-dk-layout~="plainNames"] :is([class*="cozyMessage_"], [class*="compact_"], [class*="repliedMessage_"], [class*="member_"], [class*="threadMessageAccessory"]) [class*="username_"],
+[data-dk-layout~="plainNames"]
+    :is(
+        [class*="cozyMessage_"],
+        [class*="compact_"],
+        [class*="repliedMessage_"],
+        [class*="member_"],
+        [class*="threadMessageAccessory"]
+    )
+    [class*="username_"],
 [data-dk-layout~="plainNames"] [class*="member_"] [class*="name_"] {
     color: var(--hl-text-strong, var(--text-strong)) !important;
     background: none !important;
@@ -83,7 +91,10 @@
 /* the inbox: the sidebar's DMs & mentions is the inbox (Ctrl I still opens Discord's). Hidden but
    still laid out: Ctrl I's popout hangs from this button, and display:none put it at the window's
    top-left corner, over the title bar */
-[data-dk-layout~="bareTitlebar"] [class*="bar_"] [class*="trailing_"] > [class*="iconWrapper_"]:has([aria-label="Inbox"]) {
+[data-dk-layout~="bareTitlebar"]
+    [class*="bar_"]
+    [class*="trailing_"]
+    > [class*="iconWrapper_"]:has([aria-label="Inbox"]) {
     visibility: hidden;
     width: 0;
     min-width: 0;
@@ -107,7 +118,8 @@
     height: 16px;
     transform: translateY(-50%);
     background: var(--hl-text-2, var(--text-muted));
-    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z'/></svg>") center / contain no-repeat;
+    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z'/></svg>")
+        center / contain no-repeat;
 }
 
 [data-dk-layout~="bareTitlebar"] [class*="bar_"] > [class*="leading_"]::after {
@@ -130,7 +142,9 @@
 }
 
 /* Quiet header: name, then the topic as one dim line (it matters in dev servers); buttons on hover */
-[data-dk-layout~="quietHeader"] section[class*="title_"] :is([class*="topicDivider_"], svg[class*="dot_"]) {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    :is([class*="topicDivider_"], svg[class*="dot_"]) {
     display: none !important;
 }
 
@@ -149,9 +163,17 @@
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant],
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] span,
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] a,
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] strong,
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="topic_"]
+    [data-text-variant]
+    strong,
 [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] em,
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="topic_"] [data-text-variant] code {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="topic_"]
+    [data-text-variant]
+    code {
     font-size: inherit !important;
     color: inherit !important;
 }
@@ -167,7 +189,10 @@
    browser keeps one invalidation set per :hover (and :focus-within, :has), shared by every rule, and
    one rule like "X:hover [class*=y]" makes every hover change anywhere restyle the hovered element's
    whole subtree. Applied to the app's root on each change, it was most of a channel switch's time. */
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] > :not([class*="search"]) {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="toolbar_"]
+    > :not([class*="search"]) {
     opacity: var(--dk-header-tools, 0);
     transition: opacity 120ms;
 }
@@ -177,7 +202,10 @@
 }
 
 /* search: an icon until you use it (Ctrl+F or a click), then it opens to full width */
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:has([class*="searchBar_"]) {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="toolbar_"]
+    [class*="search_"]:has([class*="searchBar_"]) {
     width: auto !important;
     min-width: 0 !important;
 
@@ -188,20 +216,34 @@
 /* closed, the box is just the icon, centred: the empty editor's padding pushed it right */
 
 /* (closed or open is a property of the search box, read with a style query: see the note above) */
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:not(:focus-within) {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="toolbar_"]
+    [class*="search_"]:not(:focus-within) {
     --dk-search: closed;
 }
 
 @container style(--dk-search: closed) {
-    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] {
+    [data-dk-layout~="quietHeader"]
+        section[class*="title_"]
+        [class*="toolbar_"]
+        [class*="searchBar_"] {
         justify-content: center;
     }
 
-    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] > [class*="icon_"] {
+    [data-dk-layout~="quietHeader"]
+        section[class*="title_"]
+        [class*="toolbar_"]
+        [class*="searchBar_"]
+        > [class*="icon_"] {
         margin: 0 !important;
     }
 
-    [data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="searchBar_"] [class*="editor_"] {
+    [data-dk-layout~="quietHeader"]
+        section[class*="title_"]
+        [class*="toolbar_"]
+        [class*="searchBar_"]
+        [class*="editor_"] {
         position: absolute !important;
         width: 0 !important;
         min-width: 0 !important;
@@ -216,20 +258,34 @@
     transition: width 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-[data-dk-layout~="quietHeader"] section[class*="title_"] [class*="toolbar_"] [class*="search_"]:focus-within {
+[data-dk-layout~="quietHeader"]
+    section[class*="title_"]
+    [class*="toolbar_"]
+    [class*="search_"]:focus-within {
     --dk-search-w: 240px;
 }
 
 /* Quiet channel list, continued */
-[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="wrapper_"]:has([class*="total_"]),
+[data-dk-layout~="quietSidebar"]
+    #channels
+    [class*="channelInfo_"]
+    [class*="wrapper_"]:has([class*="total_"]),
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="users_"],
 [data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] > [class*="text-xs"],
-[data-dk-layout~="quietSidebar"] #channels [class*="mainContainer_"]:has(> [class*="imageContainer_"]),
-[data-dk-layout~="quietSidebar"] #channels [class*="channelInfo_"] [class*="numberBadge_"]:not([style*="--status-danger"], [style*="feedback-notification"]) {
+[data-dk-layout~="quietSidebar"]
+    #channels
+    [class*="mainContainer_"]:has(> [class*="imageContainer_"]),
+[data-dk-layout~="quietSidebar"]
+    #channels
+    [class*="channelInfo_"]
+    [class*="numberBadge_"]:not([style*="--status-danger"], [style*="feedback-notification"]) {
     display: none !important;
 }
 
-[data-dk-layout~="quietSidebar"] #channels [class*="containerDefault_"] :is([class*="iconItem_"], [aria-label="Create Channel"]) {
+[data-dk-layout~="quietSidebar"]
+    #channels
+    [class*="containerDefault_"]
+    :is([class*="iconItem_"], [aria-label="Create Channel"]) {
     opacity: var(--dk-channel-tools, 0) !important;
 }
 
@@ -239,30 +295,46 @@
 
 /* No profile panel beside DMs */
 [data-dk-layout~="noDmPanel"] aside:has(> .user-profile-sidebar, > * > .user-profile-sidebar),
-[data-dk-layout~="noDmPanel"] section[class*="title_"] :is([aria-label="Hide User Profile"], [aria-label="Show User Profile"]) {
+[data-dk-layout~="noDmPanel"]
+    section[class*="title_"]
+    :is([aria-label="Hide User Profile"], [aria-label="Show User Profile"]) {
     display: none !important;
 }
 
 /* Avatars only in DMs: in servers the message is name + text. (data-dk-in is set from the selected
    server: :root:has(...) made the browser restyle the whole page on every change to it) */
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] img[class*="avatar_"],
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] [class*="avatarDecoration"],
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="isSystemMessage_"] [class*="iconContainer_"] {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"]
+    img[class*="avatar_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"]
+    [class*="avatarDecoration"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="isSystemMessage_"]
+    [class*="iconContainer_"] {
     display: none !important;
 }
 
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"][class*="cozy_"] {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"][class*="cozy_"] {
     padding-left: 24px !important;
 }
 
 /* the reply and thread connector lines were drawn for an avatar column that isn't there */
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"]:not([class*="groupStart_"]) [class*="contents_"] > [class*="timestamp_"],
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"] [class*="spine_"],
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="repliedMessageClickableSpine_"] {
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"]:not([class*="groupStart_"])
+    [class*="contents_"]
+    > [class*="timestamp_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"]
+    [class*="spine_"],
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="repliedMessageClickableSpine_"] {
     display: none !important;
 }
 
-:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
+:root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"]
+    [class*="cozyMessage_"]:is([class*="hasReply_"], [class*="hasThread_"])::after,
 :root[data-dk-layout~="avatarsInDmsOnly"][data-dk-in="server"] [class*="repliedMessage_"]::before {
     content: none !important;
 }
@@ -284,7 +356,9 @@
     display: none !important;
 }
 
-[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] :is([class*="username_"], [class*="repliedTextPreview_"], [class*="repliedTextContent_"]) {
+[data-dk-layout~="quietReplies"]
+    [class*="repliedMessage_"]
+    :is([class*="username_"], [class*="repliedTextPreview_"], [class*="repliedTextContent_"]) {
     font-size: 12px !important;
     font-weight: 400 !important;
     color: var(--hl-text-2, var(--text-muted)) !important;
@@ -297,7 +371,10 @@
     margin-right: 8px;
 }
 
-[data-dk-layout~="quietReplies"] [class*="repliedMessage_"] [class*="repliedTextPreview_"] [class*="repliedTextContent_"] {
+[data-dk-layout~="quietReplies"]
+    [class*="repliedMessage_"]
+    [class*="repliedTextPreview_"]
+    [class*="repliedTextContent_"] {
     color: var(--dk-reply-hover, var(--hl-text-2, var(--text-muted))) !important;
 }
 
@@ -306,7 +383,9 @@
 }
 
 /* Reactions: 22px hairline chips; "add reaction" only on the message you're pointing at */
-[data-dk-layout~="quietReactions"] [class*="reactions_"] :is([class*="reaction_"], [class*="reactionBtn_"]) {
+[data-dk-layout~="quietReactions"]
+    [class*="reactions_"]
+    :is([class*="reaction_"], [class*="reactionBtn_"]) {
     height: 22px;
     min-height: 0;
     margin: 0 4px 4px 0 !important;
@@ -324,11 +403,16 @@
     color: var(--hl-text-2, var(--text-muted)) !important;
 }
 
-[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reaction_"][class*="reactionMe_"] {
+[data-dk-layout~="quietReactions"]
+    [class*="reactions_"]
+    [class*="reaction_"][class*="reactionMe_"] {
     border-color: var(--hl-accent, var(--text-brand)) !important;
 }
 
-[data-dk-layout~="quietReactions"] [class*="reactions_"] [class*="reaction_"][class*="reactionMe_"] [class*="reactionCount_"] {
+[data-dk-layout~="quietReactions"]
+    [class*="reactions_"]
+    [class*="reaction_"][class*="reactionMe_"]
+    [class*="reactionCount_"] {
     color: var(--hl-accent, var(--text-brand)) !important;
 }
 
@@ -353,7 +437,10 @@
 }
 
 /* nameplates: an animated video plus a coloured gradient behind the name */
-[data-dk-layout~="quietMembers"] [class*="members_"] [class*="nameplated_"] :is([class*="videoContainer_"], [class*="container_"][style*="gradient"]) {
+[data-dk-layout~="quietMembers"]
+    [class*="members_"]
+    [class*="nameplated_"]
+    :is([class*="videoContainer_"], [class*="container_"][style*="gradient"]) {
     display: none !important;
 }
 
@@ -405,12 +492,19 @@
     overflow: hidden;
 }
 
-[data-dk-layout~="compactEmbeds"] [class*="embedFull_"] :is([class*="embedVideo_"], [class*="embedImage_"], [class*="imageContent_"]) {
+[data-dk-layout~="compactEmbeds"]
+    [class*="embedFull_"]
+    :is([class*="embedVideo_"], [class*="embedImage_"], [class*="imageContent_"]) {
     max-width: 360px !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] ~ [class*="bottomLine_"],
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="spine_"]:has(+ [class*="container_"] > [class*="topLine_"]) {
+[data-dk-layout~="compactEmbeds"]
+    [id^="message-accessories-"]
+    [class*="topLine_"]
+    ~ [class*="bottomLine_"],
+[data-dk-layout~="compactEmbeds"]
+    [id^="message-accessories-"]
+    [class*="spine_"]:has(+ [class*="container_"] > [class*="topLine_"]) {
     display: none !important;
 }
 
@@ -419,7 +513,9 @@
     content: none !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="container_"]:has(> [class*="topLine_"]) {
+[data-dk-layout~="compactEmbeds"]
+    [id^="message-accessories-"]
+    [class*="container_"]:has(> [class*="topLine_"]) {
     display: inline-flex !important;
     width: auto !important;
     max-width: 100%;
@@ -444,12 +540,18 @@
     color: var(--hl-text-muted, var(--text-muted));
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] :is([class*="name_"], [class*="cta_"]) {
+[data-dk-layout~="compactEmbeds"]
+    [id^="message-accessories-"]
+    [class*="topLine_"]
+    :is([class*="name_"], [class*="cta_"]) {
     font-size: 12px !important;
     font-weight: 400 !important;
 }
 
-[data-dk-layout~="compactEmbeds"] [id^="message-accessories-"] [class*="topLine_"] [class*="name_"] {
+[data-dk-layout~="compactEmbeds"]
+    [id^="message-accessories-"]
+    [class*="topLine_"]
+    [class*="name_"] {
     color: var(--dk-thread-name, var(--hl-text-2, var(--text-muted))) !important;
 }
 
@@ -485,13 +587,22 @@
 
 /* each button sits in a wrapper of its own: :has() looks at the wrapper's children only, and the
    stable classes come first, so the page isn't searched for these on every style pass */
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .expression-picker-chat-input-button:has(> :is([aria-label="Open GIF picker"], [aria-label="Open sticker picker"])),
+[data-dk-layout~="flatComposer"]
+    [class*="channelTextArea_"]
+    .expression-picker-chat-input-button:has(
+        > :is([aria-label="Open GIF picker"], [aria-label="Open sticker picker"])
+    ),
 [data-dk-layout~="flatComposer"] [class*="channelTextArea_"] .app-launcher-entrypoint,
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] [class*="buttons_"] > [class*="container_"]:has(> [aria-label="Send a gift"]) {
+[data-dk-layout~="flatComposer"]
+    [class*="channelTextArea_"]
+    [class*="buttons_"]
+    > [class*="container_"]:has(> [aria-label="Send a gift"]) {
     display: none !important;
 }
 
-[data-dk-layout~="flatComposer"] [class*="channelTextArea_"] :is([class*="buttons_"], [class*="attachWrapper_"]) {
+[data-dk-layout~="flatComposer"]
+    [class*="channelTextArea_"]
+    :is([class*="buttons_"], [class*="attachWrapper_"]) {
     opacity: var(--dk-composer-tools, 0.35);
     transition: opacity 120ms;
 }
@@ -523,7 +634,9 @@
 
 /* Slim user panel */
 [data-dk-layout~="slimUserPanel"] [class*="panels_"] [class*="panelSubtextContainer_"],
-[data-dk-layout~="slimUserPanel"] [class*="panels_"] :is([aria-label="Input Options"], [aria-label="Output Options"]) {
+[data-dk-layout~="slimUserPanel"]
+    [class*="panels_"]
+    :is([aria-label="Input Options"], [aria-label="Output Options"]) {
     display: none !important;
 }
 
