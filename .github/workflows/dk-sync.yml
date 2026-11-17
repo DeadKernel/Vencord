@@ -82,7 +82,9 @@ jobs:
                   DAY=$(date -u +%Y.%m.%d)
                   N=$(git tag -l "dk-$DAY.*" | wc -l)
                   TAG="dk-$DAY.$((N + 1))"
-                  git tag -a "$TAG" -m "Folds in upstream Vencord (${{ steps.merge.outputs.new }} changes)" -F "$RUNNER_TEMP/upstream.txt"
+                  # git tag refuses -m together with -F, so the heading and the list go in one file
+                  { echo "Folds in upstream Vencord (${{ steps.merge.outputs.new }} changes)"; echo; cat "$RUNNER_TEMP/upstream.txt"; } > "$RUNNER_TEMP/tag.txt"
+                  git tag -a "$TAG" -F "$RUNNER_TEMP/tag.txt"
                   git push origin "$TAG"
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
