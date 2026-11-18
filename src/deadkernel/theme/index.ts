@@ -28,7 +28,8 @@ const settings = definePluginSettings({
             { label: "Midnight: true black for OLED, electric blue", value: "midnight" },
             { label: "Gruvbox: warm and retro", value: "gruvbox" },
             { label: "Nord: cool, quiet contrast", value: "nord" },
-            { label: "Paper: light, warm off-white, ink blue", value: "paper" }
+            { label: "Paper: light, warm off-white, ink blue", value: "paper" },
+            { label: "Vice: dusk violet, amber and hot pink", value: "vice" }
         ],
         onChange: apply
     },
@@ -60,7 +61,7 @@ function apply() {
 
 export default definePlugin({
     name: "Theme",
-    description: "The look: Poimandres (or four other palettes), IBM Plex Mono, square corners, hairline borders, and density.",
+    description: "The look: Poimandres (or five other palettes), IBM Plex Mono, square corners, hairline borders, and density.",
     authors: [{ name: "DeadKernel", id: 0n }],
     enabledByDefault: true,
     managedStyle: style,

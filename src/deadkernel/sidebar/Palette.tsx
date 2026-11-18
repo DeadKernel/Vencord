@@ -164,7 +164,8 @@ const PALETTES = [
     { value: "midnight", name: "Midnight", bg: "#000", accent: "#7aa2ff" },
     { value: "gruvbox", name: "Gruvbox", bg: "#1d2021", accent: "#83a598" },
     { value: "nord", name: "Nord", bg: "#2e3440", accent: "#88c0d0" },
-    { value: "paper", name: "Paper", bg: "#f6f4ee", accent: "#2457c5" }
+    { value: "paper", name: "Paper", bg: "#f6f4ee", accent: "#2457c5" },
+    { value: "vice", name: "Vice", bg: "#1a1033", accent: "#ffb56b" }
 ];
 const DENSITIES = [{ value: "compact", name: "Compact" }, { value: "default", name: "Default" }, { value: "comfortable", name: "Comfortable" }];
 
