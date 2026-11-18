@@ -419,7 +419,7 @@ select {
 /* ═══════════════════════════════════════════════════════════════════════════
    App frame: flat panes split by 1px hairlines
    ═══════════════════════════════════════════════════════════════════════════ */
-[class*="bar_c38106"] {
+[class*="bar_"][data-window-chrome] {
     background: var(--hl-bg);
     border-bottom: 1px solid var(--hl-border);
 }
@@ -435,7 +435,7 @@ select {
     border-radius: 0 !important;
 }
 
-[class*="chat_f75fb0"] {
+[class*="chat_UU236g"] {
     background: var(--hl-bg);
 }
 
@@ -444,7 +444,7 @@ select {
 }
 
 [class*="membersWrap_"],
-[class*="members_c8ffbb"] {
+[class*="members_86es0b"] {
     background: var(--hl-bg) !important;
 }
 
@@ -457,7 +457,7 @@ select {
 }
 
 /* User panel at the bottom of the sidebar: square, flush, divided by a hairline */
-[class*="panels__"] {
+[class*="panels_"] {
     border-radius: 0 !important;
     box-shadow: none !important;
     border: 1px solid var(--hl-border) !important;
@@ -469,7 +469,7 @@ select {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Category headers become small tracked uppercase labels */
-[class*="containerDefault__29444"] [class*="name__29444"],
+[class*="containerDefault_yOdhm_"] [class*="name_yOdhm_"],
 [class*="containerDefault_"] [class*="mainContent_"] [class*="name_"] {
     font-size: 11px;
     font-weight: 500;
@@ -478,11 +478,11 @@ select {
     color: var(--hl-text-muted);
 }
 
-[class*="containerDefault__29444"] {
+[class*="containerDefault_yOdhm_"] {
     padding-top: 20px;
 }
 
-[class*="containerDefault_"] [class*="link__2ea32"],
+[class*="containerDefault_"] [class*="link_TNyK-N"],
 [class*="containerDefault_"] [class*="link_"][href^="/channels/"] {
     min-height: var(--hl-sidebar-row);
     border-radius: 0;
@@ -493,7 +493,7 @@ select {
         box-shadow 80ms;
 }
 
-[class*="containerDefault_"] [class*="name__2ea32"] {
+[class*="containerDefault_"] [class*="name_TNyK-N"] {
     font-size: 13px;
 }
 
@@ -512,7 +512,7 @@ select {
     color: var(--hl-text-strong) !important;
 }
 
-[class*="wrapper__2ea32"] [class*="unread__2ea32"] {
+[class*="wrapper_TNyK-N"] [class*="unread_TNyK-N"] {
     background: var(--hl-accent);
     border-radius: 0;
     width: 2px;
@@ -544,15 +544,15 @@ select {
     color: var(--hl-text-muted);
 }
 
-[class*="member_c8ffbb"] > div,
-[class*="member_c8ffbb"] [class*="layout_"] {
+[class*="member_86es0b"] > div,
+[class*="member_86es0b"] [class*="layout_"] {
     border-radius: 0 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Messages
    ═══════════════════════════════════════════════════════════════════════════ */
-[class*="markup__75297"],
+[class*="markup_ku1OHH"],
 [class*="messageContent_"] {
     font-size: var(--hl-chat-size);
     line-height: var(--hl-chat-leading);
