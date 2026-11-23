@@ -89,6 +89,34 @@ html[data-dk-palette="paper"] {
     --hl-shade: #3a3833;
 }
 
+/* ── Vice: Accord's take on Discord's Vice City theme (2026-11). Their one loud gradient becomes
+   flat dusk-violet panes, and the sunset survives as a single hairline under the title bar.
+   Amber marks where you are; hot pink still means "needs you" and nothing else. ── */
+html[data-dk-palette="vice"] {
+    --hl-bg: #1a1033;
+    --hl-bg-raised: #221540;
+    --hl-bg-hover: #2e1d52;
+    --hl-bg-active: #3a2566;
+    --hl-border: #33214f;
+    --hl-text: #cfc3e6;
+    --hl-text-2: #b5a7d2;
+    --hl-text-muted: #a091c2;
+    --hl-text-strong: #fff4fb;
+    --hl-accent: #ffb56b;
+    --hl-accent-hover: #4fe3d2;
+    --hl-teal: #4fe3d2;
+    --hl-yellow: #ffd76a;
+    --hl-pink: #ff6fae;
+    --hl-pink-bright: #ff9cc8;
+    --hl-blue: #8ab8ff;
+    --hl-shade: #0c0718;
+}
+
+/* the sunset, once: indigo to magenta to amber, 1px, where the title bar meets the app */
+html[data-dk-palette="vice"] [class*="bar_"][data-window-chrome] {
+    border-image: linear-gradient(90deg, #4b3fd6, #b0309a 45%, #ff6fae 70%, #ffb56b) 1;
+}
+
 /* ── Density: row height, gap between message groups, chat line height ── */
 html[data-dk-density="compact"] {
     --dk-row-h: 28px;

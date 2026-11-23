@@ -584,6 +584,15 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
     const [columnGuild, setColumnGuild] = useState<string | null>(drilled);
     const scroller = useRef<HTMLDivElement>(null);
     const columnRef = useRef<HTMLDivElement>(null);
+    const navRef = useRef<HTMLElement>(null);
+
+    // Discord's sidebar, for sidebar.css: found from here rather than by its class hash, which changes
+    useEffect(() => {
+        const host = navRef.current?.closest<HTMLElement>('[class*="sidebar_"]');
+        if (!host) return;
+        host.dataset.dkSbHost = "";
+        return () => void delete host.dataset.dkSbHost;
+    }, []);
 
     useEffect(() => { noteRoute(routeGuildId, selectedChannelId); }, [routeGuildId, selectedChannelId]);
     // the column keeps its last server while it closes, then goes: closed, it would keep every row's
@@ -609,7 +618,7 @@ export function Sidebar({ guildId: routeGuildId, selectedChannelId, GuildSidebar
     }, [!!drilled]);
 
     return (
-        <nav className="dk-sb" aria-label="Sidebar" data-mode={drilled ? "server" : "top"} onKeyDown={onNavKey}>
+        <nav className="dk-sb" ref={navRef} aria-label="Sidebar" data-mode={drilled ? "server" : "top"} onKeyDown={onNavKey}>
             <div className="dk-layer dk-layer-top">
                 <div className="dk-sb-scroll" ref={scroller}>
                     <JumpRow />

@@ -85,10 +85,10 @@ const target = await js(`
 	return id ? { id, guild: Ch.getChannel(id).guild_id } : null;`);
 check("found a read channel to open", !!target);
 if (target) {
-	const base = await js(`return parseFloat(getComputedStyle(document.querySelector('[class*="sidebar__"]')).width)`);
+	const base = await js(`return parseFloat(getComputedStyle(document.querySelector('[data-dk-sb-host]')).width)`);
 	await go(`/channels/${target.guild}/${target.id}`);
 	check("column opens", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "server" && document.querySelector(".dk-col")`));
-	check("sidebar widens by the column", await until(`parseFloat(getComputedStyle(document.querySelector('[class*="sidebar__"]')).width) >= Math.min(${base}, 240) + 247`, 3000));
+	check("sidebar widens by the column", await until(`parseFloat(getComputedStyle(document.querySelector('[data-dk-sb-host]')).width) >= Math.min(${base}, 240) + 247`, 3000));
 	check("selected channel highlighted in column", await js(`return !!document.querySelector(".dk-col .dk-sb-row.dk-selected")`));
 	check("server row selected in sidebar", await js(`return !!document.querySelector(".dk-layer-top .dk-sb-row.dk-selected")`));
 	check("no crumb while the column shows the server", await js(`return !document.querySelector(".dk-crumb")`));
@@ -99,7 +99,7 @@ if (target) {
 	await js(`document.querySelector(".dk-col-back").click()`);
 	check("column closes", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "top"`));
 	// the width animates; an occluded window draws no frames, so poll for the end state
-	check("sidebar back to its width", await until(`Math.abs(parseFloat(getComputedStyle(document.querySelector('[class*="sidebar__"]')).width) - ${base}) < 2`, 6000));
+	check("sidebar back to its width", await until(`Math.abs(parseFloat(getComputedStyle(document.querySelector('[data-dk-sb-host]')).width) - ${base}) < 2`, 6000));
 	check("crumb shows after closing", await until(`document.querySelector(".dk-crumb")`));
 	await js(`document.querySelector(".dk-crumb").click()`);
 	check("crumb reopens the column", await until(`document.querySelector("nav.dk-sb")?.dataset.mode === "server"`));

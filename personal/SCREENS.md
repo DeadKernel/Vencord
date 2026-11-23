@@ -167,7 +167,9 @@ Fable §5.)*
 
 - **Palettes** (HumanLayerTheme › Palette): HumanLayer (Poimandres blue-grey, default), Midnight
   (true black for OLED, electric blue), Gruvbox (warm, retro), Nord (cool, quiet contrast), Paper
-  (light, warm off-white, ink blue). A palette sets ~15 base tokens; every tint in the theme is
+  (light, warm off-white, ink blue), Vice (2026-11-18: our answer to Discord's Vice City theme;
+  dusk violet panes, amber for where you are, and their sunset gradient kept as one hairline
+  under the title bar). A palette sets ~15 base tokens; every tint in the theme is
   `color-mix` of those tokens, so nothing is left in the old colours.
 - **Density** (HumanLayerTheme › Density): Compact / Default / Comfortable sets row height
   (28/32/36px), the gap between message groups and the chat's line height.

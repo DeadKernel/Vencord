@@ -57,9 +57,13 @@ html[data-dk-sidebar] {
    for the layers; the container's width animates only while the column opens or closes
    (html[data-dk-sb-anim]), so the resize handle stays instant. ── */
 
+/* [data-dk-sb-host] is Discord's sidebar, tagged by Sidebar.tsx. It was [class*="sidebar__"] until
+   Discord's class hashes stopped starting with an underscore (2026-11): none of these rules matched,
+   the sidebar stopped widening, and the column opened on top of it. */
+
 /* With the column open, the sidebar keeps the width he dragged it to, except on small windows:
    then both columns together take at most 45% of the window, the sidebar never under 240px */
-html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [data-dk-sb-host] {
     --dk-top-w: min(var(--custom-guild-sidebar-width), max(240px, 100vw * 0.45 - 248px));
 
     width: calc(var(--dk-top-w) + 248px) !important;
@@ -72,7 +76,7 @@ html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] {
    a :has() makes the browser restyle everything under it whenever the page changes, and during a
    channel switch that was most of its time) */
 html[data-dk-sidebar][data-dk-sb-mode="server"]
-    [class*="sidebar__"]:has(
+    [data-dk-sb-host]:has(
         ~ [class*="page_"]
             :is(
                 [class*="chatLayerWrapper_"] > [class*="floating_"],
@@ -88,17 +92,17 @@ html[data-dk-sidebar][data-dk-sb-mode="server"]
 }
 
 /* the account bar stays under the sidebar, so mute and deafen never move when a column opens */
-html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] > [class*="panels_"] {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [data-dk-sb-host] > [class*="panels_"] {
     right: auto !important;
     width: calc(var(--dk-top-w) - 1px) !important;
 }
 
-html[data-dk-sidebar][data-dk-sb-mode="server"] [class*="sidebar__"] [class*="sidebarList__"] {
+html[data-dk-sidebar][data-dk-sb-mode="server"] [data-dk-sb-host] [class*="sidebarList_"] {
     width: calc(var(--dk-top-w) + 248px - var(--custom-guild-list-width) - 1px) !important;
 }
 
-html[data-dk-sb-anim] [class*="sidebar__"],
-html[data-dk-sb-anim] [class*="sidebarList__"] {
+html[data-dk-sb-anim] [data-dk-sb-host],
+html[data-dk-sb-anim] [class*="sidebarList_"] {
     transition: width 240ms cubic-bezier(0.2, 0, 0, 1) !important;
 }
 
@@ -1342,13 +1346,13 @@ div.dk-home-member:hover {
 }
 
 /* Discord's own switcher (palette off): at least no PROTIP and no tutorial arrows */
-html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*="tutorial__"]) {
+html[data-dk-sidebar] [class*="quickswitcher_"] :is([class*="protip_"], [class*="tutorial_"]) {
     display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    html[data-dk-sb-anim] [class*="sidebar__"],
-    html[data-dk-sb-anim] [class*="sidebarList__"],
+    html[data-dk-sb-anim] [data-dk-sb-host],
+    html[data-dk-sb-anim] [class*="sidebarList_"],
     .dk-sb *,
     .dk-sb,
     .dk-home,
