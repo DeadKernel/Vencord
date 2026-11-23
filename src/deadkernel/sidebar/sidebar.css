@@ -91,6 +91,49 @@ html[data-dk-sidebar][data-dk-sb-mode="server"]
     );
 }
 
+/* ...and on a small window that still left the chat a ~190px sliver between the two columns and
+   the panel (seen at 1100px with search open). There, the sidebar steps aside and only the server's
+   column stays; closing the panel or the column brings it back. */
+@media (max-width: 1280px) {
+    html[data-dk-sidebar][data-dk-sb-mode="server"]
+        [data-dk-sb-host]:has(
+            ~ [class*="page_"]
+                :is(
+                    [class*="chatLayerWrapper_"] > [class*="floating_"],
+                    [class*="searchResultsWrap_"],
+                    [class*="membersWrap_"]
+                )
+        ) {
+        --dk-top-w: 0px;
+    }
+
+    html[data-dk-sidebar][data-dk-sb-mode="server"]
+        [data-dk-sb-host]:has(
+            ~ [class*="page_"]
+                :is(
+                    [class*="chatLayerWrapper_"] > [class*="floating_"],
+                    [class*="searchResultsWrap_"],
+                    [class*="membersWrap_"]
+                )
+        )
+        .dk-layer-top {
+        display: none;
+    }
+
+    html[data-dk-sidebar][data-dk-sb-mode="server"]
+        [data-dk-sb-host]:has(
+            ~ [class*="page_"]
+                :is(
+                    [class*="chatLayerWrapper_"] > [class*="floating_"],
+                    [class*="searchResultsWrap_"],
+                    [class*="membersWrap_"]
+                )
+        )
+        > [class*="panels_"] {
+        width: 247px !important;
+    }
+}
+
 /* the account bar stays under the sidebar, so mute and deafen never move when a column opens */
 html[data-dk-sidebar][data-dk-sb-mode="server"] [data-dk-sb-host] > [class*="panels_"] {
     right: auto !important;
@@ -284,6 +327,9 @@ html[data-dk-sb-anim] [class*="sidebarList_"] {
 
 /* ── Rows: 32px, whole row clickable; name, where (muted), fixed trailing slot ── */
 .dk-sb-row {
+    /* rows are buttons, links and divs: a div is content-box, so its padding pushed the trailing
+       slot (LIVE, muted) out past the column's edge */
+    box-sizing: border-box;
     display: flex !important;
     align-items: center;
     gap: 8px;
